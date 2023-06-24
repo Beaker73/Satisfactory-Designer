@@ -7,7 +7,8 @@
 		"dev": "npm install && npm run update-browserslist && vite",
 		"build": "npm ci && npm run lint && tsc && vite build",
 		"lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"update-browserslist": "npx browserslist --update-db"
 	},
 	"dependencies": {
 		"@fluentui/react-components": "^9.22.0",
@@ -22,16 +23,21 @@
 		"@typescript-eslint/eslint-plugin": "^5.60.0",
 		"@typescript-eslint/parser": "^5.60.0",
 		"@vitejs/plugin-react-swc": "^3.0.0",
+		"browserslist": "^4.21.9",
 		"eslint": "^8.38.0",
-		"eslint-plugin-react-hooks": "^4.6.0",
-		"eslint-plugin-react-refresh": "^0.3.4",
 		"eslint-plugin-deprecation": "^1.4.1",
 		"eslint-plugin-import": "^2.27.5",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-promise": "^6.1.1",
 		"eslint-plugin-react": "^7.32.2",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"eslint-plugin-react-refresh": "^0.3.4",
 		"typescript": "^5.0.2",
 		"vite": "^4.3.9",
 		"vitest": "^0.32.2"
-	}
+	},
+	"browserslist": [
+		"defaults",
+		"not IE > 0"
+	]
 }
