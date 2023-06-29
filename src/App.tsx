@@ -1,15 +1,22 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { StoreProvider } from "easy-peasy";
-import { type JSX } from "react";
 
-import { Shell } from "./Components/Shell";
-import { store } from "./Store";
+import { Shell } from "@/Components";
+import { store, useStoreState } from "@/Store";
 
-export function App(): JSX.Element 
+export function App()
 {
 	return <StoreProvider store={store}>
-		<FluentProvider theme={webLightTheme}>
-			<Shell />
-		</FluentProvider>
+		<ThemedApp />
 	</StoreProvider>;
+}
+
+function ThemedApp() 
+{
+	const themeName = useStoreState(state => state.settings.theme);
+	const theme = themeName === "light" ? webLightTheme :webDarkTheme;
+
+	return <FluentProvider theme={theme} className="root">
+		<Shell />
+	</FluentProvider>;
 }

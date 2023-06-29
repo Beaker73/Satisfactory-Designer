@@ -1,4 +1,5 @@
-import { createStore, createTypedHooks } from "easy-peasy";
+import { createStore, createTypedHooks, persist } from "easy-peasy";
+
 import { settingsImpl, type SettingsModel } from "./Settings";
 
 export interface StoreModel {
@@ -6,7 +7,7 @@ export interface StoreModel {
 }
 
 const impl: StoreModel = {
-	settings: settingsImpl,
+	settings: persist(settingsImpl),
 };
 
 export const store = createStore(impl);
