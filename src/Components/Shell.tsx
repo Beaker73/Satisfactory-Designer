@@ -1,7 +1,9 @@
 import { makeStyles, mergeClasses, shorthands, tokens } from "@fluentui/react-components";
 import { type JSX } from "react";
 
-import { Canvas, CommandBar, CommandPalette } from "@/Components";
+import { Canvas } from "@/Components/Canvas";
+import { CommandBar } from "@/Components/CommandBar";
+import { CommandPalette } from "@/Components/CommandPalette";
 
 export function Shell(): JSX.Element 
 {

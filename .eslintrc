@@ -6,6 +6,14 @@
 	"settings": {
 		"react": {
 			"version": "18.2.0"
+		},
+		"import/parsers": {
+			"@typescript-eslint/parser": [".ts", ".tsx"]
+		},
+		"import/resolver": {
+			"typescript": {
+				"project": "./package.json"
+			}
 		}
 	},
 	"extends": [
@@ -32,7 +40,8 @@
 		"react-refresh",
 		"@typescript-eslint",
 		"deprecation",
-		"promise"
+		"promise",
+		"import"
 	],
 	"rules": {
 		"indent": "off",
@@ -112,8 +121,9 @@
 			"error",
 			{
 				"prefer": "type-imports",
-				"fixStyle": "inline-type-imports"
+				"fixStyle": "separate-type-imports"
 			}
-		]
-	},
+		],
+		"import/no-cycle": "error"
+	}
 }

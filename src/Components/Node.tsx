@@ -1,5 +1,6 @@
 import { Card, makeStyles, shorthands, tokens } from "@fluentui/react-components";
-import { Stack } from ".";
+
+import { Stack } from "@/Components/Stack";
 
 export interface CardProps 
 {

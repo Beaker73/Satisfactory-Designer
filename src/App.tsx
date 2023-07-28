@@ -1,7 +1,7 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { StoreProvider } from "easy-peasy";
 
-import { Shell } from "@/Components";
+import { Shell } from "@/Components/Shell";
 import { store, useStoreState } from "@/Store";
 
 export function App()

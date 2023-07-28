@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
 import { useStoreActions, useStoreState } from "@/Store";
-import { type Theme } from "@/Store/Settings";
+import type { Theme } from "@/Store/Settings";
 
 export function CommandBar() 
 {
