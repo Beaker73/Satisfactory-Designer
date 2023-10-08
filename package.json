@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "npm install && npm run update-browserslist && vite",
+		"dev": "npm install && npm run update-browserslist && npm audit fix && vite",
 		"build": "npm ci && npm run lint && tsc && vite build",
 		"lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",

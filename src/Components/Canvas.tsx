@@ -11,8 +11,8 @@ export function Canvas()
 	const styles = useStyles();
 
 	return <Stack horizontal wrap className={styles.root} tokens={{ childrenGap: 8 }}>
-		<Node name="Coal" footer="60 p/m" imagePath={coal} />
-		<Node name="Miner" footer="120 p/m" imagePath={miner} />
+		<Node name="Coal" description="Normal" imagePath={coal} />
+		<Node name="Miner" description="120 p/m" imagePath={miner} onConfigClicked={() => {}} />
 	</Stack>;
 }
 
