@@ -1,38 +1,68 @@
 import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
-import { Settings24Filled, Settings24Regular, bundleIcon } from "@fluentui/react-icons";
-import { useCallback, useState } from "react";
+import { FolderOpen24Filled, FolderOpen24Regular, Settings24Filled, Settings24Regular, bundleIcon } from "@fluentui/react-icons";
+import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Theme } from "@/Store/Settings";
+import { useOpenProject } from "./OpenProjectDialog";
 
 export function CommandBar() 
 {
 	const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
-	const styles = useStyles();
+	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
 
-	return <Stack.Item className={styles.appBar}>
-		<Stack horizontal>
-			<Stack.Item grow>
-				<Toolbar>
-				</Toolbar>
-			</Stack.Item>
-			<Stack.Item>
-				<Toolbar>
-					<Menu>
-						<MenuTrigger>
-							<ToolbarButton icon={<SettingsIcon />} />
-						</MenuTrigger>
-						<MenuPopover>
-							<MenuList>
-								<ThemeMenu />
-							</MenuList>
-						</MenuPopover>
-					</Menu>
-				</Toolbar>
-			</Stack.Item>
-		</Stack>
-	</Stack.Item>;
+	const styles = useStyles();
+	const hasRecent = false;
+
+	const { openProject, OpenProjectDialog } = useOpenProject();
+
+	return <Fragment>
+		<OpenProjectDialog />
+		<Stack.Item className={styles.appBar}>
+			<Stack horizontal>
+				<Stack.Item grow>
+					<Toolbar>
+						<Menu>
+							<MenuTrigger>
+								<ToolbarButton>File</ToolbarButton>
+							</MenuTrigger>
+							<MenuPopover>
+								<MenuList>
+									<MenuItem icon={<FolderOpenIcon />} secondaryContent={"Ctrl+O"} onClick={openProject}>Open Project...</MenuItem>
+									{hasRecent && <Menu>
+										<MenuTrigger>
+											<MenuItem>Open Recent</MenuItem>
+										</MenuTrigger>
+										<MenuPopover>
+											<MenuList>
+												<MenuItem>Foobar 1</MenuItem>
+												<MenuItem>Foobar 2</MenuItem>
+											</MenuList>
+										</MenuPopover>
+									</Menu>}
+								</MenuList>
+							</MenuPopover>
+						</Menu>
+					</Toolbar>
+				</Stack.Item>
+				<Stack.Item>
+					<Toolbar>
+						<Menu>
+							<MenuTrigger>
+								<ToolbarButton icon={<SettingsIcon />} />
+							</MenuTrigger>
+							<MenuPopover>
+								<MenuList>
+									<ThemeMenu />
+								</MenuList>
+							</MenuPopover>
+						</Menu>
+					</Toolbar>
+				</Stack.Item>
+			</Stack>
+		</Stack.Item>
+	</Fragment>;
 }
 
 

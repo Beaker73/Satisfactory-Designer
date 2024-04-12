@@ -1,4 +1,6 @@
 import { makeStyles, tokens } from "@fluentui/react-components";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import coal from "@/Assets/coal.png";
 import miner from "@/Assets/portable-miner.png";
@@ -6,14 +8,15 @@ import miner from "@/Assets/portable-miner.png";
 import { Node } from "./Node";
 import { Stack } from "./Stack";
 
-export function Canvas()
-{
+export function Canvas() {
 	const styles = useStyles();
 
-	return <Stack horizontal wrap className={styles.root} tokens={{ childrenGap: 8 }}>
-		<Node name="Coal" description="Normal" imagePath={coal} />
-		<Node name="Miner" description="120 p/m" imagePath={miner} onConfigClicked={() => {}} />
-	</Stack>;
+	return <DndProvider backend={HTML5Backend}>
+		<Stack horizontal wrap className={styles.root} tokens={{ childrenGap: 8 }}>
+			<Node name="Coal" description="Normal" imagePath={coal} />
+			<Node name="Miner" description="120 p/m" imagePath={miner} onConfigClicked={() => { }} />
+		</Stack>
+	</DndProvider>;
 }
 
 const useStyles = makeStyles({

@@ -1,5 +1,6 @@
 import { Body1, Button, Caption1, Card, CardHeader, makeStyles, shorthands } from "@fluentui/react-components";
 import { Wrench24Filled, Wrench24Regular, bundleIcon } from "@fluentui/react-icons";
+import { useDrag } from "react-dnd";
 
 
 export interface CardProps {
@@ -13,9 +14,16 @@ export function Node(props: CardProps) {
 	const { name, imagePath, description, onConfigClicked } = props;
 	const styles = useStyles();
 
+	const [{ isDragging }, drag] = useDrag(() => ({
+		type: 'Node',
+		collect: monitor => ({
+			isDragging: !!monitor.isDragging()
+		})
+	}));
+
 	const WrenchIcon = bundleIcon(Wrench24Filled, Wrench24Regular);
 
-	return <Card className={styles.node}>
+	return <Card className={styles.node} ref={drag}>
 		<CardHeader
 			image={<img className={styles.preview} src={imagePath} />}
 			header={<Body1><b>{name}</b></Body1>}

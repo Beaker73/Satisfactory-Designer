@@ -11,17 +11,22 @@
 		"update-browserslist": "npx browserslist --update-db"
 	},
 	"dependencies": {
-		"@fluentui/react-components": "^9.22.0",
-		"@fluentui/react-icons": "^2.0.204",
-		"@fluentui/react-migration-v8-v9": "^9.3.0",
-		"easy-peasy": "^6.0.1",
+		"@fluentui/react-components": "^9.47.5",
+		"@fluentui/react-icons": "^2.0.235",
+		"@fluentui/react-migration-v8-v9": "^9.6.6",
+		"date-fns": "^3.6.0",
+		"easy-peasy": "^6.0.4",
 		"raviger": "^4.1.2",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dnd": "^16.0.1",
+		"react-dnd-html5-backend": "^16.0.1",
+		"react-dom": "^18.2.0",
+		"uuid": "^9.0.1"
 	},
 	"devDependencies": {
 		"@types/react": "^18.0.37",
 		"@types/react-dom": "^18.0.11",
+		"@types/uuid": "^9.0.8",
 		"@typescript-eslint/eslint-plugin": "^5.60.0",
 		"@typescript-eslint/parser": "^5.60.0",
 		"@vitejs/plugin-react-swc": "^3.0.0",
@@ -35,9 +40,9 @@
 		"eslint-plugin-react": "^7.32.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.3.4",
-		"typescript": "^5.0.2",
-		"vite": "^4.3.9",
-		"vitest": "^0.32.2"
+		"typescript": "^5.4.5",
+		"vite": "^5.2.8",
+		"vitest": "^1.5.0"
 	},
 	"browserslist": [
 		"defaults",

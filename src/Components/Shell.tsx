@@ -1,12 +1,21 @@
 import { makeStyles, mergeClasses, shorthands, tokens } from "@fluentui/react-components";
-import { type JSX } from "react";
+import { useEffect, type JSX } from "react";
 
 import { Canvas } from "@/Components/Canvas";
 import { CommandBar } from "@/Components/CommandBar";
 import { CommandPalette } from "@/Components/CommandPalette";
+import { useStoreActions, useStoreState } from "@/Store";
 
 export function Shell(): JSX.Element 
 {
+	const hasNoProjects = useStoreState(state => state.projects.hasNoProjects);
+	const createDefaultProject = useStoreActions(store => store.projects.createDefault);
+	useEffect(() => 
+	{
+		if (hasNoProjects)
+			createDefaultProject();
+	}, [createDefaultProject, hasNoProjects]);
+
 	const styles = useStyles();
 
 	return <div className={mergeClasses("main", styles.shell)}>
