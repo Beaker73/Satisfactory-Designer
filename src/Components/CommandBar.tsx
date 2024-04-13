@@ -17,11 +17,13 @@ export function CommandBar()
 
 	const { openProject, OpenProjectDialog } = useOpenProject();
 
+	const project = useStoreState(state => state.projects.activeProject);
+
 	return <Fragment>
 		<OpenProjectDialog />
 		<Stack.Item className={styles.appBar}>
 			<Stack horizontal>
-				<Stack.Item grow>
+				<Stack.Item>
 					<Toolbar>
 						<Menu>
 							<MenuTrigger>
@@ -45,6 +47,13 @@ export function CommandBar()
 							</MenuPopover>
 						</Menu>
 					</Toolbar>
+				</Stack.Item>
+				<Stack.Item grow>
+					<Stack horizontal horizontalAlign="center" verticalAlign="center">
+						<Stack.Item grow>&nbsp;</Stack.Item>
+						<Stack.Item>{project.name}</Stack.Item>
+						<Stack.Item grow>&nbsp;</Stack.Item>
+					</Stack>
 				</Stack.Item>
 				<Stack.Item>
 					<Toolbar>

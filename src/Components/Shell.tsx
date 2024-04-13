@@ -9,7 +9,7 @@ import { useStoreActions, useStoreState } from "@/Store";
 export function Shell(): JSX.Element 
 {
 	const hasNoProjects = useStoreState(state => state.projects.hasNoProjects);
-	const createDefaultProject = useStoreActions(store => store.projects.createDefault);
+	const createDefaultProject = useStoreActions(store => store.projects.ensureDefault);
 	useEffect(() => 
 	{
 		if (hasNoProjects)
