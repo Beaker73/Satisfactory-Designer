@@ -1,28 +1,27 @@
-import type { Project } from "@/Model/Project";
-import { useStoreState } from "@/Store";
-import type { TableColumnDefinition } from "@fluentui/react-components";
+import type { DataGridProps, TableColumnDefinition } from "@fluentui/react-components";
 import { Button, DataGrid, DataGridBody, DataGridCell, DataGridHeader, DataGridHeaderCell, DataGridRow, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, TableCellLayout, createTableColumn, makeStyles } from "@fluentui/react-components";
 import { DocumentFlowchart24Filled, DocumentFlowchart24Regular, bundleIcon } from "@fluentui/react-icons";
 import { compareAsc, formatDate } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import type { Guid } from "@/Model/Guid";
+import type { Project } from "@/Model/Project";
+import { useStoreState } from "@/Store";
+
 import { Stack } from "./Stack";
 
-export function useOpenProject() 
+export interface OpenProjectDialogProps {
+	isOpen?: boolean;
+	onProjectSelected?: (project: Project) => void;
+	onDispose?: () => void;
+}
+
+
+export function OpenProjectDialog(props: OpenProjectDialogProps) 
 {
+	const { isOpen, onProjectSelected, onDispose } = props;
+
 	const ProjectIcon = bundleIcon(DocumentFlowchart24Filled, DocumentFlowchart24Regular);
-
-	const [isOpen, setIsOpen] = useState(false);
-
-	const openProject = useCallback(
-		() => setIsOpen(true),
-		[],
-	);
-
-	const closeDialog = useCallback(
-		() => setIsOpen(false),
-		[],
-	);
-
 	const style = useStyles();
 
 	const projects = useStoreState(state => state.projects.allProjects);
@@ -45,44 +44,51 @@ export function useOpenProject()
 		[ProjectIcon],
 	);
 
-	const OpenProjectDialog = useCallback(() => 
-	{
-		return <>
-			{isOpen && <Dialog open={isOpen}>
-				<DialogSurface>
-					<DialogBody>
-						<DialogTitle>Open Project</DialogTitle>
-						<DialogContent>
-							<Stack className={style.projects}>
-								<DataGrid items={projects} columns={columns} sortable selectionMode="single" getRowId={p => p.id}>
-									<DataGridHeader>
-										<DataGridRow>
-											{({ renderHeaderCell }) => <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>}
-										</DataGridRow>
-									</DataGridHeader>
-									<DataGridBody<Project>>
-										{({ item, rowId }) => <DataGridRow<Project> key={rowId}>
-											{({ renderCell }) => <DataGridCell>{renderCell(item)}</DataGridCell>}
-										</DataGridRow>}
-									</DataGridBody>
-								</DataGrid>
-							</Stack>
-						</DialogContent>
-						<DialogActions position="end">
-							<Button appearance="secondary" onClick={closeDialog}>Cancel</Button>
-							<Button appearance="primary">Open</Button>
-						</DialogActions>
-					</DialogBody>
-				</DialogSurface>
-			</Dialog>}
-		</>;
-	}, [closeDialog, columns, isOpen, projects, style.projects]);
+	const [selectedProjectId, setSelectedProjectId] = useState<Guid | undefined>();
+	const selectedProject = useStoreState(state => selectedProjectId ? state.projects.getProjectById(selectedProjectId) : undefined);
 
-	return {
-		openProject,
-		isOpen,
-		OpenProjectDialog,
-	};
+	// clear selected project when dialog closes
+	useEffect(() => { if (!isOpen) { setSelectedProjectId(undefined); } }, [isOpen]);
+
+	const onSelectionChange = useCallback<NonNullable<DataGridProps["onSelectionChange"]>>((_, data) => 
+	{
+		const selectedId = data.selectedItems.size == 0 ? undefined : data.selectedItems.values().next().value;
+		setSelectedProjectId(selectedId);
+	}, []);
+	const hasSelection = selectedProjectId !== undefined;
+
+	const closeDialog = useCallback(() => { onDispose?.(); }, [onDispose]);
+	const selectProject = useCallback(() => { if (selectedProject) { onProjectSelected?.(selectedProject); } }, [onProjectSelected, selectedProject]);
+
+	return <>
+		{isOpen && <Dialog open={isOpen ?? false}>
+			<DialogSurface>
+				<DialogBody>
+					<DialogTitle>Open Project</DialogTitle>
+					<DialogContent>
+						<Stack className={style.projects}>
+							<DataGrid items={projects} columns={columns} sortable selectionMode="single" subtleSelection onSelectionChange={onSelectionChange} getRowId={p => p.id}>
+								<DataGridHeader>
+									<DataGridRow>
+										{({ renderHeaderCell }) => <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>}
+									</DataGridRow>
+								</DataGridHeader>
+								<DataGridBody<Project>>
+									{({ item, rowId }) => <DataGridRow<Project> key={rowId}>
+										{({ renderCell }) => <DataGridCell>{renderCell(item)}</DataGridCell>}
+									</DataGridRow>}
+								</DataGridBody>
+							</DataGrid>
+						</Stack>
+					</DialogContent>
+					<DialogActions position="end">
+						<Button appearance="secondary" onClick={closeDialog}>Cancel</Button>
+						<Button appearance="primary" disabled={!hasSelection} onClick={selectProject}>Open</Button>
+					</DialogActions>
+				</DialogBody>
+			</DialogSurface>
+		</Dialog>}
+	</>;
 }
 
 const useStyles = makeStyles({
@@ -91,3 +97,4 @@ const useStyles = makeStyles({
 		overflowY: "auto",
 	},
 });
+

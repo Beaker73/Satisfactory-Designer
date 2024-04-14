@@ -1,28 +1,44 @@
-import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
-import { FolderOpen24Filled, FolderOpen24Regular, Settings24Filled, Settings24Regular, bundleIcon } from "@fluentui/react-icons";
+import type { InputProps } from "@fluentui/react-components";
+import { Input, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
+import { FolderAdd24Filled, FolderAdd24Regular, FolderOpen24Filled, FolderOpen24Regular, Settings24Filled, Settings24Regular, bundleIcon } from "@fluentui/react-icons";
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
+import type { Project } from "@/Model/Project";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Theme } from "@/Store/Settings";
-import { useOpenProject } from "./OpenProjectDialog";
+import { OpenProjectDialog } from "./OpenProjectDialog";
 
 export function CommandBar() 
 {
 	const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
+	const FolderNewIcon = bundleIcon(FolderAdd24Filled, FolderAdd24Regular);
 	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
 
 	const styles = useStyles();
 	const hasRecent = false;
 
-	const { openProject, OpenProjectDialog } = useOpenProject();
+	const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+	const openProjectDialog = useCallback(() => setIsProjectDialogOpen(true), []);
+	const closeProjectDialog = useCallback(() => setIsProjectDialogOpen(false), []);
+	const loadProject = useStoreActions(store => store.projects.loadProject);
+	const openProject = useCallback((project: Project) => { closeProjectDialog(); loadProject({ project }); }, [closeProjectDialog, loadProject]);
+
+	const newProject = useStoreActions(store => store.projects.newProject);
 
 	const project = useStoreState(state => state.projects.activeProject);
 
+	const changeProjectName = useStoreActions(store => store.projects.changeProjectName);
+	const onProjectNameChange = useCallback<NonNullable<InputProps["onChange"]>>((_, data) => 
+	{
+		if (project)
+			changeProjectName({ projectId: project.id, newName: data.value ?? "" });
+	}, [changeProjectName, project]);
+
 	return <Fragment>
-		<OpenProjectDialog />
+		<OpenProjectDialog isOpen={isProjectDialogOpen} onDispose={closeProjectDialog} onProjectSelected={openProject} />
 		<Stack.Item className={styles.appBar}>
-			<Stack horizontal>
+			<Stack horizontal verticalAlign="center">
 				<Stack.Item>
 					<Toolbar>
 						<Menu>
@@ -31,7 +47,8 @@ export function CommandBar()
 							</MenuTrigger>
 							<MenuPopover>
 								<MenuList>
-									<MenuItem icon={<FolderOpenIcon />} secondaryContent={"Ctrl+O"} onClick={openProject}>Open Project...</MenuItem>
+									<MenuItem icon={<FolderNewIcon />} secondaryContent={"Ctrl+N"} onClick={() => newProject()}>New Project</MenuItem>
+									<MenuItem icon={<FolderOpenIcon />} secondaryContent={"Ctrl+O"} onClick={openProjectDialog}>Open Project...</MenuItem>
 									{hasRecent && <Menu>
 										<MenuTrigger>
 											<MenuItem>Open Recent</MenuItem>
@@ -49,9 +66,11 @@ export function CommandBar()
 					</Toolbar>
 				</Stack.Item>
 				<Stack.Item grow>
-					<Stack horizontal horizontalAlign="center" verticalAlign="center">
+					<Stack horizontal>
 						<Stack.Item grow>&nbsp;</Stack.Item>
-						<Stack.Item>{project.name}</Stack.Item>
+						<Stack.Item>
+							<Input value={project?.name} onChange={onProjectNameChange} />
+						</Stack.Item>
 						<Stack.Item grow>&nbsp;</Stack.Item>
 					</Stack>
 				</Stack.Item>
