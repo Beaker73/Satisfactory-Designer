@@ -12,21 +12,17 @@ import { OpenProjectDialog } from "./OpenProjectDialog";
 export function CommandBar() 
 {
 	const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
-	const FolderNewIcon = bundleIcon(FolderAdd24Filled, FolderAdd24Regular);
-	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
 
 	const styles = useStyles();
 	const hasRecent = false;
+
+	const project = useStoreState(state => state.projects.activeProject);
 
 	const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
 	const openProjectDialog = useCallback(() => setIsProjectDialogOpen(true), []);
 	const closeProjectDialog = useCallback(() => setIsProjectDialogOpen(false), []);
 	const loadProject = useStoreActions(store => store.projects.loadProject);
 	const openProject = useCallback((project: Project) => { closeProjectDialog(); loadProject({ project }); }, [closeProjectDialog, loadProject]);
-
-	const newProject = useStoreActions(store => store.projects.newProject);
-
-	const project = useStoreState(state => state.projects.activeProject);
 
 	const changeProjectName = useStoreActions(store => store.projects.changeProjectName);
 	const onProjectNameChange = useCallback<NonNullable<InputProps["onChange"]>>((_, data) => 
@@ -47,8 +43,8 @@ export function CommandBar()
 							</MenuTrigger>
 							<MenuPopover>
 								<MenuList>
-									<MenuItem icon={<FolderNewIcon />} secondaryContent={"Ctrl+N"} onClick={() => newProject()}>New Project</MenuItem>
-									<MenuItem icon={<FolderOpenIcon />} secondaryContent={"Ctrl+O"} onClick={openProjectDialog}>Open Project...</MenuItem>
+									<MenuItemNewProject />
+									<MenuItemOpenProject onClick={openProjectDialog} />
 									{hasRecent && <Menu>
 										<MenuTrigger>
 											<MenuItem>Open Recent</MenuItem>
@@ -69,7 +65,7 @@ export function CommandBar()
 					<Stack horizontal>
 						<Stack.Item grow>&nbsp;</Stack.Item>
 						<Stack.Item>
-							<Input value={project?.name} onChange={onProjectNameChange} />
+							<Input appearance="filled-lighter" style={{ textAlign: "center" }} value={project?.name} onChange={onProjectNameChange} />
 						</Stack.Item>
 						<Stack.Item grow>&nbsp;</Stack.Item>
 					</Stack>
@@ -101,7 +97,19 @@ const useStyles = makeStyles({
 });
 
 
+function MenuItemNewProject() 
+{
+	const FolderNewIcon = bundleIcon(FolderAdd24Filled, FolderAdd24Regular);
+	const newProject = useStoreActions(store => store.projects.newProject);
+	return <MenuItem icon={<FolderNewIcon />} onClick={() => newProject()}>New Project</MenuItem>;
+}
 
+function MenuItemOpenProject(props: { onClick: () => void }) 
+{
+	const { onClick } = props;
+	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
+	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>Open Project...</MenuItem>;
+}
 
 
 function ThemeMenu() 
