@@ -29,6 +29,8 @@ export interface ProjectsModel {
 	incrementNextProjectNumber: Action<ProjectsModel, void>,
 	/** Change the name of a project */
 	changeProjectName: Action<ProjectsModel, { projectId: Guid, newName: string }>,
+	/** remove the project with the provided id */
+	removeProject: Action<ProjectsModel, { projectId: Guid }>,
 
 	/** Create a default project */
 	ensureDefault: Thunk<ProjectsModel, void, void, StoreModel, void>,
@@ -36,6 +38,8 @@ export interface ProjectsModel {
 	newProject: Thunk<ProjectsModel, void, void, StoreModel, Promise<void>>,
 	/** Load the provided project */
 	loadProject: Thunk<ProjectsModel, { project: Project }, void, StoreModel, Promise<void>>,
+	/** Delete the project with the provided id */
+	deleteProject: Thunk<ProjectsModel, { projectId: Guid }, void, StoreModel, Promise<void>>,
 }
 
 export const projectsImpl: ProjectsModel = {
@@ -60,6 +64,10 @@ export const projectsImpl: ProjectsModel = {
 		const project = state.projects[projectId];
 		if (project)
 			project.name = newName;
+	}),
+	removeProject: action((state, { projectId }) => 
+	{
+		delete state.projects[projectId];
 	}),
 
 	ensureDefault: thunk(({ mergeProjects, setActiveProject }, _, { getState }) => 
@@ -98,5 +106,10 @@ export const projectsImpl: ProjectsModel = {
 	loadProject: thunk(async ({ setActiveProject }, { project }) => 
 	{
 		setActiveProject(project.id);
+	}),
+	deleteProject: thunk(async ({ removeProject }, { projectId }, { getState }) => 
+	{
+		if(projectId !== getState().activeProjectId)
+			removeProject({ projectId });
 	}),
 };

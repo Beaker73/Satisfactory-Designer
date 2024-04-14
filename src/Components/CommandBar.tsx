@@ -4,10 +4,9 @@ import { FolderAdd24Filled, FolderAdd24Regular, FolderOpen24Filled, FolderOpen24
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
-import type { Project } from "@/Model/Project";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Theme } from "@/Store/Settings";
-import { OpenProjectDialog } from "./OpenProjectDialog";
+import { useOpenProjectDialog } from "./OpenProjectDialog";
 
 export function CommandBar() 
 {
@@ -18,11 +17,7 @@ export function CommandBar()
 
 	const project = useStoreState(state => state.projects.activeProject);
 
-	const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
-	const openProjectDialog = useCallback(() => setIsProjectDialogOpen(true), []);
-	const closeProjectDialog = useCallback(() => setIsProjectDialogOpen(false), []);
-	const loadProject = useStoreActions(store => store.projects.loadProject);
-	const openProject = useCallback((project: Project) => { closeProjectDialog(); loadProject({ project }); }, [closeProjectDialog, loadProject]);
+	const openProjectDialog = useOpenProjectDialog();
 
 	const changeProjectName = useStoreActions(store => store.projects.changeProjectName);
 	const onProjectNameChange = useCallback<NonNullable<InputProps["onChange"]>>((_, data) => 
@@ -32,7 +27,6 @@ export function CommandBar()
 	}, [changeProjectName, project]);
 
 	return <Fragment>
-		<OpenProjectDialog isOpen={isProjectDialogOpen} onDispose={closeProjectDialog} onProjectSelected={openProject} />
 		<Stack.Item className={styles.appBar}>
 			<Stack horizontal verticalAlign="center">
 				<Stack.Item>

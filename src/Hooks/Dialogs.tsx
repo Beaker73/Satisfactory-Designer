@@ -89,7 +89,7 @@ function DialogsRenderer()
 
 }
 
-export interface DialogControllerProps<Result> {
+export interface DialogControllerProps<Result = void> {
 	onConfirm(result: Result): void;
 	onDismiss(): void;
 }
