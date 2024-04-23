@@ -4,18 +4,21 @@ import { FolderAdd24Filled, FolderAdd24Regular, FolderOpen24Filled, FolderOpen24
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
+import { useDesignerText } from "@/Hooks/Translations";
 import { useStoreActions, useStoreState } from "@/Store";
-import type { Theme } from "@/Store/Settings";
+import type { Language, Theme } from "@/Store/Settings";
+import { NL, US } from "country-flag-icons/react/3x2";
 import { useOpenProjectDialog } from "./OpenProjectDialog";
 
 export function CommandBar() 
 {
 	const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
+	const t = useDesignerText();
 
 	const styles = useStyles();
-	const hasRecent = false;
 
 	const project = useStoreState(state => state.projects.activeProject);
+	console.debug("project", { project });
 
 	const openProjectDialog = useOpenProjectDialog();
 
@@ -33,23 +36,12 @@ export function CommandBar()
 					<Toolbar>
 						<Menu>
 							<MenuTrigger>
-								<ToolbarButton>File</ToolbarButton>
+								<ToolbarButton>{t("menu.file")}</ToolbarButton>
 							</MenuTrigger>
 							<MenuPopover>
 								<MenuList>
 									<MenuItemNewProject />
 									<MenuItemOpenProject onClick={openProjectDialog} />
-									{hasRecent && <Menu>
-										<MenuTrigger>
-											<MenuItem>Open Recent</MenuItem>
-										</MenuTrigger>
-										<MenuPopover>
-											<MenuList>
-												<MenuItem>Foobar 1</MenuItem>
-												<MenuItem>Foobar 2</MenuItem>
-											</MenuList>
-										</MenuPopover>
-									</Menu>}
 								</MenuList>
 							</MenuPopover>
 						</Menu>
@@ -59,7 +51,7 @@ export function CommandBar()
 					<Stack horizontal>
 						<Stack.Item grow>&nbsp;</Stack.Item>
 						<Stack.Item>
-							<Input appearance="filled-lighter" style={{ textAlign: "center" }} value={project?.name} onChange={onProjectNameChange} />
+							{project && <Input appearance="filled-lighter" value={project.name} onChange={onProjectNameChange} />}
 						</Stack.Item>
 						<Stack.Item grow>&nbsp;</Stack.Item>
 					</Stack>
@@ -73,6 +65,7 @@ export function CommandBar()
 							<MenuPopover>
 								<MenuList>
 									<ThemeMenu />
+									<LanguageMenu />
 								</MenuList>
 							</MenuPopover>
 						</Menu>
@@ -93,16 +86,20 @@ const useStyles = makeStyles({
 
 function MenuItemNewProject() 
 {
+	const t = useDesignerText();
+
 	const FolderNewIcon = bundleIcon(FolderAdd24Filled, FolderAdd24Regular);
 	const newProject = useStoreActions(store => store.projects.newProject);
-	return <MenuItem icon={<FolderNewIcon />} onClick={() => newProject()}>New Project</MenuItem>;
+	return <MenuItem icon={<FolderNewIcon />} onClick={() => newProject()}>{t("menu.file.new")}</MenuItem>;
 }
 
 function MenuItemOpenProject(props: { onClick: () => void }) 
 {
+	const t = useDesignerText();
+
 	const { onClick } = props;
 	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
-	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>Open Project...</MenuItem>;
+	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>{t("menu.file.open")}</MenuItem>;
 }
 
 
@@ -135,4 +132,36 @@ function ThemeMenu()
 		</MenuPopover>
 	</Menu>;
 
+}
+
+function LanguageMenu() 
+{
+	const language = useStoreState(store => store.settings.language);
+	const setLanguage = useStoreActions(store => store.settings.setLanguage);
+	const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({ theme: [language ?? "en"] });
+	const onChange = useCallback<NonNullable<MenuProps["onCheckedValueChange"]>>(
+		(_e, { name, checkedItems }) => 
+		{
+			setCheckedValues(s => ({ ...s, [name]: checkedItems }));
+			if (name === "language") 
+			{
+				const choice = checkedItems[0];
+				if (choice)
+					setLanguage({ language: choice as Language });
+			}
+		}, [setLanguage]);
+
+	console.debug("languages: ", { checkedValues });
+
+	return <Menu>
+		<MenuTrigger>
+			<MenuItem>Language</MenuItem>
+		</MenuTrigger>
+		<MenuPopover>
+			<MenuList checkedValues={checkedValues} onCheckedValueChange={onChange}>
+				<MenuItemRadio name="language" value="en" icon={<US />}>English</MenuItemRadio>
+				<MenuItemRadio name="language" value="nl" icon={<NL />}>Nederlands</MenuItemRadio>
+			</MenuList>
+		</MenuPopover>
+	</Menu>;
 }

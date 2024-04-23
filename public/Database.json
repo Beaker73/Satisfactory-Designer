@@ -1,0 +1,66 @@
+{
+	"$schema": "./Database.schema.json",
+	
+	"items": {
+		"iron": {
+			"displayName": "items.iron",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 1
+		},
+		"limestone": {
+			"displayName": "items.limestone",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 2
+		},
+		"copper": {
+			"displayName": "items.copper",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 3
+		},
+		"coal": {
+			"displayName": "items.coal",
+			"category": "resource",
+			"stackSize": 300,
+			"sinkPoints": 3,
+			"joules": 300000000
+		},
+		"caterium": {
+			"displayName": "items.caterium",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 7
+		},
+		"bauxite": {
+			"displayName": "items.bauxite",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 8
+		},
+		"sulfur": {
+			"displayName": "items.sulfur",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 11
+		},
+		"quartz": {
+			"displayName": "items.quartz",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 15
+		},
+		"uranium": {
+			"displayName": "items.uranium",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 35
+		},
+		"sam": {
+			"displayName": "items.sam",
+			"category": "resource",
+			"stackSize": 50
+		}
+	}
+}

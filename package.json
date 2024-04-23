@@ -14,13 +14,18 @@
 		"@fluentui/react-components": "^9.47.5",
 		"@fluentui/react-icons": "^2.0.235",
 		"@fluentui/react-migration-v8-v9": "^9.6.6",
+		"@types/lodash": "^4.17.0",
+		"country-flag-icons": "^1.5.11",
 		"date-fns": "^3.6.0",
 		"easy-peasy": "^6.0.4",
+		"i18next": "^23.11.2",
+		"lodash": "^4.17.21",
 		"raviger": "^4.1.2",
 		"react": "^18.2.0",
 		"react-dnd": "^16.0.1",
 		"react-dnd-html5-backend": "^16.0.1",
 		"react-dom": "^18.2.0",
+		"react-i18next": "^14.1.0",
 		"uuid": "^9.0.1"
 	},
 	"devDependencies": {

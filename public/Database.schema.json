@@ -1,0 +1,43 @@
+{
+	"properties": {
+		"items": {
+			"description": "The items in Satisfactory",
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"type": "object",
+					"properties": {
+						"category": {
+							"type": "string",
+							"enum": ["resource"],
+							"description": "The category this item belongs to"
+						},
+						"displayName": {
+							"type": "string",
+							"description": "The unique resource key for the display name of the item"
+						},
+						"stackSize": {
+							"type": "number",
+							"description": "The size of the maximum items in a stack"
+						},
+						"sinkPoints": {
+							"type": "number",
+							"description": "The number of points you get for sinking the item"
+						},
+						"joules": {
+							"type": "number",
+							"description": "The number of joules when using this as an energy source"
+						}
+					},
+					"required": [
+						"category",
+						"displayName",
+						"stackSize"
+					],
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}

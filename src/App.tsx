@@ -5,7 +5,9 @@ import { StoreProvider } from "easy-peasy";
 import { Shell } from "@/Components/Shell";
 import { store, useStoreState } from "@/Store";
 import { useMemo } from "react";
+import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
+import { TranslationProvider } from "./Hooks/Translations";
 
 export function App() 
 {
@@ -44,8 +46,12 @@ function ThemedApp()
 	, [themeName]);
 
 	return <FluentProvider theme={theme} className="root">
-		<DialogProvider>
-			<Shell />
-		</DialogProvider>
+		<TranslationProvider>
+			<DatabaseProvider>
+				<DialogProvider>
+					<Shell />
+				</DialogProvider>
+			</DatabaseProvider>
+		</TranslationProvider>
 	</FluentProvider>;
 }
