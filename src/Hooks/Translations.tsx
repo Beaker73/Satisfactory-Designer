@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { Loading } from "@/Components/Loading";
 import { useStoreState } from "@/Store";
 import { initTranslation } from "../Data/Languages";
 
@@ -26,22 +27,23 @@ export function TranslationProvider(props: PropsWithChildren<object>)
 	{
 		initTranslation()
 			.then(() => setTranslationAvailable(true))
-			.catch(_x => {/** */});
+			.catch(_x => {/** */ });
 	}, [setTranslationAvailable]);
 
-	const language = useStoreState(state => state.settings.language);
+	return <Suspense>
+		{!isTranslationAvailable && <Loading message="Loading translations" />}
+		{isTranslationAvailable && <LanguageSwitcher>{props.children}</LanguageSwitcher>}
+	</Suspense>;
+}
 
+function LanguageSwitcher(props: PropsWithChildren) 
+{
+	const language = useStoreState(state => state.settings.language);
 	const { i18n, ready } = useTranslation();
-	console.debug("i18next: app state", { i18n, ready, language });
-	
 	useEffect(() => 
 	{
-		if(ready)
+		if (ready) 
 			i18n.changeLanguage(language);
 	}, [i18n, language, ready]);
-
-
-	return <Suspense>
-		{isTranslationAvailable && props.children};
-	</Suspense>;
+	return props.children;
 }
