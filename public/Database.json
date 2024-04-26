@@ -3,7 +3,8 @@
 	
 	"items": {
 		"iron": {
-			"displayName": "items.iron",
+			"displayName": "items.iron.name",
+			"description": "items.iron.description",
 			"category": "resource",
 			"stackSize": 100,
 			"sinkPoints": 1
@@ -34,7 +35,8 @@
 			"sinkPoints": 7
 		},
 		"bauxite": {
-			"displayName": "items.bauxite",
+			"displayName": "items.bauxite.name",
+			"description": "items.bauxite.description",
 			"category": "resource",
 			"stackSize": 100,
 			"sinkPoints": 8

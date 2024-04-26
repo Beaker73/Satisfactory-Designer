@@ -39,10 +39,12 @@ export interface Item {
 	category: ItemCategory,
 	/** The key of the resource for the display name */
 	displayName: ResourceKey,
+	/** The key of the resource for the description */
+	description?: ResourceKey,
 	/** The maximum number of this item in a stack */
 	stackSize: number,
 	/** The number of points for sinking the item */
-	sinkPoints: number,
+	sinkPoints?: number,
 }
 
 /** Type of item */

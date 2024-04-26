@@ -16,6 +16,10 @@
 							"type": "string",
 							"description": "The unique resource key for the display name of the item"
 						},
+						"description": {
+							"type": "string",
+							"description": "The unique resource key for the description of the item"
+						},
 						"stackSize": {
 							"type": "number",
 							"description": "The size of the maximum items in a stack"

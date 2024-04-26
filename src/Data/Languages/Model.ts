@@ -1,15 +1,20 @@
 import type { RecursiveKey } from "../Helpers";
 
+export interface LanguageItemData {
+	name: string,
+	description: string,
+}
+
 export interface LanguageData {
 	/** The satisfactory namespace */
 	satisfactory: {
 		items: {
-			iron: string,
+			iron: LanguageItemData,
 			limestone: string,
 			copper: string,
 			coal: string,
 			caterium: string,
-			bauxite: string,
+			bauxite: LanguageItemData,
 			sulfur: string,
 			quartz: string,
 			uranium: string,

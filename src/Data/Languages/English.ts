@@ -3,12 +3,18 @@ import type { LanguageData } from "./Model";
 export const english: LanguageData = {
 	satisfactory: {
 		items: {
-			iron: "Iron",
+			iron: {
+				name: "Iron",
+				description: "Used for crafting. The most essential basic resource.",
+			},
 			limestone: "Limestone",
 			copper: "Copper",
 			coal: "Coal",
 			caterium: "Caterium",
-			bauxite: "Bauxite",
+			bauxite: {
+				name: "Bauxite",
+				description: "Bauxite is used to produce Alumina, which can be further refined into the Aluminum Scrap required to produce Aluminum Ingots.",
+			},
 			sulfur: "Sulfur",
 			quartz: "Quartz",
 			uranium: "Uranium",
