@@ -13,7 +13,7 @@ export interface LanguageData {
 			limestone: string,
 			copper: string,
 			coal: string,
-			caterium: string,
+			caterium: LanguageItemData,
 			bauxite: LanguageItemData,
 			sulfur: string,
 			quartz: string,

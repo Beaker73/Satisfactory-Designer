@@ -10,7 +10,10 @@ export const english: LanguageData = {
 			limestone: "Limestone",
 			copper: "Copper",
 			coal: "Coal",
-			caterium: "Caterium",
+			caterium: {
+				name: "Caterium",
+				description: "Caterium Ore is smelted into Caterium Ingots. Caterium Ingots are mostly used for advanced electronics.",
+			},
 			bauxite: {
 				name: "Bauxite",
 				description: "Bauxite is used to produce Alumina, which can be further refined into the Aluminum Scrap required to produce Aluminum Ingots.",

@@ -1,6 +1,6 @@
 import type { InputProps } from "@fluentui/react-components";
 import { Input, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
-import { FolderAdd24Filled, FolderAdd24Regular, FolderOpen24Filled, FolderOpen24Regular, Settings24Filled, Settings24Regular, bundleIcon } from "@fluentui/react-icons";
+import { FolderAddFilled, FolderAddRegular, FolderOpenFilled, FolderOpenRegular, SettingsFilled, SettingsRegular, bundleIcon } from "@fluentui/react-icons";
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
@@ -12,7 +12,7 @@ import { useOpenProjectDialog } from "./OpenProjectDialog";
 
 export function CommandBar() 
 {
-	const SettingsIcon = bundleIcon(Settings24Filled, Settings24Regular);
+	const SettingsIcon = bundleIcon(SettingsFilled, SettingsRegular);
 	const t = useDesignerText();
 
 	const styles = useStyles();
@@ -88,7 +88,7 @@ function MenuItemNewProject()
 {
 	const t = useDesignerText();
 
-	const FolderNewIcon = bundleIcon(FolderAdd24Filled, FolderAdd24Regular);
+	const FolderNewIcon = bundleIcon(FolderAddFilled, FolderAddRegular);
 	const newProject = useStoreActions(store => store.projects.newProject);
 	return <MenuItem icon={<FolderNewIcon />} onClick={() => newProject()}>{t("menu.file.new")}</MenuItem>;
 }
@@ -98,7 +98,7 @@ function MenuItemOpenProject(props: { onClick: () => void })
 	const t = useDesignerText();
 
 	const { onClick } = props;
-	const FolderOpenIcon = bundleIcon(FolderOpen24Filled, FolderOpen24Regular);
+	const FolderOpenIcon = bundleIcon(FolderOpenFilled, FolderOpenRegular);
 	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>{t("menu.file.open")}</MenuItem>;
 }
 

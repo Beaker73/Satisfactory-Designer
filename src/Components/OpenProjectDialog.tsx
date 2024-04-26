@@ -1,6 +1,6 @@
 import type { DataGridProps, TableColumnDefinition } from "@fluentui/react-components";
 import { Button, DataGrid, DataGridBody, DataGridCell, DataGridHeader, DataGridHeaderCell, DataGridRow, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, TableCellLayout, createTableColumn, makeStyles } from "@fluentui/react-components";
-import { Delete24Filled, Delete24Regular, DocumentFlowchart24Filled, DocumentFlowchart24Regular, bundleIcon } from "@fluentui/react-icons";
+import { DeleteFilled, DeleteRegular, DocumentFlowchartFilled, DocumentFlowchartRegular, bundleIcon } from "@fluentui/react-icons";
 import { compareAsc, formatDate } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 
@@ -38,8 +38,8 @@ export function OpenProjectDialog(props: OpenProjectDialogProps)
 {
 	const { onConfirm, onDismiss } = props;
 
-	const ProjectIcon = bundleIcon(DocumentFlowchart24Filled, DocumentFlowchart24Regular);
-	const DeleteIcon = bundleIcon(Delete24Filled, Delete24Regular);
+	const ProjectIcon = bundleIcon(DocumentFlowchartFilled, DocumentFlowchartRegular);
+	const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
 	const style = useStyles();
 
 	const activeProjectId = useStoreState(state => state.projects.activeProjectId);

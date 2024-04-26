@@ -31,6 +31,10 @@
 						"joules": {
 							"type": "number",
 							"description": "The number of joules when using this as an energy source"
+						},
+						"wikiUrl": {
+							"type": "string",
+							"description": "The URL to the wiki page for this item"
 						}
 					},
 					"required": [

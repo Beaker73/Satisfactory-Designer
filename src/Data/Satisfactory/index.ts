@@ -45,6 +45,8 @@ export interface Item {
 	stackSize: number,
 	/** The number of points for sinking the item */
 	sinkPoints?: number,
+	/** The url to the wiki page */
+	wikiUrl?: string,
 }
 
 /** Type of item */
