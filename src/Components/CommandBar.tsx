@@ -1,9 +1,11 @@
 import type { InputProps } from "@fluentui/react-components";
-import { Input, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
-import { FolderAddFilled, FolderAddRegular, FolderOpenFilled, FolderOpenRegular, SettingsFilled, SettingsRegular, bundleIcon } from "@fluentui/react-icons";
+import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Divider, Input, Link, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
+import { ChatBubblesQuestionFilled, ChatBubblesQuestionRegular, FolderAddFilled, FolderAddRegular, FolderOpenFilled, FolderOpenRegular, SettingsFilled, SettingsRegular, bundleIcon } from "@fluentui/react-icons";
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
+import type { DialogControllerProps } from "@/Hooks/Dialogs";
+import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText } from "@/Hooks/Translations";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Language, Theme } from "@/Store/Settings";
@@ -42,6 +44,8 @@ export function CommandBar()
 								<MenuList>
 									<MenuItemNewProject />
 									<MenuItemOpenProject onClick={openProjectDialog} />
+									<Divider />
+									<MenuItemAbout />
 								</MenuList>
 							</MenuPopover>
 						</Menu>
@@ -100,6 +104,57 @@ function MenuItemOpenProject(props: { onClick: () => void })
 	const { onClick } = props;
 	const FolderOpenIcon = bundleIcon(FolderOpenFilled, FolderOpenRegular);
 	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>{t("menu.file.open")}</MenuItem>;
+}
+
+function MenuItemAbout()
+{
+	const AboutIcon = bundleIcon(ChatBubblesQuestionFilled, ChatBubblesQuestionRegular);
+
+	const aboutDialog = useDialog(AboutDialog);
+	const openAboutDialog = useCallback(() => 
+	{
+		aboutDialog.show({});
+	}, [aboutDialog]);
+
+	return <MenuItem icon={<AboutIcon />} onClick={openAboutDialog}>
+		About
+	</MenuItem>;
+}
+
+export type AboutDialogProps = DialogControllerProps;
+
+
+function AboutDialog(props: AboutDialogProps) 
+{
+	return <Dialog open={true} modalType="modal">
+		<DialogSurface>
+			<DialogBody>
+				<DialogTitle>About Satisfactory Designer</DialogTitle>
+				<DialogContent>
+					<p>
+						Version 0.1
+						<hr />
+						This software uses the following open source projects to build upon:
+						<ul>
+							<li><Link href="https://github.com/microsoft/fluentui?tab=License-1-ov-file#readme" target="_blank">Fluent UI React v9</Link> - for the User Interface</li>
+							<li><Link href="https://github.com/ctrlplusb/easy-peasy?tab=MIT-1-ov-file#readme">easy-peasy</Link> - for easy redux</li>
+							<li><Link href="https://github.com/kyeotic/raviger?tab=MIT-1-ov-file#readme" target="_blank">Raviger</Link> - for Routing</li>
+							<li><Link href="https://github.com/react-dnd/react-dnd?tab=MIT-1-ov-file#readme">React DND</Link> - for Drag and Drop support</li>
+							<li><Link href="https://github.com/i18next/i18next?tab=MIT-1-ov-file#readme">i18n</Link> - for Multi language support</li>
+							<li><Link href="https://github.com/i18next/react-i18next?tab=MIT-1-ov-file#readme">i18n-react</Link>  - for Multi language support</li>
+							<li><Link href="https://github.com/date-fns/date-fns?tab=MIT-1-ov-file#readme">date-fns</Link> - for Date/Time handling</li>
+							<li><Link href="https://github.com/uuidjs/uuid?tab=MIT-1-ov-file#readme">uuid</Link> - for Global Unique Identifiers</li>
+						</ul>
+					</p>
+				</DialogContent>
+				<DialogActions>
+					<DialogTrigger>
+						<Button appearance="primary" onClick={() => props.onConfirm()} >Ok</Button>
+					</DialogTrigger>
+				</DialogActions>
+			</DialogBody>
+		</DialogSurface>
+	</Dialog>;
 }
 
 

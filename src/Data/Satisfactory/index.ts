@@ -47,6 +47,24 @@ export interface Item {
 	sinkPoints?: number,
 	/** The url to the wiki page */
 	wikiUrl?: string,
+	/** Allows multiple variants of this item */
+	variants?: ItemVariants,
+}
+
+export interface ItemVariants {
+	/** The key of the resource for the title of this variant */
+	displayName: ResourceKey,
+	/** The key of the default variant */
+	default: string,
+	/** Type variant types that are available */
+	types: ItemVariant[],
+}
+
+export interface ItemVariant {
+	/** The key of the variant */
+	key: string,
+	/** The key of the resource for the display name of this variant */
+	displayName: ResourceKey,
 }
 
 /** Type of item */

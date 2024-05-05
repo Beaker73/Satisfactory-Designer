@@ -4,6 +4,7 @@ import { useDrag } from "react-dnd";
 
 
 export interface CardProps {
+	dragKey: string,
 	imagePath: string,
 	name: string,
 	description: string,
@@ -12,11 +13,12 @@ export interface CardProps {
 
 export function Node(props: CardProps) 
 {
-	const { name, imagePath, description, onConfigClicked } = props;
+	const { dragKey, name, imagePath, description, onConfigClicked } = props;
 	const styles = useStyles();
 
-	const [{ isDragging }, drag] = useDrag(() => ({
+	const [{ isDragging: _ }, drag] = useDrag(() => ({
 		type: "Node",
+		item: { dragKey },
 		collect: monitor => ({
 			isDragging: !!monitor.isDragging(),
 		}),

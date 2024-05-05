@@ -94,14 +94,20 @@ export interface DialogControllerProps<Result = void> {
 	onDismiss(): void;
 }
 
-interface DialogController<Result = void, DialogProps extends DialogControllerProps<Result> = DialogControllerProps<Result>> {
+interface DialogController<
+	Result = void, 
+	DialogProps extends DialogControllerProps<Result> = DialogControllerProps<Result>, 
+	DefaultProps extends Partial<DialogProps> = Record<keyof DialogProps, never>
+> {
 	/** show the dialog and return a promise that will resolve to the selected result */
-	show(props: BareDialogProps<DialogProps>): Promise<Result>;
+	show(props: PartialIfAlreadyProvided<BareDialogProps<DialogProps, DefaultProps>, DefaultProps>): Promise<Result>;
 }
 
 type DialogProps<Component> = Component extends FunctionComponent<infer Props extends DialogControllerProps<infer _Result>> ? Props : FunctionComponent<DialogControllerProps<void>>;
 type DialogResult<Props> = Props extends DialogControllerProps<infer Result> ? Result : void;
-type BareDialogProps<Props> = Omit<Props, "onConfirm" | "onDismiss">;
+
+type PartialIfAlreadyProvided<A,B> = Omit<A,keyof B> & Partial<A>;
+type BareDialogProps<Props, DefaultProps> = PartialIfAlreadyProvided<Omit<Props, "onConfirm" | "onDismiss">, DefaultProps>;
 
 /**
  * Prepares a dialog component for dynamicly showing
@@ -111,16 +117,18 @@ type BareDialogProps<Props> = Omit<Props, "onConfirm" | "onDismiss">;
 export function useDialog<
 	Component extends FunctionComponent<Props>,
 	Props extends DialogControllerProps<Result> = DialogProps<Component>,
-	Result = DialogResult<Props>
+	Result = DialogResult<Props>,
+	const DefaultProps extends Partial<Props> = Record<keyof Props, never>,
 >(
 	component: Component,
+	defaultProps?: DefaultProps,
 )
-	: DialogController<Result, Props> 
+	: DialogController<Result, Props, DefaultProps> 
 {
 	const context = useContext(dialogContext);
 	console.debug({ context });
 
-	const show = useCallback<(props: BareDialogProps<Props>) => Promise<Result>>(
+	const show = useCallback<(props: BareDialogProps<Props, DefaultProps>) => Promise<Result>>(
 		async props => 
 		{
 			return new Promise<Result>((resolve, reject) => 
@@ -130,14 +138,14 @@ export function useDialog<
 					payload: {
 						id: newGuid(),
 						component: component as FunctionComponent<any>,
-						props,
+						props: defaultProps ? { ...defaultProps, props } : props,
 						resolve: resolve as (result: any) => void,
 						reject,
 					},
 				});
 			});
-		}, [component, context]);
+		}, [component, context, defaultProps]);
 
-	return useMemo<DialogController<Result, Props>>(() => ({ show }), [show]);
+	return useMemo<DialogController<Result, Props, DefaultProps>>(() => ({ show }), [show]);
 
 }

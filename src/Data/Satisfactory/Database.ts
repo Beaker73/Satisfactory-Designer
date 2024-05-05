@@ -1,5 +1,5 @@
 import { groupBy } from "lodash";
-import type { Item, ItemCategory } from ".";
+import type { Item, ItemCategory, ItemVariant } from ".";
 
 export async function loadDatabase() 
 {
@@ -8,7 +8,7 @@ export async function loadDatabase()
 
 	const items = Object
 		.entries(data.items)
-		.map(([key, item]) => ({ key, ...(item as object) } as Item));
+		.map(([key, item]) => transformItem(key, item));
 
 	const itemsByKey = Object.fromEntries(items.map(item => [item.key, item]));
 	const itemsByCategory = groupBy(items, i => i.category);
@@ -22,6 +22,30 @@ export async function loadDatabase()
 
 	console.debug("database", { itemsByKey, itemsByCategory, database });
 	return database;
+}
+
+function transformItem(key: string, data: any): Item 
+{
+	const item: Item = {
+		...data,
+		key,
+	};
+
+	if (data.variants) 
+	{
+		item.variants = {
+			...data.variants,
+			types: Object.entries<any>(data.variants.types).map(([key, varData]) => 
+			{
+				return {
+					key,
+					...varData,
+				} as ItemVariant;
+			}),
+		};
+	}
+
+	return item;
 }
 
 export interface Database {

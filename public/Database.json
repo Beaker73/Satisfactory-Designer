@@ -8,7 +8,16 @@
 			"category": "resource",
 			"stackSize": 100,
 			"sinkPoints": 1,
-			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Iron_Ore"
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Iron_Ore",
+			"variants": {
+				"displayName": "resourceNode.purity.title",
+				"default": "normal",
+				"types": {
+					"impure": {"displayName": "resourceNode.purity.impure"},
+					"normal": {"displayName": "resourceNode.purity.normal"},
+					"pure": {"displayName": "resourceNode.purity.pure"}
+				}
+			}
 		},
 		"limestone": {
 			"displayName": "items.limestone",

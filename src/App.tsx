@@ -1,10 +1,12 @@
 import type { BrandVariants } from "@fluentui/react-components";
 import { FluentProvider, createDarkTheme, createLightTheme } from "@fluentui/react-components";
 import { StoreProvider } from "easy-peasy";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Shell } from "@/Components/Shell";
 import { store, useStoreState } from "@/Store";
 import { useMemo } from "react";
+import { DndProvider } from "react-dnd";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
 import { TranslationProvider } from "./Hooks/Translations";
@@ -49,7 +51,9 @@ function ThemedApp()
 		<TranslationProvider>
 			<DatabaseProvider>
 				<DialogProvider>
-					<Shell />
+					<DndProvider backend={HTML5Backend}>
+						<Shell />
+					</DndProvider>
 				</DialogProvider>
 			</DatabaseProvider>
 		</TranslationProvider>

@@ -26,7 +26,7 @@ export function Item(props: ItemProps)
 			window.open(item.wikiUrl, "_blank");
 	}, [item.wikiUrl]);
 
-	return <ContextPopup content={<ItemTooltip item={item} commands={<>
+	return <ContextPopup positioning="after-top" style={{ padding: tokens.spacingHorizontalL }} content={<ItemTooltip item={item} commands={<>
 		{commands}
 		{item.wikiUrl && <MenuItem onClick={openWiki} icon={<OpenIcon />}>Open Wiki</MenuItem>}
 	</>} />}>

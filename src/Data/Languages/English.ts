@@ -26,6 +26,14 @@ export const english: LanguageData = {
 				resource: "Resource",
 			},
 		},
+		"resourceNode": {
+			"purity": {
+				"title": "Purity",
+				"impure": "Impure",
+				"normal": "Normal",
+				"pure": "Pure",
+			},
+		},
 	},
 	designer: {
 		menu: {

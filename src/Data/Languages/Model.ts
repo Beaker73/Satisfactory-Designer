@@ -22,6 +22,14 @@ export interface LanguageData {
 			category: {
 				resource: string,
 			}
+		},
+		resourceNode: {
+			purity: {
+				title: string,
+				impure: string,
+				normal: string,
+				pure: string,
+			}
 		}
 	},
 	designer: {

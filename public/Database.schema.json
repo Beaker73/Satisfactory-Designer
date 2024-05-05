@@ -9,7 +9,9 @@
 					"properties": {
 						"category": {
 							"type": "string",
-							"enum": ["resource"],
+							"enum": [
+								"resource"
+							],
 							"description": "The category this item belongs to"
 						},
 						"displayName": {
@@ -35,6 +37,29 @@
 						"wikiUrl": {
 							"type": "string",
 							"description": "The URL to the wiki page for this item"
+						},
+						"variants": {
+							"type": "object",
+							"properties": {
+								"displayName": {
+									"type": "string",
+									"description": "The unique resource key for the display name of the variant title"
+								},
+								"types": {
+									"type": "object",
+									"patternProperties": {
+										"^.*$": {
+											"type": "object",
+											"properties": {
+												"displayName": {
+													"type": "string",
+													"description": "The unique resource key for the display name of the variant"
+												}
+											}
+										}
+									}
+								}
+							}
 						}
 					},
 					"required": [

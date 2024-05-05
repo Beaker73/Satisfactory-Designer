@@ -26,6 +26,14 @@ export const dutch: LanguageData = {
 				resource: "Hulpbron",
 			},
 		},
+		resourceNode: {
+			purity: {
+				title: "Zuivheid",
+				impure: "Onzuiver",
+				normal: "Normaal",
+				pure: "Zuiver",
+			},
+		},
 	},
 	designer: {
 		menu: {
