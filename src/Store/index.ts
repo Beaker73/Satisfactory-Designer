@@ -11,10 +11,12 @@ export interface StoreModel {
 	nodes: NodesModel,
 }
 
+
+
 const impl: StoreModel = {
-	settings: persist(settingsImpl),
-	projects: persist(projectsImpl),
-	nodes: nodesImpl,
+	settings: persist(settingsImpl, { storage: "localStorage" }),
+	projects: persist(projectsImpl, { storage: "localStorage" }),
+	nodes: nodesImpl, // initial empty storage, no persist
 };
 
 export const store = createStore(impl);

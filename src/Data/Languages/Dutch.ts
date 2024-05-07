@@ -41,5 +41,14 @@ export const dutch: LanguageData = {
 			"file.new": "Nieuw Project",
 			"file.open": "Open Project...",
 		},
+		canvas: {
+			delete: {
+				commandText: "Verwijder",
+				dialogTitle: "Onderdeel verwijder?",
+				dialogMessage: "Weet je zeker dat je dit onderdeel wilt verwijderen?",
+				dialogOkButton: "Verwijderen",
+				dialogCancelButton: "Afbreken",
+			},
+		},
 	},
 };

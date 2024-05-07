@@ -41,5 +41,14 @@ export const english: LanguageData = {
 			"file.new": "New Project",
 			"file.open": "Open Project...",
 		},
+		canvas: {
+			delete: {
+				commandText: "Delete",
+				dialogTitle: "Delete Node?",
+				dialogMessage: "Are you sure you want to delete this node?",
+				dialogOkButton: "Delete",
+				dialogCancelButton: "Abort",
+			},
+		},
 	},
 };

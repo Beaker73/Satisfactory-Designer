@@ -37,6 +37,15 @@ export interface LanguageData {
 			"file": string,
 			"file.new": string,
 			"file.open": string,
+		},
+		canvas: {
+			delete: {
+				commandText: string,
+				dialogTitle: string,
+				dialogMessage: string,
+				dialogOkButton: string,
+				dialogCancelButton: string,
+			}
 		}
 	}
 }

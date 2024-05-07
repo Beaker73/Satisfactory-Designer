@@ -1,8 +1,9 @@
 import { newGuid, type Guid } from "@/Model/Guid";
 import type { Project } from "@/Model/Project";
-import type { Action, Computed, Thunk } from "easy-peasy";
-import { action, computed, thunk } from "easy-peasy";
-import type { StoreModel } from ".";
+import type { Action, Computed, PersistStorage, Thunk } from "easy-peasy";
+import { action, computed, persist, thunk } from "easy-peasy";
+import { store, type StoreModel } from ".";
+import { nodesImpl } from "./Nodes";
 
 
 export interface ProjectsModel {
@@ -105,11 +106,54 @@ export const projectsImpl: ProjectsModel = {
 
 	loadProject: thunk(async ({ setActiveProject }, { project }) => 
 	{
+		// flush and remove old model
+		await store.persist.flush();
+		store.removeModel("nodes");
+
 		setActiveProject(project.id);
+		
+		// link new store and await rehydration
+		const { resolveRehydration } = store.addModel("nodes", persist(nodesImpl, { storage: projectStorage(project.id) }));
+		await resolveRehydration;
+
+		// after rehydration force a single flush
+		// or all is lost when user reload/refreshes when no changes where triggered
+		await store.persist.flush();
 	}),
 	deleteProject: thunk(async ({ removeProject }, { projectId }, { getState }) => 
 	{
-		if(projectId !== getState().activeProjectId)
+		if (projectId !== getState().activeProjectId)
 			removeProject({ projectId });
 	}),
 };
+
+
+function projectStorage(id: Guid): PersistStorage 
+{
+	return {
+		getItem: (key: string): any | null => 
+		{
+			try 
+			{
+				const value = localStorage.getItem(`${id}:${key}`);
+				if (typeof value === "string")
+					return JSON.parse(value);
+				return value;
+			}
+			catch (x) 
+			{
+				console.error(`getItem failed for key: ${key} due to ${x}`);
+				return null;
+			}
+		},
+		setItem: (key: string, data: string): void => 
+		{
+			return localStorage.setItem(`${id}:${key}`, JSON.stringify(data));
+		},
+		removeItem: (key: string): void => 
+		{
+			const id = store?.getState().projects.activeProject.id ?? "default";
+			localStorage.removeItem(`${id}:${key}`);
+		},
+	};
+}

@@ -1,6 +1,6 @@
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDialog } from "@/Hooks/Dialogs";
-import { useSatisfactoryText } from "@/Hooks/Translations";
+import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Guid } from "@/Model/Guid";
 import { useStoreActions, useStoreState } from "@/Store";
 import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
@@ -22,6 +22,7 @@ export function Canvas()
 
 	const database = useDatabase();
 	const st = useSatisfactoryText();
+	const dt = useDesignerText();
 
 	const onNodeDropped = useCallback(
 		(dragProps: { dragKey: Guid }, monitor: DropTargetMonitor<Guid, void>) => 
@@ -33,10 +34,14 @@ export function Canvas()
 		[moveNodeByOffset],
 	);
 
-	const dialog = useDialog(RequestDialog, { title: "Delete?", okButton: "Delete", cancelButton: "Cancel" });
+	const dialog = useDialog(RequestDialog, {
+		title: dt("canvas.delete.dialogTitle"),
+		message: dt("canvas.delete.dialogMessage"),
+		okButton: dt("canvas.delete.dialogOkButton"), 
+		cancelButton: dt("canvas.delete.dialogCancelButton") });
 	const tryDeleteNode = useCallback(async (nodeId: Guid) => 
 	{
-		await dialog.show({ message: "Are you sure you want to delete this node?" });
+		await dialog.show({});
 		deleteNode({ nodeId });
 	}, [deleteNode, dialog]);
 
@@ -73,7 +78,7 @@ export function Canvas()
 								</MenuList>
 							</MenuPopover>
 						</Menu>}
-						<MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node.id)} >Delete</MenuItem>
+						<MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node.id)} >{dt("canvas.delete.commandText")}</MenuItem>
 					</MenuList>}>
 						<NodeElement
 							dragKey={node.id}
