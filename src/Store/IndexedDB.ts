@@ -44,14 +44,28 @@ export function indexedDbProjectStorage(id: Guid): Promise<PersistStorage>
 						};
 					});
 				},
-				setItem: (_key: string, data: NodesModel): void => 
+				setItem: async (_key: string, data: NodesModel): Promise<void> => 
 				{
 					const nodeStore = db
 						.transaction(["nodes"], "readwrite")
 						.objectStore("nodes");
 
-					for(const value of Object.values(data.nodesById))
+					const keys = await new Promise<string[]>(resolve => nodeStore.getAllKeys().onsuccess = ev =>
+					{
+						const keys = (ev.target as any).result as string[];
+						resolve(keys);
+					});
+
+					for(const value of Object.values(data.nodesById)) 
+					{
+						const ix = keys.findIndex(v => v == value.id);
+						if(ix !== -1)
+							keys.splice(ix, 1);
 						nodeStore.put(value);
+					}
+
+					for(const key of keys) 
+						nodeStore.delete(key);
 				},
 				removeItem: (_key: string): void => 
 				{
