@@ -1,4 +1,5 @@
 import type { Item as ItemData } from "@/Data/Satisfactory";
+import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useSatisfactoryText } from "@/Hooks/Translations";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
@@ -22,7 +23,7 @@ export function Item(props: ItemProps)
 
 	const openWiki = useCallback(() => 
 	{
-		if(item.wikiUrl)
+		if (item.wikiUrl)
 			window.open(item.wikiUrl, "_blank");
 	}, [item.wikiUrl]);
 
@@ -61,13 +62,22 @@ export function ItemTooltip(props: ItemTooltipProps)
 
 	const style = useItemTooltipStyles();
 
-	const element = useCallback((dt: string, dd: string | number) => 
+	const db = useDatabase();
+	const variants = item.variants ? db.variants.getByKey(item.variants) : undefined;
+	const st = useSatisfactoryText();
+
+	const element = useCallback((dt: string, dd: string | number | string[]) => 
 	{
+		const isArray = Array.isArray(dd);
+
 		return <>
-			<dt className={style.term}>{dt}</dt>
-			<dd className={style.definition}>{dd}</dd>
+			<dt>{dt}</dt>
+			<dd>
+				{isArray && <ul>{dd.map(ddi => <li key={ddi}>{ddi}</li>)}</ul>}
+				{!isArray && dd}
+			</dd>
 		</>;
-	}, [style.definition, style.term]);
+	}, []);
 
 	return <Stack horizontal gap>
 		{commands && <>
@@ -77,7 +87,7 @@ export function ItemTooltip(props: ItemTooltipProps)
 				</MenuList>
 			</Stack.Item>
 			<Stack.Item>
-				<Divider vertical className={style.fullHeight} />	
+				<Divider vertical className={style.fullHeight} />
 			</Stack.Item>
 		</>}
 		<Stack className={style.root}>
@@ -88,6 +98,7 @@ export function ItemTooltip(props: ItemTooltipProps)
 				{element("Category", t(`items.category.${item.category}`))}
 				{element("Stack size", item.stackSize)}
 				{item.sinkPoints && element("Sink points", item.sinkPoints)}
+				{variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))}
 			</dl>
 		</Stack>
 	</Stack>;
@@ -115,16 +126,22 @@ const useItemTooltipStyles = makeStyles({
 		height: "64px",
 		boxShadow: `${tokens.shadow8}`,
 	},
-	list: {},
-	term: {
-		marginTop: tokens.spacingVerticalM,
-		fontSize: tokens.fontSizeBase200,
-		fontWeight: 100,
-		textWrap: "nowrap",
-		opacity: .6,
-	},
-	definition: {
-		...shorthands.margin(0),
+	list: {
+		"& > dt": {
+			marginTop: tokens.spacingVerticalM,
+			fontSize: tokens.fontSizeBase200,
+			fontWeight: 100,
+			textWrap: "nowrap",
+			opacity: .6,
+		},
+		"& > dd": {
+			...shorthands.margin(0),
+			"& > ul": {
+				listStyleType: "none",
+				...shorthands.margin(0),
+				...shorthands.padding(0),
+			},
+		},
 	},
 	fullHeight: {
 		height: "100%",

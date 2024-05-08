@@ -1,19 +1,26 @@
 import { groupBy } from "lodash";
-import type { Item, ItemCategory, ItemVariant } from ".";
+import type { Item, ItemCategory, Variant, VariantSet } from ".";
 
 export async function loadDatabase() 
 {
 	const response = await fetch("Database.json", { method: "GET" });
 	const data = await response.json();
 
+	const variants = Object
+		.entries(data.variants)
+		.map(([key, variant]) => transformVariantSet(key, variant));
+	const variantsByKey = Object.fromEntries(variants.map(variant => [variant.key, variant]));
+
 	const items = Object
 		.entries(data.items)
 		.map(([key, item]) => transformItem(key, item));
-
 	const itemsByKey = Object.fromEntries(items.map(item => [item.key, item]));
 	const itemsByCategory = groupBy(items, i => i.category);
 
 	const database: Database = {
+		variants: {
+			getByKey: key => variantsByKey[key],
+		},
 		items: {
 			getByKey: key => itemsByKey[key],
 			getByCategory: category => itemsByCategory[category] ?? [],
@@ -31,24 +38,30 @@ function transformItem(key: string, data: any): Item
 		key,
 	};
 
-	if (data.variants) 
-	{
-		item.variants = {
-			...data.variants,
-			types: Object.entries<any>(data.variants.types).map(([key, varData]) => 
+	return item;
+}
+
+function transformVariantSet(key: string, data: any): VariantSet 
+{
+	console.debug("variantSet", data);
+	return {
+		key,
+		...data,
+		types: Object.entries<any>(data.types)
+			.map(([key, varData]) => 
 			{
 				return {
 					key,
 					...varData,
-				} as ItemVariant;
+				} as Variant;
 			}),
-		};
-	}
-
-	return item;
+	};
 }
 
 export interface Database {
+	variants: {
+		getByKey(key: string): VariantSet | undefined;
+	},
 	items: {
 		getByKey(key: string): Item | undefined;
 		getByCategory(category: ItemCategory): Item[];

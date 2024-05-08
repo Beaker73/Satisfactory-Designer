@@ -1,13 +1,15 @@
-import { useDatabase } from "@/Hooks/DatabaseProvider";
-import { useDialog } from "@/Hooks/Dialogs";
-import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Guid } from "@/Model/Guid";
-import { useStoreActions, useStoreState } from "@/Store";
 import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { AppsListDetailFilled, AppsListDetailRegular, DeleteFilled, DeleteRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
+
+import { useDatabase } from "@/Hooks/DatabaseProvider";
+import { useDialog } from "@/Hooks/Dialogs";
+import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
+import type { Guid } from "@/Model/Guid";
+import { useStoreActions, useStoreState } from "@/Store";
+
 import { ContextPopup } from "./ContextPopup";
 import { Node as NodeElement } from "./Node";
 import { RequestDialog } from "./RequestDialog";
@@ -58,18 +60,20 @@ export function Canvas()
 			{nodes.map(node => 
 			{
 				const item = database.items.getByKey(node.itemKey)!;
+				const variants = item.variants ? database.variants.getByKey(item.variants) : undefined;
+				const hasVariants = !!variants;
 
 				return <div key={node.id} style={{ position: "absolute", left: node.position[0], top: node.position[1] }}>
 					<ContextPopup content={<MenuList>
-						{item.variants && <Menu hasCheckmarks
+						{hasVariants && <Menu hasCheckmarks
 							checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
 							onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] }); }}>
 							<MenuTrigger>
-								<MenuItem icon={<VariantIcon />} >{st(item.variants.displayName)}</MenuItem>
+								<MenuItem icon={<VariantIcon />} >{st(variants.displayName)}</MenuItem>
 							</MenuTrigger>
 							<MenuPopover>
 								<MenuList>
-									{item.variants.types.map((variant, ix) => 
+									{variants.types.map((variant, ix) => 
 									{
 										return <MenuItemRadio key={ix} name="variant" value={variant.key}>
 											{st(variant.displayName)}
@@ -83,7 +87,7 @@ export function Canvas()
 						<NodeElement
 							dragKey={node.id}
 							name={st(item.displayName)}
-							description={item.variants ? `${st(item.variants.displayName)}: ${st(item.variants.types.find(v => v.key === node.variantKey)!.displayName)}` : ""}
+							description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
 							imagePath={`images/${item.key}.png`} />
 					</ContextPopup>
 				</div>;

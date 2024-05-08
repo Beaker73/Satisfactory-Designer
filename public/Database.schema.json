@@ -1,5 +1,40 @@
 {
 	"properties": {
+		"variants": {
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"properties": {
+						"displayName": {
+							"type": "string",
+							"description": "The unique resource key for the display name of the variant title"
+						},
+						"types": {
+							"type": "object",
+							"patternProperties": {
+								"^.*$": {
+									"type": "object",
+									"properties": {
+										"displayName": {
+											"type": "string",
+											"description": "The unique resource key for the display name of the variant"
+										}
+									},
+									"required": [
+										"displayName"
+									]
+								}
+							}
+						}
+					},
+					"required": [
+						"displayName",
+						"types"
+					]
+				}
+			}
+		},
+
 		"items": {
 			"description": "The items in Satisfactory",
 			"type": "object",
@@ -39,27 +74,7 @@
 							"description": "The URL to the wiki page for this item"
 						},
 						"variants": {
-							"type": "object",
-							"properties": {
-								"displayName": {
-									"type": "string",
-									"description": "The unique resource key for the display name of the variant title"
-								},
-								"types": {
-									"type": "object",
-									"patternProperties": {
-										"^.*$": {
-											"type": "object",
-											"properties": {
-												"displayName": {
-													"type": "string",
-													"description": "The unique resource key for the display name of the variant"
-												}
-											}
-										}
-									}
-								}
-							}
+							"type": "string"
 						}
 					},
 					"required": [
