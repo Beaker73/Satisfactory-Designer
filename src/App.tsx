@@ -45,6 +45,7 @@ function ThemedApp()
 	const loadProject = useStoreActions(store => store.projects.loadProject);
 	const activeProject = useStoreState(state => state.projects.activeProject);
 	const [isStartingUp, setIsStartingUp] = useState(true);
+	const hasNodes = useStoreState(store => "nodes" in store);
 
 	useEffect(() => 
 	{
@@ -78,8 +79,8 @@ function ThemedApp()
 			<DatabaseProvider>
 				<DialogProvider>
 					<DndProvider backend={HTML5Backend}>
-						{isStartingUp && <Loading message="Initializing" />}
-						{!isStartingUp && <Shell />}
+						{isStartingUp || !hasNodes && <Loading message="Initializing" />}
+						{!isStartingUp && hasNodes && <Shell />}
 					</DndProvider>
 				</DialogProvider>
 			</DatabaseProvider>

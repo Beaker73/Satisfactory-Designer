@@ -106,8 +106,8 @@ const useStyles = makeStyles({
 		...shorthands.overflow("scroll"),
 		backgroundSize: "16px 16px",
 		backgroundImage: `
-			linear-gradient(to right, ${tokens.colorNeutralStroke2} 0.5px, transparent 1px),
-			linear-gradient(to bottom, ${tokens.colorNeutralStroke2} 0.5px, transparent 1px)
+			linear-gradient(to right, #88888820 0.5px, transparent 1px),
+			linear-gradient(to bottom, #88888820 0.5px, transparent 1px)
 		`,
 	},
 });

@@ -2,6 +2,7 @@ import { createStore, createTypedHooks, persist } from "easy-peasy";
 
 import type { NodesModel } from "./Nodes";
 import { nodesImpl } from "./Nodes";
+// eslint-disable-next-line import/no-cycle -- yes cycle, but no runtime issue (store in Projects is only used in lambda after everything is initialized)
 import { projectsImpl, type ProjectsModel } from "./Projects";
 import { settingsImpl, type SettingsModel } from "./Settings";
 

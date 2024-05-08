@@ -1,8 +1,12 @@
+import type { Action, Computed, Thunk } from "easy-peasy";
+import { action, computed, persist, thunk } from "easy-peasy";
+
 import { newGuid, type Guid } from "@/Model/Guid";
 import type { Project } from "@/Model/Project";
-import type { Action, Computed, PersistStorage, Thunk } from "easy-peasy";
-import { action, computed, persist, thunk } from "easy-peasy";
+
+// eslint-disable-next-line import/no-cycle -- yes cycle, but no runtime issue (store in Projects is only used in lambda after everything is initialized)
 import { store, type StoreModel } from ".";
+import { indexedDbProjectStorage } from "./IndexedDB";
 import { nodesImpl } from "./Nodes";
 
 
@@ -111,9 +115,9 @@ export const projectsImpl: ProjectsModel = {
 		store.removeModel("nodes");
 
 		setActiveProject(project.id);
-		
+
 		// link new store and await rehydration
-		const { resolveRehydration } = store.addModel("nodes", persist(nodesImpl, { storage: projectStorage(project.id) }));
+		const { resolveRehydration } = store.addModel("nodes", persist(nodesImpl, { storage: await indexedDbProjectStorage(project.id) }));
 		await resolveRehydration;
 
 		// after rehydration force a single flush
@@ -127,33 +131,3 @@ export const projectsImpl: ProjectsModel = {
 	}),
 };
 
-
-function projectStorage(id: Guid): PersistStorage 
-{
-	return {
-		getItem: (key: string): any | null => 
-		{
-			try 
-			{
-				const value = localStorage.getItem(`${id}:${key}`);
-				if (typeof value === "string")
-					return JSON.parse(value);
-				return value;
-			}
-			catch (x) 
-			{
-				console.error(`getItem failed for key: ${key} due to ${x}`);
-				return null;
-			}
-		},
-		setItem: (key: string, data: string): void => 
-		{
-			return localStorage.setItem(`${id}:${key}`, JSON.stringify(data));
-		},
-		removeItem: (key: string): void => 
-		{
-			const id = store?.getState().projects.activeProject.id ?? "default";
-			localStorage.removeItem(`${id}:${key}`);
-		},
-	};
-}
