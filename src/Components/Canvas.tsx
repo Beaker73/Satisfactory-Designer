@@ -10,8 +10,7 @@ import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Guid } from "@/Model/Guid";
 import { useStoreActions, useStoreState } from "@/Store";
 
-import { ContextPopup } from "./ContextPopup";
-import { Node as NodeElement } from "./Node";
+import { Panel } from "./Panel";
 import { RequestDialog } from "./RequestDialog";
 
 
@@ -64,7 +63,7 @@ export function Canvas()
 				const hasVariants = !!variants;
 
 				return <div key={node.id} style={{ position: "absolute", left: node.position[0], top: node.position[1] }}>
-					<ContextPopup content={<MenuList>
+					<Panel commands={<MenuList>
 						{hasVariants && <Menu hasCheckmarks
 							checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
 							onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] }); }}>
@@ -83,13 +82,11 @@ export function Canvas()
 							</MenuPopover>
 						</Menu>}
 						<MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node.id)} >{dt("canvas.delete.commandText")}</MenuItem>
-					</MenuList>}>
-						<NodeElement
-							dragKey={node.id}
-							name={st(item.displayName)}
-							description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
-							imagePath={`images/${item.key}.png`} />
-					</ContextPopup>
+					</MenuList>}
+					dragKey={node.id}
+					name={st(item.displayName)}
+					description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
+					imagePath={`images/${item.key}.png`} />
 				</div>;
 			})}
 		</div>

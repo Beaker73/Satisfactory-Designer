@@ -1,12 +1,12 @@
 import type { BrandVariants } from "@fluentui/react-components";
 import { FluentProvider, createDarkTheme, createLightTheme } from "@fluentui/react-components";
 import { StoreProvider, useStoreRehydrated } from "easy-peasy";
+import { useEffect, useMemo, useState } from "react";
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Shell } from "@/Components/Shell";
 import { store, useStoreActions, useStoreState } from "@/Store";
-import { useEffect, useMemo, useState } from "react";
-import { DndProvider } from "react-dnd";
 import { Loading } from "./Components/Loading";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
