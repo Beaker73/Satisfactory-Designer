@@ -8,7 +8,8 @@
 		"build": "npm ci && npm run lint && tsc && vite build",
 		"lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
-		"update-browserslist": "npx browserslist --update-db"
+		"update-browserslist": "npx browserslist --update-db",
+		"check": "npm run lint && tsc"
 	},
 	"dependencies": {
 		"@fluentui/react-components": "^9.49.2",

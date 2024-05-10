@@ -32,6 +32,7 @@ export function DatabaseProvider(props: PropsWithChildren)
  * Returns the Satisfactory Database
  * @returns The Satisfactory Database
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDatabase(): Database
 {
 	const database = useContext(databaseContext);

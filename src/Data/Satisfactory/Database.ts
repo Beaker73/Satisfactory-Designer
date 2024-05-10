@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { groupBy } from "lodash";
 import type { Item, ItemCategory, Variant, VariantSet } from ".";
 

@@ -58,6 +58,7 @@ export function Canvas()
 		<div className={styles.canvas}>
 			{nodes.map(node => 
 			{
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				const item = database.items.getByKey(node.itemKey)!;
 				const variants = item.variants ? database.variants.getByKey(item.variants) : undefined;
 				const hasVariants = !!variants;
@@ -85,6 +86,7 @@ export function Canvas()
 					</MenuList>}
 					dragKey={node.id}
 					name={st(item.displayName)}
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
 					imagePath={`images/${item.key}.png`} />
 				</div>;

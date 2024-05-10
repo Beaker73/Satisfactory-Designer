@@ -16,6 +16,7 @@ import { Stack } from "./Stack";
  * Returns a function that will open the 'open project' dialog.
  * @returns Function to open the 'open project' dialog.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useOpenProjectDialog() 
 {
 	const loadProject = useStoreActions(store => store.projects.loadProject);

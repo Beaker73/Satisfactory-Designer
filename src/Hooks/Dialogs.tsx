@@ -114,6 +114,7 @@ type BareDialogProps<Props, DefaultProps> = PartialIfAlreadyProvided<Omit<Props,
  * @param component The dialog component
  * @returns Control to show the dialog dynamicly
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDialog<
 	Component extends FunctionComponent<Props>,
 	Props extends DialogControllerProps<Result> = DialogProps<Component>,
@@ -137,8 +138,10 @@ export function useDialog<
 					action: "show",
 					payload: {
 						id: newGuid(),
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						component: component as FunctionComponent<any>,
 						props: defaultProps ? { ...defaultProps, props } : props,
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						resolve: resolve as (result: any) => void,
 						reject,
 					},

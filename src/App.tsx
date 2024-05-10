@@ -8,9 +8,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Shell } from "@/Components/Shell";
 import { store, useStoreActions, useStoreState } from "@/Store";
 import { Loading } from "./Components/Loading";
+import { TranslationProvider } from "./Components/TranslationProvider";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
-import { TranslationProvider } from "./Hooks/Translations";
 
 export function App() 
 {

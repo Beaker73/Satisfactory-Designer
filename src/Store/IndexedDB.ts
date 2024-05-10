@@ -15,6 +15,7 @@ export function indexedDbProjectStorage(id: Guid): Promise<PersistStorage>
 		};
 		request.onupgradeneeded = event => 
 		{
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const db = (event.target as any).result as IDBDatabase;
 			switch(db.version) 
 			{
@@ -25,9 +26,11 @@ export function indexedDbProjectStorage(id: Guid): Promise<PersistStorage>
 		};
 		request.onsuccess = event => 
 		{
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const db = (event.target as any).result as IDBDatabase;
 
 			resolve({
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				getItem: (_key: string): Promise<any> | null => 
 				{
 					return new Promise((resolve) =>
@@ -38,6 +41,7 @@ export function indexedDbProjectStorage(id: Guid): Promise<PersistStorage>
 
 						nodeStore.getAll().onsuccess = ev => 
 						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
 							const nodes = (ev.target as any).result as Node[];
 							const result = { nodesById: Object.fromEntries(nodes.map(node => [node.id, node])) };
 							resolve(result);
@@ -52,6 +56,7 @@ export function indexedDbProjectStorage(id: Guid): Promise<PersistStorage>
 
 					const keys = await new Promise<string[]>(resolve => nodeStore.getAllKeys().onsuccess = ev =>
 					{
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						const keys = (ev.target as any).result as string[];
 						resolve(keys);
 					});
