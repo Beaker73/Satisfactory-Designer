@@ -26,13 +26,16 @@ export function CommandPalette()
 						{database.items.getByCategory(ItemCategory.Resource)
 							.map(item => 
 							{
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								const variants = item.variants ? database.variants.getByKey(item.variants)! : undefined;
+
 								function addItemToDesign() 
 								{
 									const node: Node = {
 										id: newGuid(),
 										position: [16,16],
 										itemKey: item.key,
-										variantKey: item.variants?.default,
+										variantKey: variants?.default,
 									};
 
 									addNode({ node });
