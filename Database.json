@@ -1,0 +1,116 @@
+{
+	"$schema": "./Database.schema.json",
+
+	"variants": {
+		"purity": {
+			"displayName": "resourceNode.purity.title",
+			"default": "normal",
+			"types": {
+				"impure": {"displayName": "resourceNode.purity.impure"},
+				"normal": {"displayName": "resourceNode.purity.normal"},
+				"pure": {"displayName": "resourceNode.purity.pure"}
+			}
+		},
+		"purity-no-impure": {
+			"displayName": "resourceNode.purity.title",
+			"default": "normal",
+			"types": {
+				"normal": {"displayName": "resourceNode.purity.normal"},
+				"pure": {"displayName": "resourceNode.purity.pure"}
+			}
+		},
+		"purity-no-pure": {
+			"displayName": "resourceNode.purity.title",
+			"default": "normal",
+			"types": {
+				"impure": {"displayName": "resourceNode.purity.impure"},
+				"normal": {"displayName": "resourceNode.purity.normal"}
+			}
+		}
+	},
+	
+	"items": {
+		"iron": {
+			"displayName": "items.iron.name",
+			"description": "items.iron.description",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 1,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Iron_Ore",
+			"variants": "purity"
+		},
+		"limestone": {
+			"displayName": "items.limestone",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 2,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Limestone",
+			"variants": "purity"
+		},
+		"copper": {
+			"displayName": "items.copper",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 3,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Copper_Ore",
+			"variants": "purity"
+		},
+		"coal": {
+			"displayName": "items.coal",
+			"category": "resource",
+			"stackSize": 300,
+			"sinkPoints": 3,
+			"joules": 300000000,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Coal",
+			"variants": "purity"
+		},
+		"caterium": {
+			"displayName": "items.caterium.name",
+			"description": "items.caterium.description",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 7,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Caterium_Ore",
+			"variants": "purity-no-impure"
+		},
+		"bauxite": {
+			"displayName": "items.bauxite.name",
+			"description": "items.bauxite.description",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 8,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Bauxite",
+			"variants": "purity"
+		},
+		"sulfur": {
+			"displayName": "items.sulfur",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 11,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Sulfur",
+			"variants": "purity"
+		},
+		"quartz": {
+			"displayName": "items.quartz",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 15,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Raw_Quartz",
+			"variants": "purity-no-impure"
+		},
+		"uranium": {
+			"displayName": "items.uranium",
+			"category": "resource",
+			"stackSize": 100,
+			"sinkPoints": 35,
+			"wikiUrl": "https://satisfactory.wiki.gg/wiki/Uranium",
+			"variants": "purity-no-pure"
+		},
+		"sam": {
+			"displayName": "items.sam",
+			"category": "resource",
+			"stackSize": 50,
+			"variants": "purity-no-pure"
+		}
+	}
+}

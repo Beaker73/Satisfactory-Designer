@@ -1,0 +1,91 @@
+{
+	"properties": {
+		"variants": {
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"properties": {
+						"displayName": {
+							"type": "string",
+							"description": "The unique resource key for the display name of the variant title"
+						},
+						"types": {
+							"type": "object",
+							"patternProperties": {
+								"^.*$": {
+									"type": "object",
+									"properties": {
+										"displayName": {
+											"type": "string",
+											"description": "The unique resource key for the display name of the variant"
+										}
+									},
+									"required": [
+										"displayName"
+									]
+								}
+							}
+						}
+					},
+					"required": [
+						"displayName",
+						"types"
+					]
+				}
+			}
+		},
+
+		"items": {
+			"description": "The items in Satisfactory",
+			"type": "object",
+			"patternProperties": {
+				"^.*$": {
+					"type": "object",
+					"properties": {
+						"category": {
+							"type": "string",
+							"enum": [
+								"resource"
+							],
+							"description": "The category this item belongs to"
+						},
+						"displayName": {
+							"type": "string",
+							"description": "The unique resource key for the display name of the item"
+						},
+						"description": {
+							"type": "string",
+							"description": "The unique resource key for the description of the item"
+						},
+						"stackSize": {
+							"type": "number",
+							"description": "The size of the maximum items in a stack"
+						},
+						"sinkPoints": {
+							"type": "number",
+							"description": "The number of points you get for sinking the item"
+						},
+						"joules": {
+							"type": "number",
+							"description": "The number of joules when using this as an energy source"
+						},
+						"wikiUrl": {
+							"type": "string",
+							"description": "The URL to the wiki page for this item"
+						},
+						"variants": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"category",
+						"displayName",
+						"stackSize"
+					],
+					"additionalProperties": false
+				}
+			},
+			"additionalProperties": false
+		}
+	}
+}
