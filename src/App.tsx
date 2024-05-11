@@ -43,6 +43,7 @@ function ThemedApp()
 	const themeName = useStoreState(state => state.settings.theme);
 	const isRehydrated = useStoreRehydrated();
 	const loadProject = useStoreActions(store => store.projects.loadProject);
+	const newProject = useStoreActions(store => store.projects.newProject);
 	const activeProject = useStoreState(state => state.projects.activeProject);
 	const [isStartingUp, setIsStartingUp] = useState(true);
 	const hasNodes = useStoreState(store => "nodes" in store);
@@ -63,8 +64,15 @@ function ThemedApp()
 					})
 					.catch(() => { /** what now? */});
 			}
+			else 
+			{
+				// no initial file (first time)
+				newProject()
+					.then(() =>	{ setIsStartingUp(false); return true; })
+					.catch(() => { /** what now? */});
+			}
 		}
-	}, [activeProject, isRehydrated, isStartingUp, loadProject]);
+	}, [activeProject, isRehydrated, isStartingUp, loadProject, newProject]);
 
 	console.debug("render", { isRehydrated, isStartingUp });
 

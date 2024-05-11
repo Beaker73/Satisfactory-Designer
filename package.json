@@ -7,7 +7,7 @@
 		"dev": "npm install && npm run update-browserslist && npm audit fix && vite",
 		"build": "npm ci && npm run lint && tsc && vite build",
 		"lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview",
+		"preview": "npm run build && vite preview",
 		"update-browserslist": "npx browserslist --update-db",
 		"check": "npm run lint && tsc"
 	},
