@@ -60,7 +60,7 @@ export function Canvas()
 			{
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				const item = database.items.getByKey(node.itemKey)!;
-				const variants = item.variants ? database.variants.getByKey(item.variants) : undefined;
+				const variants = item?.variants ? database.variants.getByKey(item.variants) : undefined;
 				const hasVariants = !!variants;
 
 				return <div key={node.id} style={{ position: "absolute", left: node.position[0], top: node.position[1] }}>

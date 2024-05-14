@@ -95,7 +95,7 @@ export function ItemTooltip(props: ItemTooltipProps)
 			{item.description && <Text size={200} style={{ opacity: .6 }}>{t(item.description)}</Text>}
 			<img className={style.image} src={`images/${props.item.key}.png`} />
 			<dl className={style.list}>
-				{element("Category", t(`items.category.${item.category}`))}
+				{element("Category", t(`item.category.${item.category}`))}
 				{element("Stack size", item.stackSize)}
 				{item.sinkPoints && element("Sink points", item.sinkPoints)}
 				{variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))}

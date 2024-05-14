@@ -1,29 +1,5 @@
 import type { ResourceKey } from "../Languages/Model";
 
-export interface BuildingData {
-	/** The number of slots for slugs this building has */
-	slugSlots?: number,
-	/** If the building outputs something by default (resource nodes), this is what it is outputing */
-	output?: BuildingOutput | BuildingOutput[],
-	/** The number of input slots the building has */
-	inputSlots?: number,
-	/** The number of output slots the building has (excluding the hardcoded slots from resource nodes) */
-	outputSlots?: number,
-}
-
-export interface Building extends BuildingData {
-	/** The Key of the display name of this building */
-	displayName: ResourceKey,
-	/** The variants of this building, if any */
-	variants?: Record<string, BuildingVariant>,
-}
-
-export interface BuildingVariant extends Partial<BuildingData>
-{
-	/** The Key of the display name of this variant of the building */
-	displayName: ResourceKey,
-}
-
 /** The output this variant of the building gives */
 export interface BuildingOutput {
 	/** The key of the item outputted */
@@ -73,4 +49,27 @@ export interface Variant {
 export const enum ItemCategory {
 	/** Resource item (like iron, copper etc.) */
 	Resource = "resource",
+}
+
+export interface Building {
+	/** The key of the building */
+	key: string,
+	/** The key to the displayname of the building */
+	displayName: string,
+	/** The key to the descriptoin of the building */
+	description: string,
+	/** The size of the building */
+	size?: [width: number, length: number, height: number],
+	/** The number of inputs the building has */
+	inputs?: number,
+	/** The number of outputs the building has */
+	outputs?: number,
+	/** Variants of the building, if any */
+	variants?: Record<string, Omit<Building, "variants">>,
+	/** Keys of the allowed recipes, if multiple, first is default */
+	allowedRecipes?: string[],
+	/** The ingredients by key, with their numbers */
+	ingredients?: Record<string, number>,
+	/** If the building uses power, the amount in watts */
+	powerUsage?: number,
 }
