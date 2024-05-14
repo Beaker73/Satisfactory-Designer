@@ -55,16 +55,9 @@ export function CommandPalette()
 				<AccordionHeader>Buildings</AccordionHeader>
 				<AccordionPanel>
 					<MenuList>
-						<MenuItem>Miner</MenuItem>
-						<MenuItem>Foundry</MenuItem>
-						<MenuItem>Smelter</MenuItem>
-						<MenuItem>Constructor</MenuItem>
-						<MenuItem>Assembler</MenuItem>
-						<MenuItem>Manufacturer</MenuItem>
-						<MenuItem>Refinery</MenuItem>
-						<MenuItem>Packager</MenuItem>
-						<MenuItem>Blender</MenuItem>
-						<MenuItem>Particle Accelerator</MenuItem>
+						{database.buildings.getAll().map(building => <MenuItem key={building.key}>
+							{building.displayName}
+						</MenuItem>)}
 					</MenuList>
 				</AccordionPanel>
 			</AccordionItem>

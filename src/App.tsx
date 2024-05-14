@@ -1,6 +1,7 @@
 import type { BrandVariants } from "@fluentui/react-components";
 import { FluentProvider, createDarkTheme, createLightTheme } from "@fluentui/react-components";
 import { StoreProvider, useStoreRehydrated } from "easy-peasy";
+import type { PropsWithChildren } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -11,12 +12,30 @@ import { Loading } from "./Components/Loading";
 import { TranslationProvider } from "./Components/TranslationProvider";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
+import { loadPlugins } from "./Plugins";
 
 export function App() 
 {
+
 	return <StoreProvider store={store}>
 		<ThemedApp />
 	</StoreProvider>;
+}
+
+function PluginProvider(props: PropsWithChildren) 
+{
+	const [pluginsReady, setPluginsReady] = useState(false);
+	useEffect(() => 
+	{
+		loadPlugins()
+			.then(() => void (setPluginsReady(true)))
+			.catch(x => { console.error("failed to load plugins", x); });
+	}, []);
+
+	if (!pluginsReady)
+		return <Loading message="Loading plugins" />;
+
+	return props.children;
 }
 
 const satisfactoryVariants: BrandVariants = {
@@ -50,9 +69,9 @@ function ThemedApp()
 
 	useEffect(() => 
 	{
-		if(isRehydrated && isStartingUp) 
+		if (isRehydrated && isStartingUp) 
 		{
-			if(activeProject) 
+			if (activeProject) 
 			{
 				console.debug("load triggered");
 				loadProject({ project: activeProject })
@@ -62,14 +81,14 @@ function ThemedApp()
 						setIsStartingUp(false);
 						return true;
 					})
-					.catch(() => { /** what now? */});
+					.catch(() => { /** what now? */ });
 			}
 			else 
 			{
 				// no initial file (first time)
 				newProject()
-					.then(() =>	{ setIsStartingUp(false); return true; })
-					.catch(() => { /** what now? */});
+					.then(() => { setIsStartingUp(false); return true; })
+					.catch(() => { /** what now? */ });
 			}
 		}
 	}, [activeProject, isRehydrated, isStartingUp, loadProject, newProject]);
@@ -84,14 +103,16 @@ function ThemedApp()
 
 	return <FluentProvider theme={theme} className="root">
 		<TranslationProvider>
-			<DatabaseProvider>
-				<DialogProvider>
-					<DndProvider backend={HTML5Backend}>
-						{isStartingUp || !hasNodes && <Loading message="Initializing" />}
-						{!isStartingUp && hasNodes && <Shell />}
-					</DndProvider>
-				</DialogProvider>
-			</DatabaseProvider>
+			<PluginProvider>
+				<DatabaseProvider>
+					<DialogProvider>
+						<DndProvider backend={HTML5Backend}>
+							{isStartingUp || !hasNodes && <Loading message="Initializing" />}
+							{!isStartingUp && hasNodes && <Shell />}
+						</DndProvider>
+					</DialogProvider>
+				</DatabaseProvider>
+			</PluginProvider>
 		</TranslationProvider>
 	</FluentProvider>;
 }

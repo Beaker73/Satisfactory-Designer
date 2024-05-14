@@ -8,17 +8,17 @@ export interface LanguageItemData {
 export interface LanguageData {
 	/** The satisfactory namespace */
 	satisfactory: {
-		items: {
-			iron: LanguageItemData,
-			limestone: string,
-			copper: string,
-			coal: string,
-			caterium: LanguageItemData,
-			bauxite: LanguageItemData,
-			sulfur: string,
-			quartz: string,
-			uranium: string,
-			sam: string,
+		item: {
+			ironOre: LanguageItemData,
+			limestoneOre: string,
+			copperOre: string,
+			coalOre: string,
+			cateriumOre: LanguageItemData,
+			bauxiteOre: LanguageItemData,
+			sulfurOre: string,
+			quartzOre: string,
+			uraniumOre: string,
+			samOre: string,
 			category: {
 				resource: string,
 			}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { groupBy } from "lodash";
-import type { Item, ItemCategory, Variant, VariantSet } from ".";
+import type { Building, Item, ItemCategory, Variant, VariantSet } from ".";
 
 export async function loadDatabase() 
 {
@@ -19,6 +19,11 @@ export async function loadDatabase()
 	const itemsByKey = Object.fromEntries(items.map(item => [item.key, item]));
 	const itemsByCategory = groupBy(items, i => i.category);
 
+	const buildings = Object
+		.entries(data.buildings)
+		.map(([key, item]) => transformBuilding(key, item));
+	const buildingsByKey = Object.fromEntries(buildings.map(building => [building.key, building]));
+
 	const database: Database = {
 		variants: {
 			getByKey: key => variantsByKey[key],
@@ -26,6 +31,10 @@ export async function loadDatabase()
 		items: {
 			getByKey: key => itemsByKey[key],
 			getByCategory: category => itemsByCategory[category] ?? [],
+		},
+		buildings: {
+			getAll: () => Object.values(buildingsByKey),
+			getByKey: key => buildingsByKey[key],
 		},
 	};
 
@@ -37,6 +46,8 @@ function transformItem(key: string, data: any): Item
 {
 	const item: Item = {
 		...data,
+		displayName: `item.${key}.name`,
+		description: `item.${key}.description`,
 		key,
 	};
 
@@ -54,10 +65,45 @@ function transformVariantSet(key: string, data: any): VariantSet
 			{
 				return {
 					key,
+					displayName: `variant.${key}.name`,
+					description: `variant.${key}.description`,
 					...varData,
 				} as Variant;
 			}),
 	};
+}
+
+function transformBuilding(key: string, data: any): Building 
+{
+	const building: Building = {
+		...data,
+		displayName: `building.${key}.name`,
+		description: `building.${key}.description`,
+		key,
+	};
+
+	if("variants" in data) 
+	{
+		building.variants = Object.fromEntries(
+			Object.entries<any>(data.variants)
+				.map(([varKey, varData]) => 
+				{
+					const { variants: _, ...baseBuilding } = building;
+					return [
+						varKey,
+						{
+							...baseBuilding,
+							...varData,
+							displayName: `building.${key}.${varKey}.name`,
+							description: `building.${key}.${varKey}.description`,
+							key: varKey,
+						},
+					];
+				}),
+		);
+	}
+
+	return building;
 }
 
 export interface Database {
@@ -67,5 +113,9 @@ export interface Database {
 	items: {
 		getByKey(key: string): Item | undefined;
 		getByCategory(category: ItemCategory): Item[];
+	},
+	buildings: {
+		getAll(): Building[],
+		getByKey(key: string): Building | undefined;
 	}
 }
