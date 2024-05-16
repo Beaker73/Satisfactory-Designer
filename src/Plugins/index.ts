@@ -1,5 +1,6 @@
 
 import { raceAll } from "@/Helpers/Async";
+import { deepMerge } from "@/Helpers/Deep";
 import type { JSX } from "react";
 
 /** Default export required to be exported by a module */
@@ -163,11 +164,7 @@ export async function loadPlugins()
 		// if we arrive here, we have no dependencies
 		// or all dependencies are processed.
 		// TODO: Deep Merge
-		database = {
-			...database,
-			...plugin.data,
-		};
-
+		database = deepMerge(database, plugin.data);
 		console.debug("loading: merged database", database);
 
 	}
