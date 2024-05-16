@@ -8,6 +8,8 @@ import { useStoreState } from "@/Store";
 
 import { Loading } from "./Loading";
 
+
+
 export function TranslationProvider(props: PropsWithChildren<object>) 
 {
 	const [isTranslationAvailable, setTranslationAvailable] = useState(false);
