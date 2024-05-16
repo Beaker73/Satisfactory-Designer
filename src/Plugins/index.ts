@@ -1,7 +1,10 @@
 
 import { raceAll } from "@/Helpers/Async";
 import { deepMerge } from "@/Helpers/Deep";
+import { pagePer } from "@/Helpers/StreamingData";
+import { store } from "@/Store";
 import type { JSX } from "react";
+import type { Translation } from "../Model/Translation";
 
 /** Default export required to be exported by a module */
 export interface Plugin {
@@ -53,6 +56,7 @@ export interface PluginBuilding {
 }
 
 export type PluginLanguages = Record<string, PluginLanguage>;
+
 
 // https://github.com/microsoft/TypeScript/pull/33050#issuecomment-543365074
 interface RecordI<T> { [k: string]: T }
@@ -122,6 +126,9 @@ export async function loadPlugins()
 
 	console.debug("all loaded", { database });
 
+	for(const translations of pagePer(50, extractLanguageKeys(database))) 
+		store.getActions().translations.importTranslations({ translations });
+
 	/**
 	 * Tries to import the provided plugin
 	 * @param plugin The plugin to try to imprt
@@ -167,6 +174,61 @@ export async function loadPlugins()
 		database = deepMerge(database, plugin.data);
 		console.debug("loading: merged database", database);
 
+	}
+
+	function* extractLanguageKeys(database: PluginData): Generator<Translation>
+	{
+		function* processLanguage(language: string, database: PluginData | PluginLanguage): Generator<Translation>
+		{
+			if(database.items)
+				for(const [key, item] of Object.entries(database.items))
+				{
+					if(item.name)
+						yield { language, namespace: "satisfactory", key: `item.${key}.name`, text: item.name };
+					if(item.description)
+						yield { language, namespace: "satisfactory", key: `item.${key}.description`, text: item.description };
+				}
+			if(database.recipes)
+				for(const [key, recipe] of Object.entries(database.recipes))
+				{
+					if(recipe.name)
+						yield { language, namespace: "satisfactory", key: `recipe.${key}.name`, text: recipe.name };
+					if(recipe.description)
+						yield { language, namespace: "satisfactory", key: `recipe.${key}.description`, text: recipe.description };
+				}
+			if(database.buildings)
+				for(const [key, building] of Object.entries(database.buildings))
+				{
+					if(building.name)
+						yield { language, namespace: "satisfactory", key: `building.${key}.name`, text: building.name };
+					if(building.description)
+						yield { language, namespace: "satisfactory", key: `building.${key}.description`, text: building.description };
+				}
+
+			if("app" in database && database.app) 
+			{
+				for(const y of processNestedKeys(database.app))
+					yield y;
+			}
+
+			function* processNestedKeys(node: LanguageNode, prefix?: string): Generator<Translation> 
+			{
+				if(typeof node === "string")
+					yield { language, namespace: "designer", key: prefix ?? "-", text: node };
+				else
+					for(const [key, subNode] of Object.entries(node))
+						for(const y of processNestedKeys(subNode, prefix ? `${prefix}.${key}` : key))
+							yield y;
+			}
+		}
+
+		for(const y of processLanguage("en", database))
+			yield y;
+		
+		if(database.languages) 
+			for(const [langCode, language] of Object.entries(database.languages)) 
+				for( const y of processLanguage(langCode, language))
+					yield y;
 	}
 }
 
