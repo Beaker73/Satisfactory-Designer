@@ -1,4 +1,4 @@
-import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuPopover, MenuTrigger, makeStyles, shorthands } from "@fluentui/react-components";
+import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback, type ReactElement } from "react";
 import { useDrag } from "react-dnd";
@@ -33,7 +33,7 @@ export function Panel(props: PanelProps)
 		return <Card className={styles.node} ref={drag}>
 			<CardHeader
 				image={<img className={styles.preview} src={imagePath} />}
-				header={<Body1><b>{name}</b></Body1>}
+				header={<Body1 className={styles.title}>{name}</Body1>}
 				description={<Caption1>{description}</Caption1>}
 				action={commands && <Menu>
 					<MenuTrigger>
@@ -67,5 +67,8 @@ const useStyles = makeStyles({
 	preview: {
 		height: "40px", // 32px + 2*4px
 		...shorthands.margin("-4px"), // make image larger, but not container
+	},
+	title: {
+		fontWeight: tokens.fontWeightSemibold,
 	},
 });

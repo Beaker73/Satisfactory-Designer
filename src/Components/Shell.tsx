@@ -19,7 +19,6 @@ export function Shell()
 	const styles = useStyles();
 
 	return <div className={mergeClasses("main", styles.shell)}>
-		zdfsfs
 		<div className={styles.menu}>
 			<CommandBar />
 		</div>
