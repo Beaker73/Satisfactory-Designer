@@ -108,11 +108,8 @@ function ThemedApp()
 			<DatabaseProvider>
 				<DialogProvider>
 					<DndProvider backend={HTML5Backend}>
-<<<<<<< HEAD
-=======
 						<div><label>isStartingUp: </label><span>{isStartingUp ? "true" : "false"}</span></div>
 						<div><label>hasNodes: </label><span>{hasNodes ? "true" : "false"}</span></div>
->>>>>>> e1be71a1a3ca97e352f3f4dfb8a6476383525b84
 						{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
 						{!isStartingUp && hasNodes && <Shell />}
 					</DndProvider>
