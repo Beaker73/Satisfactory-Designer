@@ -82,7 +82,7 @@ function ThemedApp()
 			: createLightTheme(satisfactoryVariants)
 	, [themeName]);
 
-	return <FluentProvider theme={theme} className="root">
+	return <FluentProvider theme={theme} className="root" style={{ colorScheme: themeName }}>
 		<TranslationProvider>
 			<DatabaseProvider>
 				<DialogProvider>
