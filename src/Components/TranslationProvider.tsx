@@ -10,7 +10,7 @@ import { Loading } from "./Loading";
 
 
 
-export function TranslationProvider(props: PropsWithChildren<object>) 
+export function TranslationProvider(props: PropsWithChildren) 
 {
 	const [isTranslationAvailable, setTranslationAvailable] = useState(false);
 
