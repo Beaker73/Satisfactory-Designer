@@ -32,6 +32,9 @@ export function Shell(): JSX.Element
 			<div className={styles.properties}>
 			</div>
 		</div>
+		<div className={styles.warning}>
+			Experimental Build
+		</div>
 	</div>;
 }
 
@@ -62,5 +65,17 @@ const useStyles = makeStyles({
 	properties: {
 		flexGrow: 0,
 		...shorthands.borderLeft(tokens.strokeWidthThin, "solid", tokens.colorNeutralStroke1),
+	},
+	warning: {
+		position: "fixed",
+		right: "-50px",
+		top: "65px",
+		backgroundColor: "red",
+		color: "white",
+		...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalXXXL),
+		transform: "rotate(45deg)",
+		textTransform: "uppercase",
+		fontWeight: tokens.fontWeightSemibold,
+		letterSpacing: "3px",
 	},
 });
