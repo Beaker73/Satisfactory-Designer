@@ -30,7 +30,7 @@ export function Panel(props: PanelProps)
 
 	const renderCard = useCallback(() => 
 	{
-		return <Card className={styles.node} ref={drag}>
+		return <Card orientation="horizontal" className={styles.node} ref={drag}>
 			<CardHeader
 				image={<img className={styles.preview} src={imagePath} />}
 				header={<Body1 className={styles.title}>{name}</Body1>}
@@ -47,7 +47,7 @@ export function Panel(props: PanelProps)
 				
 			</CardHeader>
 		</Card>;
-	}, [MoreIcon, commands, description, drag, imagePath, name, styles.node, styles.preview]);
+	}, [MoreIcon, commands, description, drag, imagePath, name, styles.node, styles.preview, styles.title]);
 
 	if(commands) 
 	{

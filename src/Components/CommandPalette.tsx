@@ -1,4 +1,3 @@
-import { ItemCategory } from "@/Data/Satisfactory";
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { newGuid } from "@/Model/Guid";
 import type { Node } from "@/Model/Node";
@@ -23,11 +22,11 @@ export function CommandPalette()
 				<AccordionHeader>Resources</AccordionHeader>
 				<AccordionPanel>
 					<MenuList>
-						{database.items.getByCategory(ItemCategory.Resource)
+						{database.items.getByCategory("resource")
 							.map(item => 
 							{
 								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-								const variants = item.variants ? database.variants.getByKey(item.variants)! : undefined;
+								//const variants = item.variants ? database.variants.getByKey(item.variants)! : undefined;
 
 								function addItemToDesign() 
 								{
@@ -35,7 +34,7 @@ export function CommandPalette()
 										id: newGuid(),
 										position: [16,16],
 										itemKey: item.key,
-										variantKey: variants?.default,
+										//variantKey: variants?.default,
 									};
 
 									addNode({ node });
@@ -51,7 +50,7 @@ export function CommandPalette()
 					</MenuList>
 				</AccordionPanel>
 			</AccordionItem>
-			<AccordionItem value="buildings">
+			{/* <AccordionItem value="buildings">
 				<AccordionHeader>Buildings</AccordionHeader>
 				<AccordionPanel>
 					<MenuList>
@@ -60,7 +59,7 @@ export function CommandPalette()
 						</MenuItem>)}
 					</MenuList>
 				</AccordionPanel>
-			</AccordionItem>
+			</AccordionItem> */}
 		</Accordion>
 	</Stack>;
 }

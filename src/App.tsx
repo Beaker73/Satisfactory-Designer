@@ -12,29 +12,46 @@ import { Loading } from "./Components/Loading";
 import { TranslationProvider } from "./Components/TranslationProvider";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
 import { DialogProvider } from "./Hooks/Dialogs";
+import type { Database } from "./Plugins";
 import { loadPlugins } from "./Plugins";
 
 export function App() 
 {
+	const [database, setDatabase] = useState<Database | undefined>();
+	console.debug("database", { database });
 
 	return <StoreProvider store={store}>
-		<PluginProvider>
+		<PluginProvider onDatabaseLoaded={setDatabase}>
 			<TranslationProvider>
-				<ThemedApp />
+				{database && <DatabaseProvider database={database}>
+					<ThemedApp />
+				</DatabaseProvider>}
+				{!database && <Loading message="Loading database" />}
 			</TranslationProvider>
 		</PluginProvider>
 	</StoreProvider>;
 }
 
-function PluginProvider(props: PropsWithChildren) 
+
+
+interface PluginProviderProps {
+	onDatabaseLoaded(database: Database): void;
+}
+
+function PluginProvider(props: PropsWithChildren<PluginProviderProps>) 
 {
 	const [pluginsReady, setPluginsReady] = useState(false);
 	useEffect(() => 
 	{
 		loadPlugins()
-			.then(() => void (setPluginsReady(true)))
+			.then(database => 
+			{
+				props?.onDatabaseLoaded?.(database); 
+				setPluginsReady(true);
+				return;
+			})
 			.catch(x => { console.error("failed to load plugins", x); });
-	}, []);
+	}, [props]);
 
 	if (!pluginsReady)
 		return <Loading message="Loading plugins" />;
@@ -85,7 +102,11 @@ function ThemedApp()
 						setIsStartingUp(false);
 						return true;
 					})
-					.catch(() => { /** what now? */ });
+					.catch((x) => 
+					{ 
+						console.error(x);
+						/** what now? */ 
+					});
 			}
 			else 
 			{
@@ -97,7 +118,7 @@ function ThemedApp()
 		}
 	}, [activeProject, isRehydrated, isStartingUp, loadProject, newProject]);
 
-	console.debug("render", { isRehydrated, isStartingUp });
+	console.debug("render", { isRehydrated, isStartingUp, activeProject });
 
 	const theme = useMemo(() =>
 		themeName === "dark"
@@ -106,13 +127,11 @@ function ThemedApp()
 	, [themeName]);
 
 	return <FluentProvider theme={theme} className="root" style={{ colorScheme: themeName }}>
-		<DatabaseProvider>
-			<DialogProvider>
-				<DndProvider backend={HTML5Backend}>
-					{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
-					{!isStartingUp && hasNodes && <Shell />}
-				</DndProvider>
-			</DialogProvider>
-		</DatabaseProvider>
+		<DialogProvider>
+			<DndProvider backend={HTML5Backend}>
+				{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
+				{!isStartingUp && hasNodes && <Shell />}
+			</DndProvider>
+		</DialogProvider>
 	</FluentProvider>;
 }

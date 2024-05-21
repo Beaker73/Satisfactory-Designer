@@ -8,8 +8,10 @@ export default {
 		items: {
 			ironOre: {
 				name: "Iron",
+				category: "resource",
 				description: "Used for crafting. The most essential basic resource.",
 				image: ironOreImagePath,
+				wikiPage: "Iron_Ore",
 				stackSize: 100,
 				sinkPoints: 1,
 			},

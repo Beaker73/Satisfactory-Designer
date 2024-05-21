@@ -1,31 +1,29 @@
-import { ErrorMessage } from "@/Components/ErrorMessage";
-import { Loading } from "@/Components/Loading";
-import type { Database } from "@/Data/Satisfactory/Database";
-import { loadDatabase } from "@/Data/Satisfactory/Database";
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
+import type { Database as DatabaseData, Item } from "@/Plugins";
+import { groupBy } from "lodash";
+import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
 
-const databaseContext = createContext<Database | undefined>(undefined);
+const databaseContext = createContext<DatabaseData | undefined>(undefined);
 
-export function DatabaseProvider(props: PropsWithChildren) 
+export interface DatabaseProviderProps
 {
-	const [database, setDatabase] = useState<Database | undefined>();
-	const [error, setError] = useState<undefined | unknown>();
+	database: DatabaseData,
+}
 
-	useEffect(() => 
-	{
-		loadDatabase()
-			.then(database => setDatabase(database))
-			.catch(x => setError(x));
-	}, [setDatabase]);
+export function DatabaseProvider(props: PropsWithChildren<DatabaseProviderProps>) 
+{
+	const { database } = props;
 
-	if (database)
-		return <databaseContext.Provider value={database}>
-			{props.children};
-		</databaseContext.Provider>;
-	if (error)
-		return <ErrorMessage message="Error while loading Satisfactory database" error={error} />;
+	return <databaseContext.Provider value={database}>
+		{props.children};
+	</databaseContext.Provider>;
+}
 
-	return <Loading message="Loading Satisfactory database" />;
+export interface Database 
+{
+	items: {
+		getByCategory(category: string): Item[],
+		getByKey(itemKey: string): Item | undefined,
+	}
 }
 
 /**
@@ -35,9 +33,22 @@ export function DatabaseProvider(props: PropsWithChildren)
 // eslint-disable-next-line react-refresh/only-export-components
 export function useDatabase(): Database
 {
-	const database = useContext(databaseContext);
-	if(!database)
+	const data = useContext(databaseContext);
+	if(!data)
 		throw new Error("No database context");
+
+	const database = useMemo<Database>(() => 
+	{
+
+		const itemsByCategory = groupBy(data.items, i => i.category);
+
+		return {
+			items: {
+				getByCategory: category => itemsByCategory[category],
+				getByKey: itemKey => data.items[itemKey],
+			},
+		};
+	}, [data]);
 	
 	return database;
 }

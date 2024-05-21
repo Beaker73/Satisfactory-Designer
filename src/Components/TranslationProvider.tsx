@@ -1,8 +1,9 @@
+import type { BackendModule, ResourceKey, TFunction } from "i18next";
+import i18next from "i18next";
 import type { PropsWithChildren } from "react";
 import { Suspense, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { initReactI18next, useTranslation } from "react-i18next";
 
-import { initTranslation } from "@/Data/Languages";
 import { } from "@/Hooks/Translations";
 import { useStoreState } from "@/Store";
 
@@ -38,4 +39,45 @@ function LanguageSwitcher(props: PropsWithChildren)
 			i18n.changeLanguage(language);
 	}, [i18n, language, ready]);
 	return props.children;
+}
+
+
+let initResult: Promise<TFunction> | undefined;
+
+export function initTranslation(getNamespace: (language: string, namespace: string) => ResourceKey ) 
+{
+	if(initResult)
+		return initResult;
+
+	console.debug("translation: init");
+
+	const backend: BackendModule = {
+		type: "backend",
+		init: function(services, backendOptions, i18nextoptions) 
+		{
+			console.debug("translation: backend: init", { services, backendOptions, i18nextoptions });
+		},
+		read: (language, namespace, callback) => 
+		{
+			console.debug("translation: backend: read", { language, namespace });
+			const data = getNamespace(language, namespace); 
+			console.debug("translation: backend: read result", { language, namespace, data });
+			callback(null, data);
+		},
+	};
+
+	initResult = i18next
+		.use(backend)
+		.use(initReactI18next)
+		.init({
+			fallbackLng: "en",
+			fallbackNS: "designer",
+			load: "currentOnly",
+			debug: true,
+			interpolation: {
+				escapeValue: false, // react already safes from xss
+			},
+		});
+
+	return initResult;
 }

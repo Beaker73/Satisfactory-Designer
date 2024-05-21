@@ -26,13 +26,38 @@ export interface PluginData {
 	buildings?: PluginBuildings,
 	languages?: PluginLanguages,
 }
+export interface Database {
+	items: Items;
+}
 
 export type PluginItems = Record<string, PluginItem>;
 export interface PluginItem {
 	name: string,
+	category: string,
 	description?: string,
 	image?: string,
+	wikiPage?: string,
 	stackSize?: number,
+	sinkPoints?: number,
+}
+
+export type Items = Record<string, Item>;
+export interface Item {
+	/** The unique key of the item */
+	key: string,
+	/** The category this item belongs to */
+	category: string,
+	/** The resource key of the display name */
+	nameKey: string,
+	/** The resource key of the description */
+	descriptionKey?: string,
+	/** The URL of the wiki page of the item */
+	wikiUrl?: string,
+	/** The path the the image */
+	imageUrl?: string,
+	/** The maximum size of a stack of items */
+	stackSize?: number,
+	/** The number of points you get for sinking the item */
 	sinkPoints?: number,
 }
 
@@ -74,8 +99,20 @@ export interface PluginLanguage {
 	app?: LanguageNode,
 }
 
+let loadPluginsResult: Promise<Database> | undefined;
 
-export async function loadPlugins() 
+
+export function loadPlugins(): Promise<Database>
+{
+	if(loadPluginsResult)
+		return loadPluginsResult;
+
+	loadPluginsResult = loadPluginsCore();
+	
+	return loadPluginsResult;
+}
+
+async function loadPluginsCore(): Promise<Database>
 {
 	// tell vite to load all the plugins in the folder
 	const plugins: Record<string, Promise<{ default: Plugin }>> = import.meta.glob(["./**/*.ts", "!./index.ts"], { eager: true });
@@ -113,7 +150,7 @@ export async function loadPlugins()
 
 	const loaded: Record<string, Plugin> = {};
 	const processed: Record<string, Plugin> = {};
-	let database: PluginData = {};
+	let data: PluginData = {};
 
 	// await the result one-by-one, as they are loaded
 	for await (const [name, plugin] of raceAll(...entries)) 
@@ -124,10 +161,12 @@ export async function loadPlugins()
 		tryImport(plugin);
 	}
 
-	console.debug("all loaded", { database });
+	console.debug("all loaded", { data });
 
-	for(const translations of pagePer(50, extractLanguageKeys(database))) 
+	for(const translations of pagePer(50, extractLanguageKeys(data))) 
 		store.getActions().translations.importTranslations({ translations });
+
+	return extractDatabase(data);
 
 	/**
 	 * Tries to import the provided plugin
@@ -171,8 +210,8 @@ export async function loadPlugins()
 		// if we arrive here, we have no dependencies
 		// or all dependencies are processed.
 		// TODO: Deep Merge
-		database = deepMerge(database, plugin.data);
-		console.debug("loading: merged database", database);
+		data = deepMerge(data, plugin.data);
+		console.debug("loading: merged database", data);
 
 	}
 
@@ -229,6 +268,30 @@ export async function loadPlugins()
 			for(const [langCode, language] of Object.entries(database.languages)) 
 				for( const y of processLanguage(langCode, language))
 					yield y;
+	}
+
+	function extractDatabase(data: PluginData) 
+	{
+		const items: Record<string, Item> = {};
+
+		if(data.items)
+			Object.entries(data.items).map(([key, item]) => 
+			{
+				items[key] = {
+					key,
+					category: item.category,
+					nameKey: `item.${key}.name`,
+					descriptionKey: `item.${key}.description`,
+					imageUrl: item.image,
+					wikiUrl: item.wikiPage ? `https://satisfactory.wiki.gg/wiki/${item.wikiPage}` : undefined,
+					stackSize: item.stackSize,
+					sinkPoints: item.sinkPoints,
+				};
+			});
+
+		return {
+			items,
+		};
 	}
 }
 

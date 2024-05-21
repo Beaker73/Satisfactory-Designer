@@ -1,6 +1,5 @@
-import type { Item as ItemData } from "@/Data/Satisfactory";
-import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useSatisfactoryText } from "@/Hooks/Translations";
+import type { Item as ItemData } from "@/Plugins";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
 import type { ReactElement } from "react";
@@ -33,7 +32,7 @@ export function Item(props: ItemProps)
 	</>} />}>
 		<Stack horizontal gap>
 			<ItemIcon item={item} />
-			<Text>{t(item.displayName)}</Text>
+			<Text>{t(item.nameKey)}</Text>
 		</Stack>
 	</ContextPopup>;
 }
@@ -62,9 +61,9 @@ export function ItemTooltip(props: ItemTooltipProps)
 
 	const style = useItemTooltipStyles();
 
-	const db = useDatabase();
-	const variants = item.variants ? db.variants.getByKey(item.variants) : undefined;
-	const st = useSatisfactoryText();
+	//const db = useDatabase();
+	// const variants = item.variants ? db.variants.getByKey(item.variants) : undefined;
+	//const st = useSatisfactoryText();
 
 	const element = useCallback((dt: string, dd: string | number | string[]) => 
 	{
@@ -91,14 +90,14 @@ export function ItemTooltip(props: ItemTooltipProps)
 			</Stack.Item>
 		</>}
 		<Stack className={style.root}>
-			<Text size={500} weight="semibold" >{t(item.displayName)}</Text>
-			{item.description && <Text size={200} style={{ opacity: .6 }}>{t(item.description)}</Text>}
+			<Text size={500} weight="semibold" >{t(item.nameKey)}</Text>
+			{item.descriptionKey && <Text size={200} style={{ opacity: .6 }}>{t(item.descriptionKey)}</Text>}
 			<img className={style.image} src={`images/${props.item.key}.png`} />
 			<dl className={style.list}>
 				{element("Category", t(`item.category.${item.category}`))}
-				{element("Stack size", item.stackSize)}
+				{item.stackSize && element("Stack size", item.stackSize)}
 				{item.sinkPoints && element("Sink points", item.sinkPoints)}
-				{variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))}
+				{/* {variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))} */}
 			</dl>
 		</Stack>
 	</Stack>;

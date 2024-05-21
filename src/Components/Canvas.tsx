@@ -1,5 +1,5 @@
-import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
-import { AppsListDetailFilled, AppsListDetailRegular, DeleteFilled, DeleteRegular, bundleIcon } from "@fluentui/react-icons";
+import { MenuItem, MenuList, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { DeleteFilled, DeleteRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
@@ -19,7 +19,7 @@ export function Canvas()
 	const styles = useStyles();
 
 	const nodes = useStoreState(state => state.nodes.allNodes);
-	const { moveNodeByOffset, setVariant, deleteNode } = useStoreActions(store => store.nodes);
+	const { moveNodeByOffset, deleteNode } = useStoreActions(store => store.nodes);
 
 	const database = useDatabase();
 	const st = useSatisfactoryText();
@@ -52,7 +52,7 @@ export function Canvas()
 	});
 
 	const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
-	const VariantIcon = bundleIcon(AppsListDetailFilled, AppsListDetailRegular);
+	// const VariantIcon = bundleIcon(AppsListDetailFilled, AppsListDetailRegular);
 
 	return <div className={styles.root} ref={drop}>
 		<div className={styles.canvas}>
@@ -60,12 +60,12 @@ export function Canvas()
 			{
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				const item = database.items.getByKey(node.itemKey)!;
-				const variants = item?.variants ? database.variants.getByKey(item.variants) : undefined;
-				const hasVariants = !!variants;
+				//const variants = item?.variants ? database.variants.getByKey(item.variants) : undefined;
+				//const hasVariants = !!variants;
 
 				return <div key={node.id} style={{ position: "absolute", left: node.position[0], top: node.position[1] }}>
 					<Panel commands={<MenuList>
-						{hasVariants && <Menu hasCheckmarks
+						{/* {hasVariants && <Menu hasCheckmarks
 							checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
 							onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] }); }}>
 							<MenuTrigger>
@@ -81,13 +81,14 @@ export function Canvas()
 									})}
 								</MenuList>
 							</MenuPopover>
-						</Menu>}
+						</Menu>} */}
 						<MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node.id)} >{dt("canvas.delete.commandText")}</MenuItem>
 					</MenuList>}
 					dragKey={node.id}
-					name={st(item.displayName)}
+					name={st(item.nameKey)}
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
+					// description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
+					description="-"
 					imagePath={`images/${item.key}.png`} />
 				</div>;
 			})}
