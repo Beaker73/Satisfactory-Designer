@@ -19,7 +19,9 @@ export function App()
 
 	return <StoreProvider store={store}>
 		<PluginProvider>
-			<ThemedApp />
+			<TranslationProvider>
+				<ThemedApp />
+			</TranslationProvider>
 		</PluginProvider>
 	</StoreProvider>;
 }
@@ -104,15 +106,13 @@ function ThemedApp()
 	, [themeName]);
 
 	return <FluentProvider theme={theme} className="root" style={{ colorScheme: themeName }}>
-		<TranslationProvider>
-			<DatabaseProvider>
-				<DialogProvider>
-					<DndProvider backend={HTML5Backend}>
-						{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
-						{!isStartingUp && hasNodes && <Shell />}
-					</DndProvider>
-				</DialogProvider>
-			</DatabaseProvider>
-		</TranslationProvider>
+		<DatabaseProvider>
+			<DialogProvider>
+				<DndProvider backend={HTML5Backend}>
+					{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
+					{!isStartingUp && hasNodes && <Shell />}
+				</DndProvider>
+			</DialogProvider>
+		</DatabaseProvider>
 	</FluentProvider>;
 }

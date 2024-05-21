@@ -13,13 +13,14 @@ import { Loading } from "./Loading";
 export function TranslationProvider(props: PropsWithChildren) 
 {
 	const [isTranslationAvailable, setTranslationAvailable] = useState(false);
+	const getNamespace = useStoreState(store => store.translations.getNamespace);
 
 	useEffect(() => 
 	{
-		initTranslation()
+		initTranslation(getNamespace)
 			.then(() => setTranslationAvailable(true))
 			.catch(_x => {/** */ });
-	}, [setTranslationAvailable]);
+	}, [setTranslationAvailable, getNamespace]);
 
 	return <Suspense>
 		{!isTranslationAvailable && <Loading message="Loading translations" />}

@@ -23,6 +23,21 @@ export function deepClone<T>(_something: T): T
 	throw new Error("Not implemented");
 }
 
+export function deepMap(something: unknown, map: (item: any) => unknown): unknown
+{
+	if(!something)
+		return something;
+
+	console.debug("deepMap: ", { something });
+
+	if(Array.isArray(something))
+		return something.map(item => deepMap(item, map));
+	else if(typeof something === "object" && something !== null)
+		return Object.fromEntries(Object.entries(something).map(([key, item]) => [key, deepMap(item, map)]));
+			
+	return map(something);
+}
+
 /**
  * Does a deep merge of two objects into a new object
  * @param one 

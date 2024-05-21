@@ -1,4 +1,4 @@
-import type { Resource, ResourceLanguage } from "i18next";
+import type { BackendModule, Resource, ResourceKey, ResourceLanguage, TFunction } from "i18next";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { dutch } from "./Dutch";
@@ -11,16 +11,42 @@ const resources: Resource = {
 
 console.debug("i18n: resources", { resources });
 
-export function initTranslation() 
+let initResult: Promise<TFunction> | undefined;
+
+export function initTranslation(getNamespace: (language: string, namespace: string) => ResourceKey ) 
 {
-	return i18n
+	if(initResult)
+		return initResult;
+
+	console.debug("translation: init");
+
+	const backend: BackendModule = {
+		type: "backend",
+		init: function(services, backendOptions, i18nextoptions) 
+		{
+			console.debug("translation: backend: init", { services, backendOptions, i18nextoptions });
+		},
+		read: (language, namespace, callback) => 
+		{
+			console.debug("translation: backend: read", { language, namespace });
+			const data = getNamespace(language, namespace); 
+			console.debug("translation: backend: read result", { language, namespace, data });
+			callback(null, data);
+		},
+	};
+
+	initResult = i18n
+		.use(backend)
 		.use(initReactI18next)
 		.init({
-			resources,
 			fallbackLng: "en",
+			fallbackNS: "designer",
+			load: "currentOnly",
 			debug: true,
 			interpolation: {
 				escapeValue: false, // react already safes from xss
 			},
 		});
+
+	return initResult;
 }

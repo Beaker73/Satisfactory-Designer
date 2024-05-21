@@ -1,5 +1,5 @@
-import { describe, test, expect } from "vitest";
-import { deepFreeze, deepMerge } from "./Deep";
+import { describe, expect, test } from "vitest";
+import { deepFreeze, deepMap, deepMerge } from "./Deep";
 
 describe("deepFreeze", () => 
 {
@@ -15,11 +15,11 @@ describe("deepFreeze", () =>
 	test("complex object will freeze", () => 
 	{
 		const subject = { banana: "fruit", count: 8 };
-		const result = deepFreeze(subject) as { banana: string, count: number}; // during test we make TYPE modifiable again
+		const result = deepFreeze(subject) as { banana: string, count: number }; // during test we make TYPE modifiable again
 		const action = () => result.banana = "crash";
 		expect(action).toThrow();
 	});
-	test("nested object will freeze", () =>
+	test("nested object will freeze", () => 
 	{
 		const subject = { banana: "fruit", pricing: { count: 8, price: 5.99 } };
 		const result = deepFreeze(subject) as typeof subject;
@@ -31,38 +31,56 @@ describe("deepFreeze", () =>
 describe("deepMerge", () => 
 {
 	test("merge two simple objects", () => 
-	{ 
+	{
 		const one = { banana: "fruit", count: 8 };
 		const other = { count: 3, price: 5.99 };
 		const result = deepMerge(one, other);
 		expect(result).toEqual({ banana: "fruit", count: 3, price: 5.99 });
 	});
 	test("merge two cmplex objects", () => 
-	{ 
-		const one = { 
-			banana: "fruit", 
-			pricing: { 
-				count: 3, 
-				price: 5.99, 
+	{
+		const one = {
+			banana: "fruit",
+			pricing: {
+				count: 3,
+				price: 5.99,
 				tags: ["foo", "bar"],
 			},
 		};
-		const other = { 
-			pricing: { 
-				count: 8, 
+		const other = {
+			pricing: {
+				count: 8,
 				tags: ["baz"],
 			},
 			newThing: "new",
 		};
 		const result = deepMerge(one, other);
-		expect(result).toEqual({ 
-			banana: "fruit", 
-			pricing: { 
+		expect(result).toEqual({
+			banana: "fruit",
+			pricing: {
 				count: 8, // new overwrites old
 				price: 5.99, // old remains
 				tags: ["foo", "bar", "baz"], // array merged
 			},
 			newThing: "new", // new things added
+		});
+	});
+});
+
+describe("deepMap", () => 
+{
+	test("map", () => 
+	{
+		const result = deepMap({
+			foo: "bar",
+			array: ["banana", "fruit"],
+			more: { deep: "ok" },
+		}, (s: string) => s.toUpperCase());
+
+		expect(result).toEqual({
+			foo: "BAR",
+			array: ["BANANA", "FRUIT"],
+			more: { deep: "OK" },
 		});
 	});
 });
