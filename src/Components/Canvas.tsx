@@ -89,7 +89,7 @@ export function Canvas()
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					// description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
 					description="-"
-					imagePath={`images/${item.key}.png`} />
+					imageUrl={item.imageUrl} />
 				</div>;
 			})}
 		</div>

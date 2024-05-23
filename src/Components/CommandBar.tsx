@@ -4,12 +4,12 @@ import { ChatBubblesQuestionFilled, ChatBubblesQuestionRegular, FolderAddFilled,
 import { Fragment, useCallback, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
+import { useDatabase } from "@/Hooks/DatabaseProvider";
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText } from "@/Hooks/Translations";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Language, Theme } from "@/Store/Settings";
-import { NL, US } from "country-flag-icons/react/3x2";
 import { useOpenProjectDialog } from "./OpenProjectDialog";
 
 export function CommandBar() 
@@ -106,7 +106,7 @@ function MenuItemOpenProject(props: { onClick: () => void })
 	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>{t("menu.file.open")}</MenuItem>;
 }
 
-function MenuItemAbout()
+function MenuItemAbout() 
 {
 	const AboutIcon = bundleIcon(ChatBubblesQuestionFilled, ChatBubblesQuestionRegular);
 
@@ -175,14 +175,16 @@ function ThemeMenu()
 			}
 		}, [setTheme]);
 
+	const dt = useDesignerText();
+
 	return <Menu>
 		<MenuTrigger>
-			<MenuItem>Theme</MenuItem>
+			<MenuItem>{dt("menu.settings.theme.label")}</MenuItem>
 		</MenuTrigger>
 		<MenuPopover>
 			<MenuList checkedValues={checkedValues} onCheckedValueChange={onChange}>
-				<MenuItemRadio name="theme" value="light">Light</MenuItemRadio>
-				<MenuItemRadio name="theme" value="dark">Dark</MenuItemRadio>
+				<MenuItemRadio name="theme" value="light">{dt("menu.settings.theme.light")}</MenuItemRadio>
+				<MenuItemRadio name="theme" value="dark">{dt("menu.settings.theme.dark")}</MenuItemRadio>
 			</MenuList>
 		</MenuPopover>
 	</Menu>;
@@ -191,6 +193,9 @@ function ThemeMenu()
 
 function LanguageMenu() 
 {
+	const database = useDatabase();
+	const languages = Object.entries(database.languages.getAll());
+
 	const language = useStoreState(store => store.settings.language);
 	const setLanguage = useStoreActions(store => store.settings.setLanguage);
 	const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({ theme: [language ?? "en"] });
@@ -206,16 +211,20 @@ function LanguageMenu()
 			}
 		}, [setLanguage]);
 
-	console.debug("languages: ", { checkedValues });
+	console.debug("languages: ", { languages, checkedValues });
+	const dt = useDesignerText();
 
 	return <Menu>
 		<MenuTrigger>
-			<MenuItem>Language</MenuItem>
+			<MenuItem>{dt("menu.settings.language.label")}</MenuItem>
 		</MenuTrigger>
 		<MenuPopover>
 			<MenuList checkedValues={checkedValues} onCheckedValueChange={onChange}>
-				<MenuItemRadio name="language" value="en" icon={<US />}>English</MenuItemRadio>
-				<MenuItemRadio name="language" value="nl" icon={<NL />}>Nederlands</MenuItemRadio>
+				{languages.map(([code, info]) => 
+				{
+					const image = typeof info.image === "string" ? (() => <Fragment>{info.image as string}</Fragment>) : info.image;
+					return <MenuItemRadio name="language" key={code} value={code} icon={image()}>{info.name}</MenuItemRadio>;
+				})}
 			</MenuList>
 		</MenuPopover>
 	</Menu>;

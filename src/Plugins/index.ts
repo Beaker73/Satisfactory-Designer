@@ -26,7 +26,15 @@ export interface PluginData {
 	buildings?: PluginBuildings,
 	languages?: PluginLanguages,
 }
+export interface LanguageInfo {
+	/** The name of the language in their own tongue */
+	name: string, 
+	/** The flag image */
+	image: string | ((props?: any) => JSX.Element)
+}
 export interface Database {
+	languages: Record<string, LanguageInfo>,
+	recipes: Recipes;
 	items: Items;
 }
 
@@ -50,7 +58,7 @@ export interface Item {
 	/** The resource key of the display name */
 	nameKey: string,
 	/** The resource key of the description */
-	descriptionKey?: string,
+	descriptionKey: string,
 	/** The URL of the wiki page of the item */
 	wikiUrl?: string,
 	/** The path the the image */
@@ -65,6 +73,16 @@ export type PluginRecipes = Record<string, PluginRecipe>;
 export interface PluginRecipe {
 	name?: string,
 	description?: string,
+	duration: number,
+	outputs?: Record<string, number>,
+	inputs?: Record<string, number>,
+}
+
+export type Recipes = Record<string, Recipe>;
+export interface Recipe {
+	key: string,
+	nameKey: string,
+	descriptionKey: string,
 	duration: number,
 	outputs?: Record<string, number>,
 	inputs?: Record<string, number>,
@@ -93,6 +111,7 @@ export type LanguageNode =
 export interface PluginLanguage {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	image: string | ((props: any) => JSX.Element),
+	name: string,
 	items?: Record<string, Partial<Pick<PluginItem, "name" | "description">>>,
 	recipes?: Record<string, Partial<Pick<PluginRecipe, "name" | "description">>>,
 	buildings?: Record<string, Partial<Pick<PluginBuilding, "name" | "description">>>,
@@ -115,7 +134,7 @@ export function loadPlugins(): Promise<Database>
 async function loadPluginsCore(): Promise<Database>
 {
 	// tell vite to load all the plugins in the folder
-	const plugins: Record<string, Promise<{ default: Plugin }>> = import.meta.glob(["./**/*.ts", "!./index.ts"], { eager: true });
+	const plugins: Record<string, Promise<{ default: Plugin }>> = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./index.ts"], { eager: true });
 
 	// map them in such a way that they can be awaited using raceAll
 	// without loosing the link between the name and the plugin
@@ -130,11 +149,10 @@ async function loadPluginsCore(): Promise<Database>
 						// remove ./ in front and .ts add end
 						// we can hardcode this, we harcoded reading from that path
 						let trimmed = path.substring(2);
-						trimmed = trimmed.endsWith("/index.ts")
-							? trimmed.substring(0, trimmed.length - 9)
-							: trimmed.endsWith(".ts")
-								? trimmed.substring(0, trimmed.length - 3)
-								: trimmed;
+						trimmed = trimmed.endsWith("/index.ts")	? trimmed.substring(0, trimmed.length - 9)
+							: trimmed.endsWith("/index.tsx") ? trimmed.substring(0, trimmed.length - 10)
+								: trimmed.endsWith(".ts") ? trimmed.substring(0, trimmed.length - 3)
+									: trimmed;
 						console.debug("loaded:::", { path, trimmed });
 
 						const plugin = await promise;
@@ -211,7 +229,7 @@ async function loadPluginsCore(): Promise<Database>
 		// or all dependencies are processed.
 		// TODO: Deep Merge
 		data = deepMerge(data, plugin.data);
-		console.debug("loading: merged database", data);
+		console.debug("loading: merged database", { plugin, pluginData: plugin.data, mergedData: data });
 
 	}
 
@@ -272,8 +290,36 @@ async function loadPluginsCore(): Promise<Database>
 
 	function extractDatabase(data: PluginData) 
 	{
-		const items: Record<string, Item> = {};
+		const languages: Record<string, LanguageInfo> = {};
+		if(data.languages) 
+		{
+			console.debug("database languages", { lang: data.languages });
+			Object.entries(data.languages).map(([key, lang]) =>
+			{
+				console.debug("database languages", { key, lang });
 
+				languages[key] = {
+					name: lang.name,
+					image: lang.image,
+				};
+			});
+		}
+
+		const recipes: Record<string, Recipe> = {};
+		if(data.recipes)
+			Object.entries(data.recipes).map(([key, recipe]) =>
+			{
+				recipes[key] = {
+					key,
+					nameKey: `recipe.${key}.name`,
+					descriptionKey: `recipe.${key}.description`,
+					duration: recipe.duration,
+					inputs: recipe.inputs,
+					outputs: recipe.outputs,
+				};
+			});
+
+		const items: Record<string, Item> = {};
 		if(data.items)
 			Object.entries(data.items).map(([key, item]) => 
 			{
@@ -289,7 +335,11 @@ async function loadPluginsCore(): Promise<Database>
 				};
 			});
 
+		console.debug("database processed", { languages, recipes, items });
+
 		return {
+			languages,
+			recipes,
 			items,
 		};
 	}

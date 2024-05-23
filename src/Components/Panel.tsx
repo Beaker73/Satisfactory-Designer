@@ -7,7 +7,7 @@ import { ContextPopup } from "./ContextPopup";
 
 export interface PanelProps {
 	dragKey: string,
-	imagePath: string,
+	imageUrl?: string,
 	name: string,
 	description: string,
 	commands?: ReactElement,
@@ -15,7 +15,7 @@ export interface PanelProps {
 
 export function Panel(props: PanelProps) 
 {
-	const { dragKey, name, imagePath, description, commands } = props;
+	const { dragKey, name, imageUrl, description, commands } = props;
 	const styles = useStyles();
 
 	const [{ isDragging: _ }, drag] = useDrag(() => ({
@@ -32,7 +32,7 @@ export function Panel(props: PanelProps)
 	{
 		return <Card orientation="horizontal" className={styles.node} ref={drag}>
 			<CardHeader
-				image={<img className={styles.preview} src={imagePath} />}
+				image={imageUrl ? <img className={styles.preview} src={imageUrl} /> : undefined}
 				header={<Body1 className={styles.title}>{name}</Body1>}
 				description={<Caption1>{description}</Caption1>}
 				action={commands && <Menu>
@@ -47,7 +47,7 @@ export function Panel(props: PanelProps)
 				
 			</CardHeader>
 		</Card>;
-	}, [MoreIcon, commands, description, drag, imagePath, name, styles.node, styles.preview, styles.title]);
+	}, [MoreIcon, commands, description, drag, imageUrl, name, styles.node, styles.preview, styles.title]);
 
 	if(commands) 
 	{

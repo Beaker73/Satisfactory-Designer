@@ -7,13 +7,24 @@ export default {
 	data: {
 		languages: {
 			en: {
-				image: US,
+				image: () => <US />,
+				name: "English",
 				app: {
 
 					menu: {
 						file: "File",
 						"file.new": "New Project",
 						"file.open": "Open Project...",
+						settings: {
+							theme: {
+								label: "Theme",
+								light: "Light",
+								dark: "Dark",
+							},
+							language: {
+								label: "Language",
+							},
+						},
 					},
 
 					canvas: {
@@ -26,6 +37,16 @@ export default {
 						},
 					},
 
+					item: {
+						category: {
+							label: "Category",
+							resource_one: "Resource",
+							resource_other: "Resources",
+						},
+						"stackSize.label": "Stack Size",
+						"sinkPoints.label": "Sink Points",
+					},
+					
 				},
 			},
 		},

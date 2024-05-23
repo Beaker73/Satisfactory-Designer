@@ -1,4 +1,4 @@
-import type { Database as DatabaseData, Item } from "@/Plugins";
+import type { Database as DatabaseData, Item, LanguageInfo, Recipe } from "@/Plugins";
 import { groupBy } from "lodash";
 import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
 
@@ -20,8 +20,42 @@ export function DatabaseProvider(props: PropsWithChildren<DatabaseProviderProps>
 
 export interface Database 
 {
+	languages: {
+		/** Get all languages */
+		getAll(): Record<string, LanguageInfo>,
+	},
+	recipes: {
+		/**
+		 * Get recipe by its key
+		 * @param recipeKey The key of the item to get
+		 * @returns The item with the requested key; undefined when not found
+		 */
+		getByKey(recipeKey: string): Recipe | undefined,
+		/**
+		 * Get all recipes with the requested item as part of the input
+		 * @param itemKey The kye of the item that should be part of the input of the recipe
+		 * @returns An array of all recipes that have the requested item as input
+		 */
+		getWithInput(itemKey: string): Recipe[],
+		/**
+		 * Get all recipes with the requested item as part of the output
+		 * @param itemKey The key of the item that should be part of the output in the recipe
+		 * @returns An array of all recipes that have the requested item as output
+		 */
+		getWithOutput(itemKey: string): Recipe[],
+	},
 	items: {
+		/**
+		 * Get all items of the requested category
+		 * @param category The category of the items to get
+		 * @returns An array of all items with the requested category
+		 */
 		getByCategory(category: string): Item[],
+		/**
+		 * Get item by its key
+		 * @param itemKey The key of the item to get
+		 * @returns The item with the requested key; undefined when not found
+		 */
 		getByKey(itemKey: string): Item | undefined,
 	}
 }
@@ -39,10 +73,18 @@ export function useDatabase(): Database
 
 	const database = useMemo<Database>(() => 
 	{
-
+		// const recipesByInputItem = groupBy(data.recipes, r => r.inputs)
 		const itemsByCategory = groupBy(data.items, i => i.category);
 
 		return {
+			languages: {
+				getAll: () => data.languages,
+			},
+			recipes: {
+				getByKey: recipeKey => data.recipes[recipeKey],
+				getWithInput: _itemKey => { throw new Error("not implemented"); },
+				getWithOutput: _itemKey => { throw new Error("not implemented"); },
+			},
 			items: {
 				getByCategory: category => itemsByCategory[category],
 				getByKey: itemKey => data.items[itemKey],

@@ -1,4 +1,4 @@
-import { useSatisfactoryText } from "@/Hooks/Translations";
+import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Item as ItemData } from "@/Plugins";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
@@ -45,7 +45,7 @@ interface ItemIconProps {
 export function ItemIcon(props: ItemIconProps) 
 {
 	const size = props.size ?? 24;
-	return <img src={`images/${props.item.key}.png`} width={size} height={size} />;
+	return <img src={props.item.imageUrl} width={size} height={size} />;
 }
 
 
@@ -57,7 +57,8 @@ interface ItemTooltipProps {
 export function ItemTooltip(props: ItemTooltipProps) 
 {
 	const { item, commands } = props;
-	const t = useSatisfactoryText();
+	const st = useSatisfactoryText();
+	const dt = useDesignerText();
 
 	const style = useItemTooltipStyles();
 
@@ -90,13 +91,13 @@ export function ItemTooltip(props: ItemTooltipProps)
 			</Stack.Item>
 		</>}
 		<Stack className={style.root}>
-			<Text size={500} weight="semibold" >{t(item.nameKey)}</Text>
-			{item.descriptionKey && <Text size={200} style={{ opacity: .6 }}>{t(item.descriptionKey)}</Text>}
-			<img className={style.image} src={`images/${props.item.key}.png`} />
+			<Text size={500} weight="semibold" >{st(item.nameKey)}</Text>
+			{item.descriptionKey && <Text size={200} style={{ opacity: .6 }}>{st(item.descriptionKey)}</Text>}
+			<img className={style.image} src={item.imageUrl} />
 			<dl className={style.list}>
-				{element("Category", t(`item.category.${item.category}`))}
-				{item.stackSize && element("Stack size", item.stackSize)}
-				{item.sinkPoints && element("Sink points", item.sinkPoints)}
+				{element(dt("item.category.label"), dt(`item.category.${item.category}`, { count: 1 }))}
+				{item.stackSize && element(dt("item.stackSize.label"), item.stackSize)}
+				{item.sinkPoints && element(dt("item.sinkPoints.label"), item.sinkPoints)}
 				{/* {variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))} */}
 			</dl>
 		</Stack>
