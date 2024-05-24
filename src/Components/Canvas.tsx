@@ -7,10 +7,11 @@ import { useDrop } from "react-dnd";
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Guid } from "@/Model/Guid";
 import { useStoreActions, useStoreState } from "@/Store";
 
 import { hasValueNotFalse } from "@/Helpers";
+import type { NodeId } from "@/Model/Node";
+import type { RecipeKey } from "@/Model/Recipe";
 import { Panel } from "./Panel";
 import { RequestDialog } from "./RequestDialog";
 
@@ -27,7 +28,7 @@ export function Canvas()
 	const dt = useDesignerText();
 
 	const onNodeDropped = useCallback(
-		(dragProps: { dragKey: Guid }, monitor: DropTargetMonitor<Guid, void>) => 
+		(dragProps: { dragKey: NodeId }, monitor: DropTargetMonitor<NodeId, void>) => 
 		{
 			const offset = monitor.getDifferenceFromInitialOffset();
 			if (dragProps && offset)
@@ -41,7 +42,7 @@ export function Canvas()
 		message: dt("canvas.delete.dialogMessage"),
 		okButton: dt("canvas.delete.dialogOkButton"), 
 		cancelButton: dt("canvas.delete.dialogCancelButton") });
-	const tryDeleteNode = useCallback(async (nodeId: Guid) => 
+	const tryDeleteNode = useCallback(async (nodeId: NodeId) => 
 	{
 		await dialog.show({});
 		deleteNode({ nodeId });
@@ -73,7 +74,7 @@ export function Canvas()
 					<Panel commands={<MenuList>
 						{hasRecipes && <Menu hasCheckmarks
 							checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
-							onCheckedValueChange={(_ev, data) => { setRecipe({ nodeId: node.id, recipeKey: data.checkedItems[0] }); }}>
+							onCheckedValueChange={(_ev, data) => { setRecipe({ nodeId: node.id, recipeKey: data.checkedItems[0] as RecipeKey }); }}>
 							<MenuTrigger>
 								<MenuItem icon={<RecipeIcon />} >Recipe</MenuItem>
 							</MenuTrigger>

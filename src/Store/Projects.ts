@@ -1,7 +1,7 @@
 import type { Action, Computed, Thunk } from "easy-peasy";
 import { action, computed, persist, thunk } from "easy-peasy";
 
-import { newGuid, type Guid } from "@/Model/Guid";
+import { newGuid, type Guid } from "@/Model/Identifiers";
 import type { Project } from "@/Model/Project";
 
 // eslint-disable-next-line import/no-cycle -- yes cycle, but no runtime issue (store in Projects is only used in lambda after everything is initialized)

@@ -30,24 +30,25 @@ export function Panel(props: PanelProps)
 
 	const renderCard = useCallback(() => 
 	{
-		return <Card orientation="horizontal" className={styles.node} ref={drag}>
-			<CardHeader
-				image={imageUrl ? <img className={styles.preview} src={imageUrl} /> : undefined}
-				header={<Body1 className={styles.title}>{name}</Body1>}
-				description={<Caption1>{description}</Caption1>}
-				action={commands && <Menu>
-					<MenuTrigger>
-						<Button appearance="subtle" icon={<MoreIcon />} />
-					</MenuTrigger>
-					<MenuPopover>
-						{commands}
-					</MenuPopover>
-				</Menu>}
-			>
-				
-			</CardHeader>
-		</Card>;
-	}, [MoreIcon, commands, description, drag, imageUrl, name, styles.node, styles.preview, styles.title]);
+		return <div className={styles.root}>
+			<Card orientation="horizontal" className={styles.node} ref={drag}>
+				<CardHeader
+					image={imageUrl ? <img className={styles.preview} src={imageUrl} /> : undefined}
+					header={<Body1 className={styles.title}>{name}</Body1>}
+					description={<Caption1>{description}</Caption1>}
+					action={commands && <Menu>
+						<MenuTrigger>
+							<Button appearance="subtle" icon={<MoreIcon />} />
+						</MenuTrigger>
+						<MenuPopover>
+							{commands}
+						</MenuPopover>
+					</Menu>}
+				>
+				</CardHeader>
+			</Card>
+		</div>;
+	}, [MoreIcon, commands, description, drag, imageUrl, name, styles.node, styles.preview, styles.root, styles.title]);
 
 	if(commands) 
 	{
@@ -60,6 +61,9 @@ export function Panel(props: PanelProps)
 }
 
 const useStyles = makeStyles({
+	root: {
+		position: "relative", // set so child nodes that are absolute position, can be relative to this node
+	},
 	node: {
 		width: "256px",
 		height: "64px",

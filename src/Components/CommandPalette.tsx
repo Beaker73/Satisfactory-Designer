@@ -3,10 +3,11 @@ import { BeakerAddFilled, BeakerAddRegular, bundleIcon } from "@fluentui/react-i
 
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDesignerText } from "@/Hooks/Translations";
-import { newGuid } from "@/Model/Guid";
+import { newGuid } from "@/Model/Identifiers";
 import type { Node } from "@/Model/Node";
 import { useStoreActions } from "@/Store";
 
+import type { BuildingCategoryKey } from "@/Model/Building";
 import { Item } from "./Item";
 import { Stack } from "./Stack";
 
@@ -15,7 +16,7 @@ export function CommandPalette()
 	const BeakerAddIcon = bundleIcon(BeakerAddFilled, BeakerAddRegular);
 
 	const database = useDatabase();
-	const buildings = database.buildings.getByCategory("resource");
+	const buildings = database.buildings.getByCategory("resource" as BuildingCategoryKey);
 
 	const style = useCommandPaletteStyle();
 

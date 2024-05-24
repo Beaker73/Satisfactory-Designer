@@ -1,5 +1,8 @@
 import { deepFreeze } from "@/Helpers/Deep";
-import type { Building, Database as DatabaseData, Item, LanguageInfo, Recipe } from "@/Plugins";
+import type { Building, BuildingCategoryKey, BuildingKey } from "@/Model/Building";
+import type { Item, ItemCategoryKey, ItemKey } from "@/Model/Item";
+import type { Recipe, RecipeKey } from "@/Model/Recipe";
+import type { Database as DatabaseData, LanguageInfo, LanguageKey } from "@/Plugins";
 import { groupBy } from "lodash";
 import { createContext, useContext, useMemo, type PropsWithChildren } from "react";
 
@@ -23,7 +26,7 @@ export interface Database
 {
 	languages: {
 		/** Get all languages */
-		getAll(): Record<string, LanguageInfo>,
+		getAll(): Record<LanguageKey, LanguageInfo>,
 	},
 	recipes: {
 		/**
@@ -31,19 +34,19 @@ export interface Database
 		 * @param recipeKey The key of the item to get
 		 * @returns The item with the requested key; undefined when not found
 		 */
-		getByKey(recipeKey: string): Recipe | undefined,
+		getByKey(recipeKey: RecipeKey): Recipe | undefined,
 		/**
 		 * Get all recipes with the requested item as part of the input
 		 * @param itemKey The kye of the item that should be part of the input of the recipe
 		 * @returns An array of all recipes that have the requested item as input
 		 */
-		getWithInput(itemKey: string): Recipe[],
+		getWithInput(itemKey: ItemKey): Recipe[],
 		/**
 		 * Get all recipes with the requested item as part of the output
 		 * @param itemKey The key of the item that should be part of the output in the recipe
 		 * @returns An array of all recipes that have the requested item as output
 		 */
-		getWithOutput(itemKey: string): Recipe[],
+		getWithOutput(itemKey: ItemKey): Recipe[],
 	},
 	items: {
 		/**
@@ -51,13 +54,13 @@ export interface Database
 		 * @param category The category of the items to get
 		 * @returns An array of all items with the requested category
 		 */
-		getByCategory(category: string): Item[],
+		getByCategory(category: ItemCategoryKey): Item[],
 		/**
 		 * Get item by its key
 		 * @param itemKey The key of the item to get
 		 * @returns The item with the requested key; undefined when not found
 		 */
-		getByKey(itemKey: string): Item | undefined,
+		getByKey(itemKey: ItemKey): Item | undefined,
 	},
 	buildings: {
 		/**
@@ -65,13 +68,13 @@ export interface Database
 		 * @param category The category of the buildings to get
 		 * @returns An array of all buildings with the requested category
 		 */
-		getByCategory(category: string): Building[],
+		getByCategory(category: BuildingCategoryKey): Building[],
 		/**
 		 * Get building by its key
 		 * @param buildingKey The key of the building to get
 		 * @returns The building with the request key; undefined when not found
 		 */
-		getByKey(buildingKey: string): Building | undefined,
+		getByKey(buildingKey: BuildingKey): Building | undefined,
 	}
 }
 

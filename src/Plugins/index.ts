@@ -2,7 +2,15 @@
 import { raceAll } from "@/Helpers/Async";
 import { deepFreeze, deepMerge } from "@/Helpers/Deep";
 import { pagePer } from "@/Helpers/StreamingData";
+import type { Building, BuildingCategoryKey, BuildingKey, BuildingVariantKey } from "@/Model/Building";
+import { type BuildingVariants, type Buildings } from "@/Model/Building";
+import type { Key, KeyedRecord } from "@/Model/Identifiers";
+import type { ItemCategoryKey, ItemKey } from "@/Model/Item";
+import { type Items } from "@/Model/Item";
+import type { RecipeKey } from "@/Model/Recipe";
+import { type Recipes } from "@/Model/Recipe";
 import { store } from "@/Store";
+import type { ResourceKey } from "i18next";
 import type { JSX } from "react";
 import type { Translation } from "../Model/Translation";
 
@@ -26,14 +34,18 @@ export interface PluginData {
 	buildings?: PluginBuildings,
 	languages?: PluginLanguages,
 }
+
+export type LanguageKey = Key<"Language">;
+
 export interface LanguageInfo {
 	/** The name of the language in their own tongue */
-	name: string, 
+	name: ResourceKey, 
 	/** The flag image */
 	image: string | ((props?: any) => JSX.Element)
 }
+
 export interface Database {
-	languages: Record<string, LanguageInfo>,
+	languages: KeyedRecord<LanguageKey, LanguageInfo>,
 	recipes: Recipes,
 	items: Items,
 	buildings: Buildings,
@@ -50,26 +62,6 @@ export interface PluginItem {
 	sinkPoints?: number,
 }
 
-export type Items = Record<string, Item>;
-export interface Item {
-	/** The unique key of the item */
-	key: string,
-	/** The category this item belongs to */
-	category: string,
-	/** The resource key of the display name */
-	nameKey: string,
-	/** The resource key of the description */
-	descriptionKey: string,
-	/** The URL of the wiki page of the item */
-	wikiUrl?: string,
-	/** The path the the image */
-	imageUrl?: string,
-	/** The maximum size of a stack of items */
-	stackSize?: number,
-	/** The number of points you get for sinking the item */
-	sinkPoints?: number,
-}
-
 export type PluginRecipes = Record<string, PluginRecipe>;
 export interface PluginRecipe {
 	name?: string,
@@ -79,15 +71,7 @@ export interface PluginRecipe {
 	inputs?: Record<string, number>,
 }
 
-export type Recipes = Record<string, Recipe>;
-export interface Recipe {
-	key: string,
-	nameKey: string,
-	descriptionKey: string,
-	duration: number,
-	outputs?: Record<string, number>,
-	inputs?: Record<string, number>,
-}
+
 
 export type PluginBuildings = Record<string, PluginBuilding>;
 export interface PluginBuilding {
@@ -101,45 +85,6 @@ export interface PluginBuilding {
 	variants?: Record<string, Partial<Omit<PluginBuilding, "variants" | "category">>>,
 }
 
-export type Buildings = Record<string, Building>;
-export interface Building {
-	/** The unique key of the building */
-	key: string,
-	/** The key of the resource with the name of the building */
-	nameKey: string,
-	/** The key of the resource with the description of the building */
-	descriptionKey: string,
-	/** The category the building belongs to */
-	category: string,
-	/** The URL of the generic image, if one exists */
-	imageUrl?: string,
-	/** The URL to the generic wiki, if one exists */
-	wikiUrl?: string,
-	/** The keys of the recipes that can be selected for the building */
-	allowedRecipes?: string[],
-	/** If receipes are allowed this holds the default recipe */
-	defaultRecipe?: string,
-	/** The available variants of the building. If there are variants, the base building cannot be build */
-	variants?: Record<string, BuildingVariant>,
-}
-export interface BuildingVariant {
-	/** The unique key of the building variant */
-	key: string,
-	/** The key of the resource with the name of the building variant */
-	nameKey: string,
-	/** The key of the resource with the description of the building variant */
-	descriptionKey: string,
-	/** The category the building variant belongs to */
-	category: string,
-	/** The URL of the image */
-	imageUrl?: string,
-	/** The URL to the wiki */
-	wikiUrl?: string,
-	/** The keys of the recipes that can be selected for the building variant */
-	allowedRecipes?: string[],
-	/** If receipes are allowed this holds the default recipe */
-	defaultRecipe?: string,
-}
 
 
 export type PluginLanguages = Record<string, PluginLanguage>;
@@ -349,10 +294,12 @@ async function loadPluginsCore(): Promise<Database>
 			});
 		}
 
-		const recipes: Record<string, Recipe> = {};
+		const recipes: Recipes = {};
 		if(data.recipes)
-			Object.entries(data.recipes).map(([key, recipe]) =>
+			Object.entries(data.recipes).map(([k, recipe]) =>
 			{
+				const key = k as RecipeKey;
+
 				recipes[key] = {
 					key,
 					nameKey: `recipe.${key}.name`,
@@ -363,13 +310,15 @@ async function loadPluginsCore(): Promise<Database>
 				};
 			});
 
-		const items: Record<string, Item> = {};
+		const items: Items = {};
 		if(data.items)
-			Object.entries(data.items).map(([key, item]) => 
+			Object.entries(data.items).map(([k, item]) => 
 			{
+				const key = k as ItemKey;
+
 				items[key] = {
 					key,
-					category: item.category,
+					category: item.category as ItemCategoryKey,
 					nameKey: `item.${key}.name`,
 					descriptionKey: `item.${key}.description`,
 					imageUrl: item.image,
@@ -379,40 +328,44 @@ async function loadPluginsCore(): Promise<Database>
 				};
 			});
 
-		const buildings: Record<string, Building> = {};
+		const buildings: Buildings = {};
 		if(data.buildings)
-			Object.entries(data.buildings).map(([key, building]) => 
+			Object.entries(data.buildings).map(([k, building]) => 
 			{
-				const variants: Record<string, BuildingVariant> = {};
+				const key = k as BuildingKey;
+				const variants: BuildingVariants = {};
 
-				buildings[key] = {
+				let b: Building;
+				buildings[key] = b = {
 					key,
-					category: building.category,
+					category: building.category as BuildingCategoryKey,
 					nameKey: `building.${key}.name`,
 					descriptionKey: `building.${key}.description`,
 					imageUrl: building.image,
 					wikiUrl: building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
-					allowedRecipes: building.allowedRecipes,
-					defaultRecipe: building.defaultRecipe ?? building.allowedRecipes?.[0] ?? undefined,
+					allowedRecipes: building.allowedRecipes as RecipeKey[],
+					defaultRecipe: (building.defaultRecipe ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
 				};
 
 				if(building.variants) 
 				{
-					Object.entries(building.variants).map(([key, variant]) => 
+					Object.entries(building.variants).map(([k, variant]) => 
 					{
+						const key = k as BuildingVariantKey;
+
 						variants[key] = {
 							key,
-							category: building.category,
+							category: building.category as BuildingCategoryKey,
 							nameKey: `building.${key}.variant.${key}.name`,
 							descriptionKey: `building.${key}.variant.${key}.description`,
 							imageUrl: variant.image ?? building.image,
 							wikiUrl: variant.wikiPage ? `https://satisfactory.wiki.gg/wiki/${variant.wikiPage}` : building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
-							allowedRecipes: variant.allowedRecipes ?? building.allowedRecipes,
-							defaultRecipe: variant.defaultRecipe ?? building.defaultRecipe ?? variant.allowedRecipes?.[0] ?? building.allowedRecipes?.[0] ?? undefined,
+							allowedRecipes: (variant.allowedRecipes ?? building.allowedRecipes) as RecipeKey[],
+							defaultRecipe: (variant.defaultRecipe ?? building.defaultRecipe ?? variant.allowedRecipes?.[0] ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
 						};
 					});
 
-					buildings[key].variants = variants;
+					b.variants = variants;
 				}
 			});
 

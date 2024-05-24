@@ -1,4 +1,4 @@
-import { newGuid, type Guid } from "@/Model/Guid";
+import { newGuid, type Guid } from "@/Model/Identifiers";
 import { produce } from "immer";
 import type { Dispatch, FunctionComponent, PropsWithChildren } from "react";
 import { Fragment, createContext, useCallback, useContext, useMemo, useReducer } from "react";
