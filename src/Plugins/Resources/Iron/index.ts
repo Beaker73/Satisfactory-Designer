@@ -36,9 +36,10 @@ export default {
 		buildings: {
 			ironNode: {
 				name: "Iron Node",
-				category: "resourceNode",
+				category: "resource",
 				image: ironNodeImagePath,
-				allowedRecipes: ["ironNodeNormal", "ironNodeImpure", "ironNodePure"],
+				allowedRecipes: ["ironNodeImpure", "ironNodeNormal", "ironNodePure"],
+				defaultRecipe: "ironNodeNormal",
 			},
 		},
 	},

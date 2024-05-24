@@ -12,6 +12,7 @@ export interface NodesModel {
 	addNode: Action<NodesModel, { node: Node }>,
 	moveNodeByOffset: Action<NodesModel, { nodeId: Guid, offset: XYCoord }>,
 	setVariant: Action<NodesModel, {nodeId: Guid, variantKey: string }>,
+	setRecipe: Action<NodesModel, {nodeId: Guid, recipeKey: string }>,
 	deleteNode: Action<NodesModel, {nodeId: Guid }>,
 }
 
@@ -37,9 +38,13 @@ export const nodesImpl: NodesModel = {
 	{
 		const node = state.nodesById[nodeId];
 		if(node) 
-		{
 			node.variantKey = variantKey;
-		}
+	}),
+	setRecipe: action((state, { nodeId, recipeKey }) => 
+	{
+		const node = state.nodesById[nodeId];
+		if(node) 
+			node.recipeKey = recipeKey;
 	}),
 	deleteNode: action((state, { nodeId }) => 
 	{

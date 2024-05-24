@@ -20,6 +20,11 @@ export default {
 						description: "Gebruikt voor vervaardigen. Basis grondstofbron die voornamelijk wordt gebruikt voor elektriciteit.",
 					},
 				},
+				recipes: {
+					ironNodeImpure: { name: "Onzuiver" },
+					ironNodeNormal: { name: "Normaal" },
+					ironNodePure: { name: "Zuiver" },
+				},
 				buildings: {
 					ironNode: {
 						name: "IJzer grondstofbron",

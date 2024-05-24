@@ -1,6 +1,6 @@
 
 import { raceAll } from "@/Helpers/Async";
-import { deepMerge } from "@/Helpers/Deep";
+import { deepFreeze, deepMerge } from "@/Helpers/Deep";
 import { pagePer } from "@/Helpers/StreamingData";
 import { store } from "@/Store";
 import type { JSX } from "react";
@@ -34,8 +34,9 @@ export interface LanguageInfo {
 }
 export interface Database {
 	languages: Record<string, LanguageInfo>,
-	recipes: Recipes;
-	items: Items;
+	recipes: Recipes,
+	items: Items,
+	buildings: Buildings,
 }
 
 export type PluginItems = Record<string, PluginItem>;
@@ -93,10 +94,53 @@ export interface PluginBuilding {
 	name: string,
 	description?: string,
 	image?: string,
-	category?: string,
+	wikiPage?: string,
+	category: string,
 	allowedRecipes?: string[],
-	variants?: Record<string, Partial<Omit<PluginBuilding, "variants">>>,
+	defaultRecipe?: string,
+	variants?: Record<string, Partial<Omit<PluginBuilding, "variants" | "category">>>,
 }
+
+export type Buildings = Record<string, Building>;
+export interface Building {
+	/** The unique key of the building */
+	key: string,
+	/** The key of the resource with the name of the building */
+	nameKey: string,
+	/** The key of the resource with the description of the building */
+	descriptionKey: string,
+	/** The category the building belongs to */
+	category: string,
+	/** The URL of the generic image, if one exists */
+	imageUrl?: string,
+	/** The URL to the generic wiki, if one exists */
+	wikiUrl?: string,
+	/** The keys of the recipes that can be selected for the building */
+	allowedRecipes?: string[],
+	/** If receipes are allowed this holds the default recipe */
+	defaultRecipe?: string,
+	/** The available variants of the building. If there are variants, the base building cannot be build */
+	variants?: Record<string, BuildingVariant>,
+}
+export interface BuildingVariant {
+	/** The unique key of the building variant */
+	key: string,
+	/** The key of the resource with the name of the building variant */
+	nameKey: string,
+	/** The key of the resource with the description of the building variant */
+	descriptionKey: string,
+	/** The category the building variant belongs to */
+	category: string,
+	/** The URL of the image */
+	imageUrl?: string,
+	/** The URL to the wiki */
+	wikiUrl?: string,
+	/** The keys of the recipes that can be selected for the building variant */
+	allowedRecipes?: string[],
+	/** If receipes are allowed this holds the default recipe */
+	defaultRecipe?: string,
+}
+
 
 export type PluginLanguages = Record<string, PluginLanguage>;
 
@@ -184,7 +228,7 @@ async function loadPluginsCore(): Promise<Database>
 	for(const translations of pagePer(50, extractLanguageKeys(data))) 
 		store.getActions().translations.importTranslations({ translations });
 
-	return extractDatabase(data);
+	return deepFreeze(extractDatabase(data));
 
 	/**
 	 * Tries to import the provided plugin
@@ -335,12 +379,51 @@ async function loadPluginsCore(): Promise<Database>
 				};
 			});
 
+		const buildings: Record<string, Building> = {};
+		if(data.buildings)
+			Object.entries(data.buildings).map(([key, building]) => 
+			{
+				const variants: Record<string, BuildingVariant> = {};
+
+				buildings[key] = {
+					key,
+					category: building.category,
+					nameKey: `building.${key}.name`,
+					descriptionKey: `building.${key}.description`,
+					imageUrl: building.image,
+					wikiUrl: building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
+					allowedRecipes: building.allowedRecipes,
+					defaultRecipe: building.defaultRecipe ?? building.allowedRecipes?.[0] ?? undefined,
+				};
+
+				if(building.variants) 
+				{
+					Object.entries(building.variants).map(([key, variant]) => 
+					{
+						variants[key] = {
+							key,
+							category: building.category,
+							nameKey: `building.${key}.variant.${key}.name`,
+							descriptionKey: `building.${key}.variant.${key}.description`,
+							imageUrl: variant.image ?? building.image,
+							wikiUrl: variant.wikiPage ? `https://satisfactory.wiki.gg/wiki/${variant.wikiPage}` : building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
+							allowedRecipes: variant.allowedRecipes ?? building.allowedRecipes,
+							defaultRecipe: variant.defaultRecipe ?? building.defaultRecipe ?? variant.allowedRecipes?.[0] ?? building.allowedRecipes?.[0] ?? undefined,
+						};
+					});
+
+					buildings[key].variants = variants;
+				}
+			});
+
+
 		console.debug("database processed", { languages, recipes, items });
 
 		return {
 			languages,
 			recipes,
 			items,
+			buildings,
 		};
 	}
 }

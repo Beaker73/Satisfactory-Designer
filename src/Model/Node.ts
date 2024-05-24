@@ -4,6 +4,7 @@ import type { Position } from "./Position";
 export interface Node {
 	id: Guid,
 	position: Position,
-	itemKey: string,
+	buildingKey: string,
+	recipeKey?: string,
 	variantKey?: string,
 }

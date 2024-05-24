@@ -1,5 +1,5 @@
-import { MenuItem, MenuList, makeStyles, shorthands, tokens } from "@fluentui/react-components";
-import { DeleteFilled, DeleteRegular, bundleIcon } from "@fluentui/react-icons";
+import { Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { AppsListDetailFilled, AppsListDetailRegular, BookTemplateFilled, BookTemplateRegular, DeleteFilled, DeleteRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
@@ -10,6 +10,7 @@ import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Guid } from "@/Model/Guid";
 import { useStoreActions, useStoreState } from "@/Store";
 
+import { hasValueNotFalse } from "@/Helpers";
 import { Panel } from "./Panel";
 import { RequestDialog } from "./RequestDialog";
 
@@ -52,49 +53,54 @@ export function Canvas()
 	});
 
 	const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
-	// const VariantIcon = bundleIcon(AppsListDetailFilled, AppsListDetailRegular);
+	const VariantIcon = bundleIcon(AppsListDetailFilled, AppsListDetailRegular);
+	const RecipeIcon = bundleIcon(BookTemplateFilled, BookTemplateRegular);
+
+	const setRecipe = useStoreActions(store => store.nodes.setRecipe);
 
 	return <div className={styles.root} ref={drop}>
 		<div className={styles.canvas}>
 			{nodes.map(node => 
 			{
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				const item = database.items.getByKey(node.itemKey)!;
-				//const variants = item?.variants ? database.variants.getByKey(item.variants) : undefined;
-				//const hasVariants = !!variants;
+				const building = database.buildings.getByKey(node.buildingKey)!;
+
+				const allowedRecipes = building.allowedRecipes?.map(key => database.recipes.getByKey(key)).filter(hasValueNotFalse) ?? [];
+				const hasRecipes = allowedRecipes.length > 0;
+				const selectedRecipe = hasRecipes && building.allowedRecipes && node.recipeKey ? database.recipes.getByKey(node.recipeKey) : undefined;
 
 				return <div key={node.id} style={{ position: "absolute", left: node.position[0], top: node.position[1] }}>
 					<Panel commands={<MenuList>
-						{/* {hasVariants && <Menu hasCheckmarks
+						{hasRecipes && <Menu hasCheckmarks
 							checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
-							onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] }); }}>
+							onCheckedValueChange={(_ev, data) => { setRecipe({ nodeId: node.id, recipeKey: data.checkedItems[0] }); }}>
 							<MenuTrigger>
-								<MenuItem icon={<VariantIcon />} >{st(variants.displayName)}</MenuItem>
+								<MenuItem icon={<RecipeIcon />} >Recipe</MenuItem>
 							</MenuTrigger>
 							<MenuPopover>
 								<MenuList>
-									{variants.types.map((variant, ix) => 
+									{allowedRecipes.map(recipe => 
 									{
-										return <MenuItemRadio key={ix} name="variant" value={variant.key}>
-											{st(variant.displayName)}
+										return <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
+											{st(recipe.nameKey)}
 										</MenuItemRadio>;
 									})}
 								</MenuList>
 							</MenuPopover>
-						</Menu>} */}
+						</Menu>}
 						<MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node.id)} >{dt("canvas.delete.commandText")}</MenuItem>
 					</MenuList>}
 					dragKey={node.id}
-					name={st(item.nameKey)}
+					name={st(building.nameKey)}
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					// description={variants ? `${st(variants.displayName)}: ${st(variants.types.find(v => v.key === (node.variantKey ?? variants.default))!.displayName)}` : ""}
-					description="-"
-					imageUrl={item.imageUrl} />
+					description={selectedRecipe ? `Recipe: ${st(selectedRecipe.nameKey)}` : ""}
+					imageUrl={building.imageUrl} />
 				</div>;
 			})}
 		</div>
 	</div>;
 }
+
 
 const useStyles = makeStyles({
 	root: {

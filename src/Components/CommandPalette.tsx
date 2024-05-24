@@ -1,10 +1,12 @@
+import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, MenuItem, MenuList, makeStyles } from "@fluentui/react-components";
+import { BeakerAddFilled, BeakerAddRegular, bundleIcon } from "@fluentui/react-icons";
+
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDesignerText } from "@/Hooks/Translations";
 import { newGuid } from "@/Model/Guid";
 import type { Node } from "@/Model/Node";
 import { useStoreActions } from "@/Store";
-import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, MenuItem, MenuList, makeStyles } from "@fluentui/react-components";
-import { BeakerAddFilled, BeakerAddRegular, bundleIcon } from "@fluentui/react-icons";
+
 import { Item } from "./Item";
 import { Stack } from "./Stack";
 
@@ -13,7 +15,7 @@ export function CommandPalette()
 	const BeakerAddIcon = bundleIcon(BeakerAddFilled, BeakerAddRegular);
 
 	const database = useDatabase();
-	const resources = database.items.getByCategory("resource");
+	const buildings = database.buildings.getByCategory("resource");
 
 	const style = useCommandPaletteStyle();
 
@@ -23,10 +25,10 @@ export function CommandPalette()
 	return <Stack className={style.root}>
 		<Accordion className={style.root}>
 			<AccordionItem value="resources">
-				<AccordionHeader>{dt("item.category.resource", { count: resources.length })}</AccordionHeader>
+				<AccordionHeader>{dt("item.category.resource", { count: buildings.length })}</AccordionHeader>
 				<AccordionPanel>
 					<MenuList>
-						{resources.map(item => 
+						{buildings.map(building => 
 						{
 							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 							//const variants = item.variants ? database.variants.getByKey(item.variants)! : undefined;
@@ -36,14 +38,14 @@ export function CommandPalette()
 								const node: Node = {
 									id: newGuid(),
 									position: [16,16],
-									itemKey: item.key,
-									//variantKey: variants?.default,
+									buildingKey: building.key,
+									recipeKey: building.defaultRecipe,
 								};
 
 								addNode({ node });
 							}
-							return <MenuItem key={item.key} onClick={addItemToDesign}>
-								<Item item={item}
+							return <MenuItem key={building.key} onClick={addItemToDesign}>
+								<Item item={building}
 									commands={<MenuItem icon={<BeakerAddIcon />}
 										onClick={addItemToDesign}>
 											Add to Design
