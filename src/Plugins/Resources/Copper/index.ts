@@ -1,5 +1,5 @@
 import type { Plugin } from "../../index";
-import copperOreImagePath from "./CopperOre.png";
+import { default as copperNodeImagePath, default as copperOreImagePath } from "./CopperOre.png";
 
 export default {
 
@@ -13,6 +13,20 @@ export default {
 				wikiPage: "Copper_Ore",
 				stackSize: 100,
 				sinkPoints: 3,
+			},
+		},
+		recipes: {
+			copperNodeImpure: { name: "Impure", duration: 2, outputs: { copperOre: 1 } },
+			copperNodeNormal : { name: "Normal", duration: 1, outputs: { copperOre: 1 } },
+			copperNodePure: { name: "Pure", duration: 0.5, outputs: { copperOre: 1 } },
+		},
+		buildings: {
+			copperNode: {
+				name: "Copper Node",
+				category: "resource",
+				image: copperNodeImagePath,
+				allowedRecipes: ["copperNodeImpure", "copperNodeNormal", "copperNodePure"],
+				defaultRecipe: "copperNodeNormal",
 			},
 		},
 	},

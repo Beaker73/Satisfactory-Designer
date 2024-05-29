@@ -24,10 +24,16 @@ export default {
 					ironNodeImpure: { name: "Onzuiver" },
 					ironNodeNormal: { name: "Normaal" },
 					ironNodePure: { name: "Zuiver" },
+					copperNodeImpure: { name: "Onzuiver" },
+					copperNodeNormal: { name: "Normaal" },
+					copperNodePure: { name: "Zuiver" },
 				},
 				buildings: {
 					ironNode: {
 						name: "IJzer grondstofbron",
+					},
+					copperNode: {
+						name: "Koper grondstofbron",
 					},
 				},
 

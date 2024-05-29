@@ -55,7 +55,9 @@ export function NodeCard(props: NodeCardProps)
 					<Button appearance="subtle" icon={<MoreIcon />} />
 				</MenuTrigger>
 				<MenuPopover>
-					{commands}
+					<MenuList>
+						{commands}
+					</MenuList>
 				</MenuPopover>
 			</Menu> : undefined}
 		>
