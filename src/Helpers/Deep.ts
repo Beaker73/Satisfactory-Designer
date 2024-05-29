@@ -23,6 +23,7 @@ export function deepClone<T>(_something: T): T
 	throw new Error("Not implemented");
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function match
 export function deepMap(something: unknown, map: (item: any) => unknown): unknown
 {
 	if(!something)

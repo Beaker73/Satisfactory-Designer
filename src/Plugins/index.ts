@@ -10,7 +10,6 @@ import { type Items } from "@/Model/Item";
 import type { RecipeKey } from "@/Model/Recipe";
 import { type Recipes } from "@/Model/Recipe";
 import { store } from "@/Store";
-import type { ResourceKey } from "i18next";
 import type { JSX } from "react";
 import type { Translation } from "../Model/Translation";
 
@@ -39,8 +38,9 @@ export type LanguageKey = Key<"Language">;
 
 export interface LanguageInfo {
 	/** The name of the language in their own tongue */
-	name: ResourceKey, 
+	name: string, 
 	/** The flag image */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function match
 	image: string | ((props?: any) => JSX.Element)
 }
 
@@ -123,7 +123,7 @@ export function loadPlugins(): Promise<Database>
 async function loadPluginsCore(): Promise<Database>
 {
 	// tell vite to load all the plugins in the folder
-	const plugins: Record<string, Promise<{ default: Plugin }>> = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./index.ts"], { eager: true });
+	const plugins = import.meta.glob(["./**/*.ts", "./**/*.tsx", "!./index.ts"]);
 
 	// map them in such a way that they can be awaited using raceAll
 	// without loosing the link between the name and the plugin
@@ -144,7 +144,7 @@ async function loadPluginsCore(): Promise<Database>
 									: trimmed;
 						console.debug("loaded:::", { path, trimmed });
 
-						const plugin = await promise;
+						const plugin = await promise() as { default: Plugin };
 						resolve([trimmed, plugin.default]);
 					}
 					catch (x) 

@@ -9,6 +9,7 @@ export interface NodesModel {
 	nodesById: Record<NodeId, Node>,
 
 	allNodes: Computed<NodesModel, Node[]>,
+	getById: Computed<NodesModel, (nodeId: NodeId) => Node>,
 
 	addNode: Action<NodesModel, { node: Node }>,
 	moveNodeByOffset: Action<NodesModel, { nodeId: NodeId, offset: XYCoord }>,
@@ -21,6 +22,7 @@ export const nodesImpl: NodesModel = {
 	nodesById: {},
 
 	allNodes: computed(state => Object.values(state.nodesById)),
+	getById: computed(state => id => state.nodesById[id]),
 
 	addNode: action((state, { node }) => 
 	{

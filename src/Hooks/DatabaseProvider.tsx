@@ -1,3 +1,4 @@
+import { hasValue } from "@/Helpers";
 import { deepFreeze } from "@/Helpers/Deep";
 import type { Building, BuildingCategoryKey, BuildingKey } from "@/Model/Building";
 import type { Item, ItemCategoryKey, ItemKey } from "@/Model/Item";
@@ -35,6 +36,12 @@ export interface Database
 		 * @returns The item with the requested key; undefined when not found
 		 */
 		getByKey(recipeKey: RecipeKey): Recipe | undefined,
+		/**
+		 * Gets multiple recipes by their keys
+		 * @param recipeKeys The keys of recipes to get
+		 * @returns An array with the found recipes
+		 */
+		getByKeys(recipeKeys?: RecipeKey[]): Recipe[],
 		/**
 		 * Get all recipes with the requested item as part of the input
 		 * @param itemKey The kye of the item that should be part of the input of the recipe
@@ -101,6 +108,7 @@ export function useDatabase(): Database
 			},
 			recipes: {
 				getByKey: recipeKey => data.recipes[recipeKey],
+				getByKeys: recipeKeys => recipeKeys?.map(key => data.recipes[key]).filter(hasValue) ?? [],
 				getWithInput: _itemKey => { throw new Error("not implemented"); },
 				getWithOutput: _itemKey => { throw new Error("not implemented"); },
 			},
@@ -112,7 +120,7 @@ export function useDatabase(): Database
 				getByCategory: category => buildingsByCategory[category],
 				getByKey: buildingKey => data.buildings[buildingKey],
 			},
-		};
+		} satisfies Database;
 	}, [data]);
 	
 	return database;

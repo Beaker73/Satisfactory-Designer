@@ -1,5 +1,6 @@
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Item as ItemData } from "@/Plugins";
+import type { Building } from "@/Model/Building";
+import type { Item } from "@/Model/Item";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
 import type { ReactElement } from "react";
@@ -9,7 +10,7 @@ import { Stack } from "./Stack";
 
 
 export interface ItemProps {
-	item: ItemData,
+	item: Building | Item,
 	commands?: ReactElement,
 }
 
@@ -38,7 +39,7 @@ export function Item(props: ItemProps)
 }
 
 interface ItemIconProps {
-	item: ItemData,
+	item: Building | Item,
 	size?: number,
 }
 
@@ -50,7 +51,7 @@ export function ItemIcon(props: ItemIconProps)
 
 
 interface ItemTooltipProps {
-	item: ItemData,
+	item: Building | Item,
 	commands?: ReactElement,
 }
 
@@ -96,8 +97,8 @@ export function ItemTooltip(props: ItemTooltipProps)
 			<img className={style.image} src={item.imageUrl} />
 			<dl className={style.list}>
 				{element(dt("item.category.label"), dt(`item.category.${item.category}`, { count: 1 }))}
-				{item.stackSize && element(dt("item.stackSize.label"), item.stackSize)}
-				{item.sinkPoints && element(dt("item.sinkPoints.label"), item.sinkPoints)}
+				{"stackSize" in item && item.stackSize && element(dt("item.stackSize.label"), item.stackSize)}
+				{"sinkPoints" in item && item.sinkPoints && element(dt("item.sinkPoints.label"), item.sinkPoints)}
 				{/* {variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))} */}
 			</dl>
 		</Stack>
@@ -118,7 +119,7 @@ const useItemTooltipStyles = makeStyles({
 		display: "block",
 		...shorthands.border("solid 1px green"),
 		...shorthands.padding("8px"),
-		...shorthands.borderRadius(tokens.borderRadiusLarge),
+		borderRadius: tokens.borderRadiusLarge,
 		backgroundColor: tokens.colorNeutralBackground2,
 		right: "-48px",
 		top: "-8px",

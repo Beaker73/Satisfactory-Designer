@@ -31,9 +31,6 @@ export function CommandPalette()
 					<MenuList>
 						{buildings.map(building => 
 						{
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							//const variants = item.variants ? database.variants.getByKey(item.variants)! : undefined;
-
 							function addItemToDesign() 
 							{
 								const node: Node = {

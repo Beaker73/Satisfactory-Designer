@@ -44,6 +44,7 @@ function LanguageSwitcher(props: PropsWithChildren)
 
 let initResult: Promise<TFunction> | undefined;
 
+// eslint-disable-next-line react-refresh/only-export-components -- this function does not change very often. F5 is fine when this changes.
 export function initTranslation(getNamespace: (language: string, namespace: string) => ResourceKey ) 
 {
 	if(initResult)
