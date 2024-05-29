@@ -1,4 +1,4 @@
-import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Body1, Button, Caption1, Card, CardHeader, Label, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { BookTemplateFilled, BookTemplateRegular, DeleteFilled, DeleteRegular, MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import { Fragment } from "react/jsx-runtime";
@@ -12,7 +12,11 @@ import type { Node, NodeId } from "@/Model/Node";
 import type { Recipe, RecipeKey } from "@/Model/Recipe";
 import { useStoreActions, useStoreState } from "@/Store";
 
+import { objectEntries } from "@/Helpers/Object";
+import type { KeyedRecord } from "@/Model/Identifiers";
+import type { Item, ItemKey } from "@/Model/Item";
 import { RequestDialog } from "./RequestDialog";
+import { Stack } from "./Stack";
 
 export interface NodeCardProps {
 	nodeId: NodeId,
@@ -45,24 +49,28 @@ export function NodeCard(props: NodeCardProps)
 	const name = st(building.nameKey);
 	const description = [variant ? st(variant.nameKey) : undefined, recipe ? st(recipe.nameKey) : undefined].filter(hasValue).join(", ");
 
-	return <Card orientation="horizontal" className={styles.node}>
-		<CardHeader
-			image={imageUrl ? <img className={styles.preview} src={imageUrl} /> : undefined}
-			header={<Body1 className={styles.title}>{name}</Body1>}
-			description={<Caption1>{description}</Caption1>}
-			action={commands ? <Menu>
-				<MenuTrigger>
-					<Button appearance="subtle" icon={<MoreIcon />} />
-				</MenuTrigger>
-				<MenuPopover>
-					<MenuList>
-						{commands}
-					</MenuList>
-				</MenuPopover>
-			</Menu> : undefined}
-		>
-		</CardHeader>
-	</Card>;
+	return <div className={styles.root}>
+		<Card orientation="horizontal" className={styles.node}>
+			<CardHeader
+				image={imageUrl ? <img className={styles.preview} src={imageUrl} /> : undefined}
+				header={<Body1 className={styles.title}>{name}</Body1>}
+				description={<Caption1>{description}</Caption1>}
+				action={commands ? <Menu>
+					<MenuTrigger>
+						<Button appearance="subtle" icon={<MoreIcon />} />
+					</MenuTrigger>
+					<MenuPopover>
+						<MenuList>
+							{commands}
+						</MenuList>
+					</MenuPopover>
+				</Menu> : undefined}
+			>
+			</CardHeader>
+		</Card>
+		{recipe?.inputs && <Ports recipe={recipe} items={recipe.inputs} side="left"  />}
+		{recipe?.outputs && <Ports recipe={recipe} items={recipe.outputs} side="right" />}
+	</div>;
 }
 
 
@@ -155,3 +163,61 @@ function DeleteNodeMenuItem(props: NodeCardProps)
 
 	return <MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(nodeId)} >{dt("canvas.delete.commandText")}</MenuItem>;
 }
+
+export interface PortsProps 
+{
+	recipe: Recipe,
+	items: KeyedRecord<ItemKey, number>,
+	side: "left" | "right",
+}
+
+export function Ports(props: PortsProps) 
+{
+	const { recipe, items, side } = props;
+	const database = useDatabase();
+
+	return <Stack>
+		{objectEntries(items).map(([key, count]) => 
+		{
+			const item = database.items.getByKey(key);
+			if(!item)
+				return undefined;
+			return <Port key={key} recipe={recipe} item={item} count={count} side={side} />;
+		})}
+	</Stack>;
+}
+
+export interface PortProps {
+	recipe: Recipe,
+	item: Item,
+	count: number,
+	side: "left" | "right"
+}
+
+export function Port(props: PortProps) 
+{
+	const { recipe, item, count, side } = props;
+
+	const styles = usePortStyles();
+	const st = useSatisfactoryText();
+
+	const tooltip = <Stack>
+		<Label>{st(item.nameKey)}</Label>
+		<Label>{60 / recipe.duration * count}&nbsp;p/m</Label>
+	</Stack>;
+
+	return <Tooltip content={tooltip} withArrow relationship="description" positioning={side === "left" ? "before" : "after" }>
+		<div className={styles.port}>
+		</div>
+	</Tooltip>;
+}
+
+const usePortStyles = makeStyles({
+	port: {
+		width: "8px",
+		height: "8px",
+		border: `solid 1px ${tokens.colorNeutralStroke1}`,
+		borderRadius: "8px",
+		backgroundColor: tokens.colorNeutralBackground4,
+	},
+});
