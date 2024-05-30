@@ -1,4 +1,4 @@
-import type { Guid } from "./Guid";
+import type { Guid } from "./Identifiers";
 
 /** Project information */
 export interface Project {

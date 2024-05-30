@@ -1,10 +1,14 @@
+import griffel from "@griffel/vite-plugin";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
-export default defineConfig({
-	plugins: [react()],
+export default defineConfig(({ command }) => ({
+	plugins: [
+		react(),
+		command === "build" && false && griffel(),
+	],
 	base: "/Satisfactory-Designer/", // path on github.io
 	resolve: {
 		alias: [
@@ -14,4 +18,4 @@ export default defineConfig({
 	test: {
 		environment: "jsdom",
 	},
-});
+}));

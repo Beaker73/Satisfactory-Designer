@@ -1,24 +1,28 @@
-import type { Guid } from "@/Model/Guid";
-import type { Node } from "@/Model/Node";
+import type { BuildingVariantKey } from "@/Model/Building";
+import type { Node, NodeId } from "@/Model/Node";
+import type { RecipeKey } from "@/Model/Recipe";
 import type { Action } from "easy-peasy";
 import { action, computed, type Computed } from "easy-peasy";
 import type { XYCoord } from "react-dnd";
 
 export interface NodesModel {
-	nodesById: Record<Guid, Node>,
+	nodesById: Record<NodeId, Node>,
 
 	allNodes: Computed<NodesModel, Node[]>,
+	getById: Computed<NodesModel, (nodeId: NodeId) => Node>,
 
 	addNode: Action<NodesModel, { node: Node }>,
-	moveNodeByOffset: Action<NodesModel, { nodeId: Guid, offset: XYCoord }>,
-	setVariant: Action<NodesModel, {nodeId: Guid, variantKey: string }>,
-	deleteNode: Action<NodesModel, {nodeId: Guid }>,
+	moveNodeByOffset: Action<NodesModel, { nodeId: NodeId, offset: XYCoord }>,
+	setVariant: Action<NodesModel, {nodeId: NodeId, variantKey: BuildingVariantKey }>,
+	setRecipe: Action<NodesModel, {nodeId: NodeId, recipeKey: RecipeKey }>,
+	deleteNode: Action<NodesModel, {nodeId: NodeId }>,
 }
 
 export const nodesImpl: NodesModel = {
 	nodesById: {},
 
 	allNodes: computed(state => Object.values(state.nodesById)),
+	getById: computed(state => id => state.nodesById[id]),
 
 	addNode: action((state, { node }) => 
 	{
@@ -37,9 +41,13 @@ export const nodesImpl: NodesModel = {
 	{
 		const node = state.nodesById[nodeId];
 		if(node) 
-		{
 			node.variantKey = variantKey;
-		}
+	}),
+	setRecipe: action((state, { nodeId, recipeKey }) => 
+	{
+		const node = state.nodesById[nodeId];
+		if(node) 
+			node.recipeKey = recipeKey;
 	}),
 	deleteNode: action((state, { nodeId }) => 
 	{

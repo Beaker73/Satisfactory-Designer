@@ -1,4 +1,5 @@
 {
+	"$schema": "http://json-schema.org/schema#",
 	"properties": {
 		"variants": {
 			"type": "object",
@@ -69,9 +70,9 @@
 							"type": "number",
 							"description": "The number of joules when using this as an energy source"
 						},
-						"wikiUrl": {
+						"wikePage": {
 							"type": "string",
-							"description": "The URL to the wiki page for this item"
+							"description": "The name of the page on the satisfactory wiki (https://satisfactory.wiki.gg)"
 						},
 						"variants": {
 							"type": "string"
@@ -79,7 +80,6 @@
 					},
 					"required": [
 						"category",
-						"displayName",
 						"stackSize"
 					],
 					"additionalProperties": false

@@ -4,7 +4,7 @@ import { DeleteFilled, DeleteRegular, DocumentFlowchartFilled, DocumentFlowchart
 import { compareAsc, formatDate } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 
-import type { Guid } from "@/Model/Guid";
+import type { Guid } from "@/Model/Identifiers";
 import type { Project } from "@/Model/Project";
 import { useStoreActions, useStoreState } from "@/Store";
 

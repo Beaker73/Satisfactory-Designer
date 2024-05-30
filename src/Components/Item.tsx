@@ -1,6 +1,6 @@
-import type { Item as ItemData } from "@/Data/Satisfactory";
-import { useDatabase } from "@/Hooks/DatabaseProvider";
-import { useSatisfactoryText } from "@/Hooks/Translations";
+import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
+import type { Building } from "@/Model/Building";
+import type { Item } from "@/Model/Item";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
 import type { ReactElement } from "react";
@@ -10,7 +10,7 @@ import { Stack } from "./Stack";
 
 
 export interface ItemProps {
-	item: ItemData,
+	item: Building | Item,
 	commands?: ReactElement,
 }
 
@@ -33,38 +33,39 @@ export function Item(props: ItemProps)
 	</>} />}>
 		<Stack horizontal gap>
 			<ItemIcon item={item} />
-			<Text>{t(item.displayName)}</Text>
+			<Text>{t(item.nameKey)}</Text>
 		</Stack>
 	</ContextPopup>;
 }
 
 interface ItemIconProps {
-	item: ItemData,
+	item: Building | Item,
 	size?: number,
 }
 
 export function ItemIcon(props: ItemIconProps) 
 {
 	const size = props.size ?? 24;
-	return <img src={`images/${props.item.key}.png`} width={size} height={size} />;
+	return <img src={props.item.imageUrl} width={size} height={size} />;
 }
 
 
 interface ItemTooltipProps {
-	item: ItemData,
+	item: Building | Item,
 	commands?: ReactElement,
 }
 
 export function ItemTooltip(props: ItemTooltipProps) 
 {
 	const { item, commands } = props;
-	const t = useSatisfactoryText();
+	const st = useSatisfactoryText();
+	const dt = useDesignerText();
 
 	const style = useItemTooltipStyles();
 
-	const db = useDatabase();
-	const variants = item.variants ? db.variants.getByKey(item.variants) : undefined;
-	const st = useSatisfactoryText();
+	//const db = useDatabase();
+	// const variants = item.variants ? db.variants.getByKey(item.variants) : undefined;
+	//const st = useSatisfactoryText();
 
 	const element = useCallback((dt: string, dd: string | number | string[]) => 
 	{
@@ -91,14 +92,14 @@ export function ItemTooltip(props: ItemTooltipProps)
 			</Stack.Item>
 		</>}
 		<Stack className={style.root}>
-			<Text size={500} weight="semibold" >{t(item.displayName)}</Text>
-			{item.description && <Text size={200} style={{ opacity: .6 }}>{t(item.description)}</Text>}
-			<img className={style.image} src={`images/${props.item.key}.png`} />
+			<Text size={500} weight="semibold" >{st(item.nameKey)}</Text>
+			{item.descriptionKey && <Text size={200} style={{ opacity: .6 }}>{st(item.descriptionKey)}</Text>}
+			<img className={style.image} src={item.imageUrl} />
 			<dl className={style.list}>
-				{element("Category", t(`items.category.${item.category}`))}
-				{element("Stack size", item.stackSize)}
-				{item.sinkPoints && element("Sink points", item.sinkPoints)}
-				{variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))}
+				{element(dt("item.category.label"), dt(`item.category.${item.category}`, { count: 1 }))}
+				{"stackSize" in item && item.stackSize && element(dt("item.stackSize.label"), item.stackSize)}
+				{"sinkPoints" in item && item.sinkPoints && element(dt("item.sinkPoints.label"), item.sinkPoints)}
+				{/* {variants && element(`${st(variants.displayName)} Variants`, variants.types.map(type => st(type.displayName)))} */}
 			</dl>
 		</Stack>
 	</Stack>;
@@ -118,7 +119,7 @@ const useItemTooltipStyles = makeStyles({
 		display: "block",
 		...shorthands.border("solid 1px green"),
 		...shorthands.padding("8px"),
-		...shorthands.borderRadius(tokens.borderRadiusLarge),
+		borderRadius: tokens.borderRadiusLarge,
 		backgroundColor: tokens.colorNeutralBackground2,
 		right: "-48px",
 		top: "-8px",

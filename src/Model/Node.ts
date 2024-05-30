@@ -1,9 +1,14 @@
-import type { Guid } from "./Guid";
+import type { BuildingKey, BuildingVariantKey } from "./Building";
+import type { Guid } from "./Identifiers";
 import type { Position } from "./Position";
+import type { RecipeKey } from "./Recipe";
+
+export type NodeId = Guid<"Node">;
 
 export interface Node {
-	id: Guid,
+	id: NodeId,
 	position: Position,
-	itemKey: string,
-	variantKey?: string,
+	buildingKey: BuildingKey,
+	variantKey?: BuildingVariantKey,
+	recipeKey?: RecipeKey,
 }

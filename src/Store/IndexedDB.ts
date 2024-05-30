@@ -1,4 +1,4 @@
-import type { Guid } from "@/Model/Guid";
+import type { Guid } from "@/Model/Identifiers";
 import type { Node } from "@/Model/Node";
 import type { PersistStorage } from "easy-peasy";
 import type { NodesModel } from "./Nodes";

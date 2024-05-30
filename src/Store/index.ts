@@ -5,11 +5,14 @@ import { nodesImpl } from "./Nodes";
 // eslint-disable-next-line import/no-cycle -- yes cycle, but no runtime issue (store in Projects is only used in lambda after everything is initialized)
 import { projectsImpl, type ProjectsModel } from "./Projects";
 import { settingsImpl, type SettingsModel } from "./Settings";
+import type { TranslationsModel } from "./Translation";
+import { translationsImpl } from "./Translation";
 
 export interface StoreModel {
 	settings: SettingsModel,
 	projects: ProjectsModel,
 	nodes: NodesModel,
+	translations: TranslationsModel,
 }
 
 
@@ -18,6 +21,7 @@ const impl: StoreModel = {
 	settings: persist(settingsImpl, { storage: "localStorage" }),
 	projects: persist(projectsImpl, { storage: "localStorage" }),
 	nodes: nodesImpl, // initial empty storage, no persist
+	translations: translationsImpl,
 };
 
 export const store = createStore(impl);
