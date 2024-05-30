@@ -68,8 +68,12 @@ export function NodeCard(props: NodeCardProps)
 			>
 			</CardHeader>
 		</Card>
-		{recipe?.inputs && <Ports recipe={recipe} items={recipe.inputs} side="left" />}
-		{recipe?.outputs && <Ports recipe={recipe} items={recipe.outputs} side="right" />}
+		<div className={styles.portsLeft}>
+			{recipe?.inputs && <Ports recipe={recipe} items={recipe.inputs} side="left" />}
+		</div>
+		<div className={styles.portsRight}>
+			{recipe?.outputs && <Ports recipe={recipe} items={recipe.outputs} side="right" />}
+		</div>
 	</div>;
 }
 
@@ -77,6 +81,20 @@ export function NodeCard(props: NodeCardProps)
 const useStyles = makeStyles({
 	root: {
 		position: "relative", // set so child nodes that are absolute position, can be relative to this node
+		margin: "-4px",
+		padding: "4px",
+	},
+	portsLeft: {
+		position: "absolute",
+		left: "-1px", // extra pixel for border
+		top: 0,
+		height: "100%",
+	},
+	portsRight: {
+		position: "absolute",
+		right: "-1px", // extra pixel for border
+		top: 0,
+		height: "100%",
 	},
 	node: {
 		width: "256px",
@@ -175,7 +193,7 @@ export function Ports(props: PortsProps)
 	const { recipe, items, side } = props;
 	const database = useDatabase();
 
-	return <Stack>
+	return <Stack justify="center">
 		{objectEntries(items).map(([key, count]) => 
 		{
 			const item = database.items.getByKey(key);

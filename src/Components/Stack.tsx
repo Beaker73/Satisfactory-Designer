@@ -1,6 +1,5 @@
 import { hasValue } from "@/Helpers";
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
-import type { Property } from "csstype";
 import type { ForwardedRef } from "react";
 import { forwardRef, type CSSProperties, type PropsWithChildren } from "react";
 
@@ -11,6 +10,8 @@ export interface StackProps {
 	gap?: number | boolean;
 	/** If set wraps at the end to the next row/column */
 	wrap?: boolean;
+	/** the justification of whole set of elements */
+	justify?: Property.AlignItems;
 	/** vertical alignment */
 	verticalAlign?: Property.AlignItems;
 
@@ -36,6 +37,8 @@ const StackComponent = forwardRef(
 		let dynamicStyles: CSSProperties = {};
 		if (typeof (props?.gap) === "number")
 			dynamicStyles.gap = props.gap;
+		if(props?.justify)
+			dynamicStyles.justifyContent = props.justify;
 		if (props?.verticalAlign)
 			dynamicStyles.alignItems = props.verticalAlign;
 		if (props.style)
