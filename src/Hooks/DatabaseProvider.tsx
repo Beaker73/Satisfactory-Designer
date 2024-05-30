@@ -81,7 +81,7 @@ export interface Database
 		 * @param buildingKey The key of the building to get
 		 * @returns The building with the request key; undefined when not found
 		 */
-		getByKey(buildingKey: BuildingKey): Building | undefined,
+		getByKey(buildingKey?: BuildingKey): Building | undefined,
 	}
 }
 
@@ -113,12 +113,12 @@ export function useDatabase(): Database
 				getWithOutput: _itemKey => { throw new Error("not implemented"); },
 			},
 			items: {
-				getByCategory: category => itemsByCategory[category],
+				getByCategory: category => itemsByCategory[category] ?? [],
 				getByKey: itemKey => data.items[itemKey],
 			},
 			buildings: {
-				getByCategory: category => buildingsByCategory[category],
-				getByKey: buildingKey => data.buildings[buildingKey],
+				getByCategory: category => buildingsByCategory[category] ?? [],
+				getByKey: buildingKey => buildingKey ? data.buildings[buildingKey] : undefined,
 			},
 		} satisfies Database;
 	}, [data]);

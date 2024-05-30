@@ -1,6 +1,7 @@
 
 import { raceAll } from "@/Helpers/Async";
 import { deepFreeze, deepMerge } from "@/Helpers/Deep";
+import { objectEntries, objectMapEntries } from "@/Helpers/Object";
 import { pagePer } from "@/Helpers/StreamingData";
 import type { Building, BuildingCategoryKey, BuildingKey, BuildingVariantKey } from "@/Model/Building";
 import { type BuildingVariants, type Buildings } from "@/Model/Building";
@@ -63,12 +64,13 @@ export interface PluginItem {
 }
 
 export type PluginRecipes = Record<string, PluginRecipe>;
+export type PluginIngredient = number | { count: number, tag?: string };
 export interface PluginRecipe {
 	name?: string,
 	description?: string,
 	duration: number,
-	outputs?: Record<string, number>,
-	inputs?: Record<string, number>,
+	outputs?: Record<string, PluginIngredient>,
+	inputs?: Record<string, PluginIngredient>,
 }
 
 
@@ -103,7 +105,7 @@ export interface PluginLanguage {
 	name: string,
 	items?: Record<string, Partial<Pick<PluginItem, "name" | "description">>>,
 	recipes?: Record<string, Partial<Pick<PluginRecipe, "name" | "description">>>,
-	buildings?: Record<string, Partial<Pick<PluginBuilding, "name" | "description">>>,
+	buildings?: Record<string, Partial<Pick<PluginBuilding, "name" | "description" | "variants">>>,
 	app?: LanguageNode,
 }
 
@@ -165,7 +167,7 @@ async function loadPluginsCore(): Promise<Database>
 		console.debug(`loaded ${name}`);
 		loaded[name] = plugin;
 
-		tryImport(plugin);
+		tryImport(name, plugin);
 	}
 
 	console.debug("all loaded", { data });
@@ -179,9 +181,9 @@ async function loadPluginsCore(): Promise<Database>
 	 * Tries to import the provided plugin
 	 * @param plugin The plugin to try to imprt
 	 */
-	function tryImport(plugin: Plugin) 
+	function tryImport(name: string, plugin: Plugin) 
 	{
-		console.debug("loading: dependency try import", plugin);
+		console.debug("loading: dependency try import", { name, plugin, loaded, processed });
 
 		// ensure all dependencies are processed
 		// if not, but it is loaded, process dependency first.
@@ -198,7 +200,7 @@ async function loadPluginsCore(): Promise<Database>
 				else if (dependency in loaded) 
 				{
 					// loaded but not processed, try processing
-					if (!tryImport(loaded[dependency])) 
+					if (!tryImport(dependency, loaded[dependency])) 
 					{
 						// fail if processing could not be done (nested dependency?)
 						console.debug("loading: dependency failed", dependency);
@@ -214,6 +216,17 @@ async function loadPluginsCore(): Promise<Database>
 			}
 		}
 
+		// move to processed
+		delete loaded[name];
+		processed[name] = plugin;
+
+		// now check if something that depends on us, is waiting for processing
+		const tryAgain = objectEntries(loaded).filter(([_, p]) => p.dependsOn?.some(d => d === name));
+		console.debug("loading: check waiting plugins", { name, tryAgain });
+		if(tryAgain)
+			for(const [name, plugin] of tryAgain)
+				tryImport(name, plugin);
+
 		// if we arrive here, we have no dependencies
 		// or all dependencies are processed.
 		// TODO: Deep Merge
@@ -227,7 +240,7 @@ async function loadPluginsCore(): Promise<Database>
 		function* processLanguage(language: string, database: PluginData | PluginLanguage): Generator<Translation>
 		{
 			if(database.items)
-				for(const [key, item] of Object.entries(database.items))
+				for(const [key, item] of objectEntries(database.items))
 				{
 					if(item.name)
 						yield { language, namespace: "satisfactory", key: `item.${key}.name`, text: item.name };
@@ -235,7 +248,7 @@ async function loadPluginsCore(): Promise<Database>
 						yield { language, namespace: "satisfactory", key: `item.${key}.description`, text: item.description };
 				}
 			if(database.recipes)
-				for(const [key, recipe] of Object.entries(database.recipes))
+				for(const [key, recipe] of objectEntries(database.recipes))
 				{
 					if(recipe.name)
 						yield { language, namespace: "satisfactory", key: `recipe.${key}.name`, text: recipe.name };
@@ -243,12 +256,23 @@ async function loadPluginsCore(): Promise<Database>
 						yield { language, namespace: "satisfactory", key: `recipe.${key}.description`, text: recipe.description };
 				}
 			if(database.buildings)
-				for(const [key, building] of Object.entries(database.buildings))
+				for(const [key, building] of objectEntries(database.buildings))
 				{
 					if(building.name)
 						yield { language, namespace: "satisfactory", key: `building.${key}.name`, text: building.name };
 					if(building.description)
 						yield { language, namespace: "satisfactory", key: `building.${key}.description`, text: building.description };
+
+					if(building.variants)
+					{
+						for(const [vKey, variant] of objectEntries(building.variants)) 
+						{
+							if(variant.name)
+								yield { language, namespace: "satisfactory", key: `building.${key}.variant.${vKey}.name`, text: variant.name };
+							if(variant.description)
+								yield { language, namespace: "satisfactory", key: `building.${key}.variant.${vKey}.description`, text: variant.description };
+						}
+					}
 				}
 
 			if("app" in database && database.app) 
@@ -295,6 +319,9 @@ async function loadPluginsCore(): Promise<Database>
 		}
 
 		const recipes: Recipes = {};
+		const mapRecipe = (r: PluginIngredient, k: ItemKey) => typeof r === "number" 
+			? { item: k as ItemKey, count: r } 
+			: { item: k as ItemKey, ...r };
 		if(data.recipes)
 			Object.entries(data.recipes).map(([k, recipe]) =>
 			{
@@ -305,8 +332,8 @@ async function loadPluginsCore(): Promise<Database>
 					nameKey: `recipe.${key}.name`,
 					descriptionKey: `recipe.${key}.description`,
 					duration: recipe.duration,
-					inputs: recipe.inputs,
-					outputs: recipe.outputs,
+					inputs: objectMapEntries( recipe.inputs, mapRecipe ),
+					outputs: objectMapEntries( recipe.outputs, mapRecipe ),
 				};
 			});
 
@@ -351,13 +378,13 @@ async function loadPluginsCore(): Promise<Database>
 				{
 					Object.entries(building.variants).map(([k, variant]) => 
 					{
-						const key = k as BuildingVariantKey;
+						const vKey = k as BuildingVariantKey;
 
-						variants[key] = {
-							key,
+						variants[vKey] = {
+							key: vKey,
 							category: building.category as BuildingCategoryKey,
-							nameKey: `building.${key}.variant.${key}.name`,
-							descriptionKey: `building.${key}.variant.${key}.description`,
+							nameKey: `building.${key}.variant.${vKey}.name`,
+							descriptionKey: `building.${key}.variant.${vKey}.description`,
 							imageUrl: variant.image ?? building.image,
 							wikiUrl: variant.wikiPage ? `https://satisfactory.wiki.gg/wiki/${variant.wikiPage}` : building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
 							allowedRecipes: (variant.allowedRecipes ?? building.allowedRecipes) as RecipeKey[],

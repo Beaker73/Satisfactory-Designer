@@ -1,18 +1,17 @@
 import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
-import { BookTemplateFilled, BookTemplateRegular, DeleteFilled, DeleteRegular, MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
+import { BookTemplateFilled, BookTemplateRegular, BuildingFactoryFilled, BuildingFactoryRegular, DeleteFilled, DeleteRegular, MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import { Fragment } from "react/jsx-runtime";
 
-import { hasValue } from "@/Helpers";
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Building, BuildingVariant } from "@/Model/Building";
+import type { Building, BuildingVariant, BuildingVariantKey, BuildingVariants } from "@/Model/Building";
 import type { Node, NodeId } from "@/Model/Node";
-import type { Recipe, RecipeKey } from "@/Model/Recipe";
+import type { Ingredient, Recipe, RecipeKey } from "@/Model/Recipe";
 import { useStoreActions, useStoreState } from "@/Store";
 
-import { objectEntries } from "@/Helpers/Object";
+import { objectEntries, objectValues } from "@/Helpers/Object";
 import type { KeyedRecord } from "@/Model/Identifiers";
 import type { Item, ItemKey } from "@/Model/Item";
 import { RequestDialog } from "./RequestDialog";
@@ -46,8 +45,8 @@ export function NodeCard(props: NodeCardProps)
 	const MoreIcon = bundleIcon(MoreVerticalFilled, MoreVerticalRegular);
 
 	const imageUrl = building.imageUrl;
-	const name = st(building.nameKey);
-	const description = [variant ? st(variant.nameKey) : undefined, recipe ? st(recipe.nameKey) : undefined].filter(hasValue).join(", ");
+	const name = variant ? `${st(building.nameKey)} ${st(variant.nameKey)}` : st(building.nameKey);
+	const description = recipe ? st(recipe.nameKey) : undefined;
 
 	return <div className={styles.root}>
 		<Card orientation="horizontal" className={styles.node}>
@@ -112,10 +111,13 @@ const useStyles = makeStyles({
 function useNodeCommands(node?: Node, building?: Building, _variant?: BuildingVariant, _recipe?: Recipe) 
 {
 	const database = useDatabase();
+	const variants = objectValues<BuildingVariants | undefined, BuildingVariantKey, BuildingVariant>(database.buildings.getByKey(node?.buildingKey)?.variants);
+	const hasVariants = (variants?.length ?? 0) > 0;
 	const recipes = database.recipes.getByKeys(building?.allowedRecipes);
 	const hasRecipes = (recipes?.length ?? 0) > 0;
 
 	return <Fragment>
+		{node && hasVariants && <VariantMenuItem node={node} variants={variants} />}
 		{node && hasRecipes && <RecipeMenuItem node={node} recipes={recipes} />}
 		{node && <DeleteNodeMenuItem nodeId={node.id} />}
 	</Fragment>;
@@ -129,13 +131,11 @@ interface RecipeMenuItemProps {
 export function RecipeMenuItem(props: RecipeMenuItemProps) 
 {
 	const { node, recipes } = props;
-	console.debug("node: 2", { node, props });
 
 	const RecipeIcon = bundleIcon(BookTemplateFilled, BookTemplateRegular);
 	const st = useSatisfactoryText();
 
 	const setRecipe = useStoreActions(store => store.nodes.setRecipe);
-	console.debug("recipes", recipes);
 
 	return <Menu>
 		<MenuTrigger>
@@ -148,6 +148,37 @@ export function RecipeMenuItem(props: RecipeMenuItemProps)
 			>
 				{recipes.map(recipe => <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
 					{st(recipe.nameKey)}
+				</MenuItemRadio>)}
+			</MenuList>
+		</MenuPopover>
+	</Menu>;
+}
+
+export interface VariantMenuItemProps {
+	node: Node,
+	variants: BuildingVariant[],
+}
+
+export function VariantMenuItem(props: VariantMenuItemProps) 
+{
+	const { node, variants } = props;
+
+	const VariantIcon = bundleIcon(BuildingFactoryFilled, BuildingFactoryRegular);
+	const st = useSatisfactoryText();
+
+	const setVariant = useStoreActions(store => store.nodes.setVariant);
+
+	return <Menu>
+		<MenuTrigger>
+			<MenuItem icon={<VariantIcon />}>Variant</MenuItem>
+		</MenuTrigger>
+		<MenuPopover>
+			<MenuList hasCheckmarks
+				checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
+				onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] as BuildingVariantKey }); }}
+			>
+				{variants.map(variant => <MenuItemRadio key={variant.key} name="variant" value={variant.key}>
+					{st(variant.nameKey)}
 				</MenuItemRadio>)}
 			</MenuList>
 		</MenuPopover>
@@ -184,7 +215,7 @@ function DeleteNodeMenuItem(props: NodeCardProps)
 
 export interface PortsProps {
 	recipe: Recipe,
-	items: KeyedRecord<ItemKey, number>,
+	items: KeyedRecord<ItemKey, Ingredient>,
 	side: "left" | "right",
 }
 
@@ -194,12 +225,12 @@ export function Ports(props: PortsProps)
 	const database = useDatabase();
 
 	return <Stack justify="center">
-		{objectEntries(items).map(([key, count]) => 
+		{objectEntries(items).map(([key, ingredient]) => 
 		{
 			const item = database.items.getByKey(key);
 			if (!item)
 				return undefined;
-			return <Port key={key} recipe={recipe} item={item} count={count} side={side} />;
+			return <Port key={key} recipe={recipe} item={item} count={ingredient.count} side={side} />;
 		})}
 	</Stack>;
 }

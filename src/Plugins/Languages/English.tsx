@@ -42,6 +42,8 @@ export default {
 							label: "Category",
 							resource_one: "Resource",
 							resource_other: "Resources",
+							extraction_one: "Extractor",
+							extraction_other: "Extractors",
 						},
 						"stackSize.label": "Stack Size",
 						"sinkPoints.label": "Sink Points",

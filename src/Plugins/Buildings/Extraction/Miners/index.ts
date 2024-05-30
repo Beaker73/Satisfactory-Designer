@@ -5,13 +5,30 @@ import minerMk3ImagePath from "./miner.mk3.webp";
 
 export default {
 
+	dependsOn: [
+		"Resources/Iron",
+		"Resources/Copper",
+	],
+
 	data: {
+
+		recipes: {
+			ironMining: {
+				name: "Iron Mining",
+				duration: 1,
+				inputs: {
+					iron: { count: 1, tag: "unmined" },
+				},
+			},
+		},
+
 		buildings: {
 			miner: {
 				name: "Miner",
 				description: "Extracts solid resources from the resource node it is built on.",
 				category: "extraction",
 				image: minerMk1ImagePath,
+				allowedRecipes: ["ironMining", "copperMining"],
 				variants: {
 					mk1: {
 						name: "Mk1",
