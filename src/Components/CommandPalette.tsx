@@ -20,6 +20,7 @@ export function CommandPalette()
 		<Accordion className={style.root}>
 			<BuildingAccordion category={knownBuildingCategories.resource} />
 			<BuildingAccordion category={knownBuildingCategories.extraction} />
+			<BuildingAccordion category={knownBuildingCategories.factory} />
 		</Accordion>
 	</Stack>;
 }

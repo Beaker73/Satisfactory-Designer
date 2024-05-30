@@ -20,17 +20,17 @@ export default {
 			ironNodeImpure: {
 				name: "Impure",
 				duration: 2,
-				outputs: { ironOre: 1 },
+				outputs: { ironOre: { count: 1, tag: "unmined" } },
 			},
 			ironNodeNormal: {
 				name: "Normal",
 				duration: 1,
-				outputs: { ironOre: 1 },
+				outputs: { ironOre: { count: 1, tag: "unmined" } },
 			},
 			ironNodePure: {
 				name: "Pure",
 				duration: 0.5,
-				outputs: { ironOre: 1 },
+				outputs: { ironOre: { count: 1, tag: "unmined" } },
 			},
 		},
 		buildings: {

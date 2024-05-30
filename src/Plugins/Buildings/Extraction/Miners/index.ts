@@ -17,7 +17,20 @@ export default {
 				name: "Iron Mining",
 				duration: 1,
 				inputs: {
-					iron: { count: 1, tag: "unmined" },
+					ironOre: { count: 1, tag: "unmined" },
+				},
+				outputs: {
+					ironOre: 1,
+				},
+			},
+			copperMining: {
+				name: "Copper Mining",
+				duration: 1,
+				inputs: {
+					copperOre: { count: 1, tag: "unmined" },
+				},
+				outputs: {
+					copperOre: 1,
 				},
 			},
 		},

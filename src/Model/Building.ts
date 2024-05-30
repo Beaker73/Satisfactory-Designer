@@ -9,7 +9,7 @@ export type BuildingKey = Key<"Building">;
 export type BuildingCategoryKey = Key<"BuildingCategory">;
 
 export const knownBuildingCategories = objectFromEntries(
-	(["resource", "extraction"] as const)
+	(["resource", "extraction", "factory"] as const)
 		.map(cat => [cat, cat as BuildingCategoryKey]),
 );
 

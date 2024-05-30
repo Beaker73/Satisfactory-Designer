@@ -11,9 +11,10 @@ import type { Node, NodeId } from "@/Model/Node";
 import type { Ingredient, Recipe, RecipeKey } from "@/Model/Recipe";
 import { useStoreActions, useStoreState } from "@/Store";
 
+import { hasValueNotFalse } from "@/Helpers";
 import { objectEntries, objectValues } from "@/Helpers/Object";
 import type { KeyedRecord } from "@/Model/Identifiers";
-import type { Item, ItemKey } from "@/Model/Item";
+import type { ItemKey } from "@/Model/Item";
 import { RequestDialog } from "./RequestDialog";
 import { Stack } from "./Stack";
 
@@ -222,34 +223,36 @@ export interface PortsProps {
 export function Ports(props: PortsProps) 
 {
 	const { recipe, items, side } = props;
-	const database = useDatabase();
 
-	return <Stack justify="center">
+	return <Stack justify="center" gap={4}>
 		{objectEntries(items).map(([key, ingredient]) => 
-		{
-			const item = database.items.getByKey(key);
-			if (!item)
-				return undefined;
-			return <Port key={key} recipe={recipe} item={item} count={ingredient.count} side={side} />;
-		})}
+			<Port key={key} recipe={recipe} ingredient={ingredient} side={side} />)}
 	</Stack>;
 }
 
 export interface PortProps {
 	recipe: Recipe,
-	item: Item,
-	count: number,
+	ingredient: Ingredient,
 	side: "left" | "right"
 }
 
 export function Port(props: PortProps) 
 {
-	const { recipe, item, count, side } = props;
+	const { recipe, ingredient, side } = props;
 
 	const styles = usePortStyles();
 	const st = useSatisfactoryText();
 
-	const tooltip = `${st(item.nameKey)}\n${60 / recipe.duration * count}\u00A0p/m`;
+	const database = useDatabase();
+	const item = database.items.getByKey(ingredient.item);
+
+	const tooltip = [
+		st(item?.nameKey).replace(" ", "\u00A0"),
+		`${60 / recipe.duration * ingredient.count}\u00A0p/m`,
+		ingredient.tag ? st(`item.tag.${ingredient.tag}`) : undefined,
+	]
+		.filter(hasValueNotFalse)
+		.join("\n");
 
 	return <Tooltip content={tooltip} withArrow appearance="inverted" relationship="description" positioning={side === "left" ? "before" : "after"}>
 		<div className={styles.port}>

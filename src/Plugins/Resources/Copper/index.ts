@@ -16,9 +16,9 @@ export default {
 			},
 		},
 		recipes: {
-			copperNodeImpure: { name: "Impure", duration: 2, outputs: { copperOre: 1 } },
-			copperNodeNormal : { name: "Normal", duration: 1, outputs: { copperOre: 1 } },
-			copperNodePure: { name: "Pure", duration: 0.5, outputs: { copperOre: 1 } },
+			copperNodeImpure: { name: "Impure", duration: 2, outputs: { copperOre: { count: 1, tag: "unmined" } } },
+			copperNodeNormal : { name: "Normal", duration: 1, outputs: { copperOre: { count: 1, tag: "unmined" } } },
+			copperNodePure: { name: "Pure", duration: 0.5, outputs: { copperOre: { count: 1, tag: "unmined" } } },
 		},
 		buildings: {
 			copperNode: {

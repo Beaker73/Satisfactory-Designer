@@ -44,6 +44,11 @@ export default {
 							resource_other: "Resources",
 							extraction_one: "Extractor",
 							extraction_other: "Extractors",
+							factory_one: "Factory",
+							factory_other: "Factories",
+						},
+						tag: {
+							unmined: "Unmined",
 						},
 						"stackSize.label": "Stack Size",
 						"sinkPoints.label": "Sink Points",

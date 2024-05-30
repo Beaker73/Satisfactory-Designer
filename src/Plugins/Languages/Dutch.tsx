@@ -72,6 +72,11 @@ export default {
 							resource_other: "Grondstoffen",
 							extraction_one: "Delver",
 							extraction_other: "Delvers",
+							factory_one: "Fabriek",
+							factory_other: "Fabrieken",
+						},
+						tag: {
+							unmined: "Ongedelft",
 						},
 						"stackSize.label": "Stapel hoogte",
 						"sinkPoints.label": "Stort punten",
