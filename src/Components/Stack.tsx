@@ -1,5 +1,6 @@
 import { hasValue } from "@/Helpers";
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
+import type { Property } from "csstype";
 import type { ForwardedRef } from "react";
 import { forwardRef, type CSSProperties, type PropsWithChildren } from "react";
 

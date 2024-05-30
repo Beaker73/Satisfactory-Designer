@@ -1,3 +1,4 @@
+import { objectFromEntries } from "@/Helpers/Object";
 import type { ResourceKey } from "i18next";
 import type { Key, KeyedRecord } from "./Identifiers";
 import type { RecipeKey } from "./Recipe";
@@ -7,6 +8,10 @@ export type BuildingKey = Key<"Building">;
 /** Key to uniquely identify a category of buildings */
 export type BuildingCategoryKey = Key<"BuildingCategory">;
 
+export const knownBuildingCategories = objectFromEntries(
+	(["resource", "extraction"] as const)
+		.map(cat => [cat, cat as BuildingCategoryKey]),
+);
 
 /** Record with buildings index by their key */
 export type Buildings = KeyedRecord<BuildingKey, Building>;

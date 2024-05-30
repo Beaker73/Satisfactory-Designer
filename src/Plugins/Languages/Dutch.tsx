@@ -35,6 +35,9 @@ export default {
 					copperNode: {
 						name: "Koper grondstofbron",
 					},
+					miner: {
+						name: "Mijnmachine",
+					},
 				},
 
 				app: {
@@ -67,6 +70,8 @@ export default {
 							label: "Categorie",
 							resource_one: "Grondstof",
 							resource_other: "Grondstoffen",
+							extraction_one: "Delver",
+							extraction_other: "Delvers",
 						},
 						"stackSize.label": "Stapel hoogte",
 						"sinkPoints.label": "Stort punten",
