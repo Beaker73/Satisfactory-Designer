@@ -1,4 +1,4 @@
-import { Body1, Button, Caption1, Card, CardHeader, Label, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
+import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Tooltip, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { BookTemplateFilled, BookTemplateRegular, DeleteFilled, DeleteRegular, MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
 import { useCallback } from "react";
 import { Fragment } from "react/jsx-runtime";
@@ -68,7 +68,7 @@ export function NodeCard(props: NodeCardProps)
 			>
 			</CardHeader>
 		</Card>
-		{recipe?.inputs && <Ports recipe={recipe} items={recipe.inputs} side="left"  />}
+		{recipe?.inputs && <Ports recipe={recipe} items={recipe.inputs} side="left" />}
 		{recipe?.outputs && <Ports recipe={recipe} items={recipe.outputs} side="right" />}
 	</div>;
 }
@@ -164,8 +164,7 @@ function DeleteNodeMenuItem(props: NodeCardProps)
 	return <MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(nodeId)} >{dt("canvas.delete.commandText")}</MenuItem>;
 }
 
-export interface PortsProps 
-{
+export interface PortsProps {
 	recipe: Recipe,
 	items: KeyedRecord<ItemKey, number>,
 	side: "left" | "right",
@@ -180,7 +179,7 @@ export function Ports(props: PortsProps)
 		{objectEntries(items).map(([key, count]) => 
 		{
 			const item = database.items.getByKey(key);
-			if(!item)
+			if (!item)
 				return undefined;
 			return <Port key={key} recipe={recipe} item={item} count={count} side={side} />;
 		})}
@@ -201,12 +200,9 @@ export function Port(props: PortProps)
 	const styles = usePortStyles();
 	const st = useSatisfactoryText();
 
-	const tooltip = <Stack>
-		<Label>{st(item.nameKey)}</Label>
-		<Label>{60 / recipe.duration * count}&nbsp;p/m</Label>
-	</Stack>;
+	const tooltip = `${st(item.nameKey)}\n${60 / recipe.duration * count}\u00A0p/m`;
 
-	return <Tooltip content={tooltip} withArrow relationship="description" positioning={side === "left" ? "before" : "after" }>
+	return <Tooltip content={tooltip} withArrow appearance="inverted" relationship="description" positioning={side === "left" ? "before" : "after"}>
 		<div className={styles.port}>
 		</div>
 	</Tooltip>;
@@ -216,8 +212,8 @@ const usePortStyles = makeStyles({
 	port: {
 		width: "8px",
 		height: "8px",
-		border: `solid 1px ${tokens.colorNeutralStroke1}`,
+		border: `solid 1px ${tokens.colorNeutralStrokeAccessible}`,
 		borderRadius: "8px",
-		backgroundColor: tokens.colorNeutralBackground4,
+		backgroundColor: tokens.colorNeutralBackground1,
 	},
 });
