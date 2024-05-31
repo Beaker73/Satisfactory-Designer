@@ -6,6 +6,7 @@ import { useDrop } from "react-dnd";
 import { useStoreActions, useStoreState } from "@/Store";
 
 import type { NodeId } from "@/Model/Node";
+import { Connector } from "./Connector";
 import { Draggable } from "./Draggable";
 import { NodeCard } from "./NodeCard";
 
@@ -41,6 +42,9 @@ export function Canvas()
 			{nodes.map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
 				<NodeCard key={node.id} nodeId={node.id} />
 			</Draggable>)}
+
+			<Connector source={[18*16, 4*16]} target={[22*16, 8*16]} value={60} tooltip="Copper 60 p/m" />
+			<Connector source={[38*16, 8*16]} target={[22*16, 16*16]} value={60} tooltip="Copper 60 p/m" />
 		</div>
 	</div>;
 }
