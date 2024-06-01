@@ -1,4 +1,3 @@
-import { newGuid } from "@/Model/Identifiers";
 import type { ProjectId } from "@/Model/Project";
 import type { Action } from ".";
 import type { ProjectState } from "../Model";
@@ -42,23 +41,18 @@ export function applyLoadProject(state: ProjectState, payload: LoadProjectPayloa
 	{
 		const data = JSON.parse(json);
 		if(data && "projectId" in data && typeof data.projectId === "string" && data.projectId === projectId)
-			return data as ProjectState;
+			return { ...emptyState(), ...data } as ProjectState;
 	}
 
-	return {
-		id: newGuid(),
-		projectId,
-		nodes: {},
-	} satisfies ProjectState;
+	return emptyState(projectId);
 }
 
-export function emptyState(): ProjectState
+export function emptyState(projectId?: ProjectId): ProjectState
 {
-	const id = newGuid();
-	console.debug("reducer: new emptyState", id);
-
 	return {
-		id,
+		projectId,
 		nodes: {},
+		links: {},
+		linksUsedByNode: {},
 	} satisfies ProjectState;
 }

@@ -68,6 +68,7 @@ const useStyles = makeStyles({
 		color: tokens.colorNeutralForeground3, 
 		backgroundColor: tokens.colorNeutralForegroundInverted, 
 		pointerEvents: "all",
+		boxShadow: tokens.shadow2,
 	},
 	text: {
 		userSelect: "none",

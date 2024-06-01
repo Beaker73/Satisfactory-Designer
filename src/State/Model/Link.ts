@@ -1,6 +1,6 @@
-import type { Guid } from "./Identifiers";
-import type { ItemKey } from "./Item";
-import type { NodeId } from "./Node";
+import type { Guid } from "../../Model/Identifiers";
+import type { ItemKey } from "../../Model/Item";
+import type { NodeId } from "../../Model/Node";
 
 
 export type LinkId = Guid<"Link">;

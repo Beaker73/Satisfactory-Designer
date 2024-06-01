@@ -40,9 +40,19 @@ export function Canvas()
 			{Object.values(state.nodes).map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
 				<NodeCard key={node.id} nodeId={node.id} />
 			</Draggable>)}
+			{Object.values(state.links).map(link => 
+			{
+				let source = state.nodes[link.source].position;
+				let target = state.nodes[link.target].position;
 
-			<Connector source={[18*16, 4*16]} target={[22*16, 8*16]} value={60} tooltip="Copper 60 p/m" />
-			<Connector source={[38*16, 8*16]} target={[22*16, 16*16]} value={60} tooltip="Copper 60 p/m" />
+				source = [source[0]+256, source[1]+32];
+				target = [target[0], target[1]+32];
+
+				return <Connector key={link.id} source={source} target={target} value={link.itemsPerMinute} />;
+			})}
+
+			{/* <Connector source={[18*16, 4*16]} target={[22*16, 8*16]} value={60} tooltip="Copper 60 p/m" />
+			<Connector source={[38*16, 8*16]} target={[22*16, 16*16]} value={60} tooltip="Copper 60 p/m" /> */}
 		</div>
 	</div>;
 }
