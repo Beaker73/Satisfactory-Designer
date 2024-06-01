@@ -1,6 +1,6 @@
 import type { Project } from "@/Model/Project";
-import type { Dispatch, PropsWithChildren } from "react";
-import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
+import type { Dispatch } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 import type { ProjectAction } from "./Actions";
 import { emptyState, loadProject } from "./Actions/LoadProject";
 import type { ProjectState } from "./Model";
@@ -35,7 +35,7 @@ export function useProjectReducer(project?: Project)
 }
 
 
-const projectContext = createContext({
+export const projectContext = createContext({
 	state: emptyState(),
 	dispatch: (action: ProjectAction) => { console.error("Missing project provider context. dispatched called", action); },
 });
@@ -43,18 +43,6 @@ const projectContext = createContext({
 export interface ProjectProviderProps {
 	state: ProjectState,
 	dispatch: Dispatch<ProjectAction>,
-}
-
-export function ProjectProvider(props: PropsWithChildren<ProjectProviderProps>) 
-{
-	const { state, dispatch } = props;
-
-	const ProjectContext = projectContext.Provider;
-	const context = useMemo(() => ({ state, dispatch }), [state, dispatch]);
-
-	return <ProjectContext value={context}>
-		{props.children}
-	</ProjectContext>;
 }
 
 /**

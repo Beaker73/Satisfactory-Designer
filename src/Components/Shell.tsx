@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { Canvas } from "@/Components/Canvas";
 import { CommandBar } from "@/Components/CommandBar";
 import { CommandPalette } from "@/Components/CommandPalette";
-import { ProjectProvider, useProjectReducer } from "@/State";
+import { useProjectReducer } from "@/State";
+import { ProjectProvider } from "@/State/ProjectProvider";
 import { useStoreActions, useStoreState } from "@/Store";
 
 export function Shell() 
