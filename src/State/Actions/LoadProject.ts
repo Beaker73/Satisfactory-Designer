@@ -33,7 +33,7 @@ export function loadProject(projectId: ProjectId, json?: string): LoadProjectAct
  * @param state The current state of the project
  * @param payload The payload containing the json to deserialize
  */
-export function applyLoadProject(state: ProjectState, payload: LoadProjectPayload): ProjectState
+export function applyLoadProject(_state: ProjectState, payload: LoadProjectPayload): ProjectState
 {
 	const { projectId, json } = payload;
 

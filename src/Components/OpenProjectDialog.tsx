@@ -4,8 +4,7 @@ import { DeleteFilled, DeleteRegular, DocumentFlowchartFilled, DocumentFlowchart
 import { compareAsc, formatDate } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 
-import type { Guid } from "@/Model/Identifiers";
-import type { Project } from "@/Model/Project";
+import type { Project, ProjectId } from "@/Model/Project";
 import { useStoreActions, useStoreState } from "@/Store";
 
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
@@ -86,7 +85,7 @@ export function OpenProjectDialog(props: OpenProjectDialogProps)
 		options: { defaultWith: 32, minWidth: 32, idealWidth: 32 },
 	};
 
-	const [selectedProjectId, setSelectedProjectId] = useState<Guid | undefined>();
+	const [selectedProjectId, setSelectedProjectId] = useState<ProjectId | undefined>();
 	const selectedProject = useStoreState(state => selectedProjectId ? state.projects.getProjectById(selectedProjectId) : undefined);
 
 	const onSelectionChange = useCallback<NonNullable<DataGridProps["onSelectionChange"]>>((_, data) => 
