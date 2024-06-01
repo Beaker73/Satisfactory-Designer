@@ -147,7 +147,7 @@ export function RecipeMenuItem(props: RecipeMenuItemProps)
 		</MenuTrigger>
 		<MenuPopover>
 			<MenuList hasCheckmarks
-				checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
+				checkedValues={{ recipe: node.recipeKey ? [node.recipeKey] : [] }}
 				onCheckedValueChange={(_ev, data) => { dispatch(setNodeRecipe(node.id, data.checkedItems[0] as RecipeKey )); }}
 			>
 				{recipes.map(recipe => <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
