@@ -3,12 +3,11 @@ import { BeakerAddFilled, BeakerAddRegular, bundleIcon } from "@fluentui/react-i
 
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import { useDesignerText } from "@/Hooks/Translations";
-import { newGuid } from "@/Model/Identifiers";
-import type { Node } from "@/Model/Node";
-import { useStoreActions } from "@/Store";
 
 import type { BuildingCategoryKey } from "@/Model/Building";
 import { knownBuildingCategories } from "@/Model/Building";
+import { useProjectState } from "@/State";
+import { addNode } from "@/State/Actions/AddNode";
 import { Item } from "./Item";
 import { Stack } from "./Stack";
 
@@ -38,11 +37,12 @@ interface BuildingAccordionProps {
 function BuildingAccordion(props: BuildingAccordionProps) 
 {
 	const { category } = props;
+	const { dispatch } = useProjectState();
+
 
 	const database = useDatabase();
 	const buildings = database.buildings.getByCategory(category);
 
-	const addNode = useStoreActions(store => store.nodes.addNode);
 	const dt = useDesignerText();
 
 	const BeakerAddIcon = bundleIcon(BeakerAddFilled, BeakerAddRegular);
@@ -55,14 +55,7 @@ function BuildingAccordion(props: BuildingAccordionProps)
 				{
 					function addItemToDesign() 
 					{
-						const node: Node = {
-							id: newGuid(),
-							position: [16, 16],
-							buildingKey: building.key,
-							recipeKey: building.defaultRecipe,
-						};
-
-						addNode({ node });
+						dispatch(addNode(building));
 					}
 					return <MenuItem key={building.key} onClick={addItemToDesign}>
 						<Item item={building}

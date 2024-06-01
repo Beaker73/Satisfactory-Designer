@@ -138,6 +138,7 @@ function AboutDialog(props: AboutDialogProps)
 						<ul>
 							<li><Link href="https://github.com/microsoft/fluentui?tab=License-1-ov-file#readme" target="_blank">Fluent UI React v9</Link> - for the User Interface</li>
 							<li><Link href="https://github.com/ctrlplusb/easy-peasy?tab=MIT-1-ov-file#readme">easy-peasy</Link> - for easy redux</li>
+							<li><Link href="https://github.com/immerjs/immer?tab=MIT-1-ov-file#readme">immer</Link> - for easy reducer state updates</li>
 							<li><Link href="https://github.com/kyeotic/raviger?tab=MIT-1-ov-file#readme" target="_blank">Raviger</Link> - for Routing</li>
 							<li><Link href="https://github.com/react-dnd/react-dnd?tab=MIT-1-ov-file#readme">React DND</Link> - for Drag and Drop support</li>
 							<li><Link href="https://github.com/i18next/i18next?tab=MIT-1-ov-file#readme">i18n</Link> - for Multi language support</li>

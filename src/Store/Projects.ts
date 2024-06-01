@@ -1,20 +1,18 @@
 import type { Action, Computed, Thunk } from "easy-peasy";
-import { action, computed, persist, thunk } from "easy-peasy";
+import { action, computed, thunk } from "easy-peasy";
 
-import { newGuid, type Guid } from "@/Model/Identifiers";
-import type { Project } from "@/Model/Project";
+import { newGuid } from "@/Model/Identifiers";
+import type { Project, ProjectId } from "@/Model/Project";
 
 // eslint-disable-next-line import/no-cycle -- yes cycle, but no runtime issue (store in Projects is only used in lambda after everything is initialized)
 import { store, type StoreModel } from ".";
-import { indexedDbProjectStorage } from "./IndexedDB";
-import { nodesImpl } from "./Nodes";
 
 
 export interface ProjectsModel {
 	/** Set of Projects */
-	projects: Record<Guid, Project>,
+	projects: Record<ProjectId, Project>,
 	/** The Id of the current active project */
-	activeProjectId: Guid,
+	activeProjectId: ProjectId,
 	/** The next unnamed project number */
 	unnamedProjectNumber: number,
 
@@ -25,17 +23,19 @@ export interface ProjectsModel {
 	/** Gets the active project */
 	activeProject: Computed<ProjectsModel, Project>,
 	/** Gets the project with the provided id */
-	getProjectById: Computed<ProjectsModel, (projectId: Guid) => Project | undefined>,
+	getProjectById: Computed<ProjectsModel, (projectId: ProjectId) => Project | undefined>,
 
 	/** merge a list of projects into the store */
 	mergeProjects: Action<ProjectsModel, { projects: Project[] }>,
 	/** Set the id of the current active project */
-	setActiveProject: Action<ProjectsModel, Guid>,
+	setActiveProject: Action<ProjectsModel, ProjectId>,
 	incrementNextProjectNumber: Action<ProjectsModel, void>,
 	/** Change the name of a project */
-	changeProjectName: Action<ProjectsModel, { projectId: Guid, newName: string }>,
+	changeProjectName: Action<ProjectsModel, { projectId: ProjectId, newName: string }>,
 	/** remove the project with the provided id */
-	removeProject: Action<ProjectsModel, { projectId: Guid }>,
+	removeProject: Action<ProjectsModel, { projectId: ProjectId }>,
+	/** touch the project and updates the last modified date to the current date/time */
+	touch: Action<ProjectsModel, { projectId: ProjectId }>,
 
 	/** Create a default project */
 	ensureDefault: Thunk<ProjectsModel, void, void, StoreModel, void>,
@@ -44,7 +44,7 @@ export interface ProjectsModel {
 	/** Load the provided project */
 	loadProject: Thunk<ProjectsModel, { project: Project }, void, StoreModel, Promise<void>>,
 	/** Delete the project with the provided id */
-	deleteProject: Thunk<ProjectsModel, { projectId: Guid }, void, StoreModel, Promise<void>>,
+	deleteProject: Thunk<ProjectsModel, { projectId: ProjectId }, void, StoreModel, Promise<void>>,
 }
 
 export const projectsImpl: ProjectsModel = {
@@ -74,6 +74,12 @@ export const projectsImpl: ProjectsModel = {
 	{
 		delete state.projects[projectId];
 	}),
+	touch: action((state, { projectId }) => 
+	{
+		const project = state.projects[projectId];
+		if (project)
+			project.lastModifiedOn = new Date();
+	}),
 
 	ensureDefault: thunk(({ mergeProjects, setActiveProject }, _, { getState }) => 
 	{
@@ -94,7 +100,7 @@ export const projectsImpl: ProjectsModel = {
 
 	newProject: thunk(async ({ mergeProjects, setActiveProject, incrementNextProjectNumber }, _, { getState }) => 
 	{
-		const id = newGuid();
+		const id = newGuid<ProjectId>();
 		const state = getState();
 
 		const project: Project = {
@@ -115,19 +121,12 @@ export const projectsImpl: ProjectsModel = {
 		store.removeModel("nodes");
 
 		setActiveProject(project.id);
-
-		// link new store and await rehydration
-		const { resolveRehydration } = store.addModel("nodes", persist(nodesImpl, { storage: await indexedDbProjectStorage(project.id) }));
-		await resolveRehydration;
-
-		// after rehydration force a single flush
-		// or all is lost when user reload/refreshes when no changes where triggered
-		await store.persist.flush();
 	}),
 	deleteProject: thunk(async ({ removeProject }, { projectId }, { getState }) => 
 	{
 		if (projectId !== getState().activeProjectId)
 			removeProject({ projectId });
+		localStorage.removeItem(projectId);
 	}),
 };
 

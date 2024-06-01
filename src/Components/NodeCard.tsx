@@ -9,12 +9,15 @@ import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Building, BuildingVariant, BuildingVariantKey, BuildingVariants } from "@/Model/Building";
 import type { Node, NodeId } from "@/Model/Node";
 import type { Ingredient, Recipe, RecipeKey } from "@/Model/Recipe";
-import { useStoreActions, useStoreState } from "@/Store";
 
 import { hasValueNotFalse } from "@/Helpers";
 import { objectEntries, objectValues } from "@/Helpers/Object";
 import type { KeyedRecord } from "@/Model/Identifiers";
 import type { ItemKey } from "@/Model/Item";
+import { useProjectState } from "@/State";
+import { deleteNode } from "@/State/Actions/DeleteNode";
+import { setNodeRecipe } from "@/State/Actions/SetNodeRecipe";
+import { setNodeVariant } from "@/State/Actions/SetNodeVariant";
 import { RequestDialog } from "./RequestDialog";
 import { Stack } from "./Stack";
 
@@ -25,11 +28,12 @@ export interface NodeCardProps {
 export function NodeCard(props: NodeCardProps) 
 {
 	const { nodeId } = props;
-	const node = useStoreState(state => state.nodes.getById(nodeId));
 
 	const st = useSatisfactoryText();
 	const styles = useStyles();
 
+	const { state } = useProjectState();
+	const node = state.nodes[nodeId];
 	const { buildingKey, recipeKey, variantKey } = node;
 
 	const database = useDatabase();
@@ -132,11 +136,10 @@ interface RecipeMenuItemProps {
 export function RecipeMenuItem(props: RecipeMenuItemProps) 
 {
 	const { node, recipes } = props;
+	const { dispatch } = useProjectState();
 
 	const RecipeIcon = bundleIcon(BookTemplateFilled, BookTemplateRegular);
 	const st = useSatisfactoryText();
-
-	const setRecipe = useStoreActions(store => store.nodes.setRecipe);
 
 	return <Menu>
 		<MenuTrigger>
@@ -145,7 +148,7 @@ export function RecipeMenuItem(props: RecipeMenuItemProps)
 		<MenuPopover>
 			<MenuList hasCheckmarks
 				checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
-				onCheckedValueChange={(_ev, data) => { setRecipe({ nodeId: node.id, recipeKey: data.checkedItems[0] as RecipeKey }); }}
+				onCheckedValueChange={(_ev, data) => { dispatch(setNodeRecipe(node.id, data.checkedItems[0] as RecipeKey )); }}
 			>
 				{recipes.map(recipe => <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
 					{st(recipe.nameKey)}
@@ -163,11 +166,10 @@ export interface VariantMenuItemProps {
 export function VariantMenuItem(props: VariantMenuItemProps) 
 {
 	const { node, variants } = props;
+	const { dispatch } = useProjectState();
 
 	const VariantIcon = bundleIcon(BuildingFactoryFilled, BuildingFactoryRegular);
 	const st = useSatisfactoryText();
-
-	const setVariant = useStoreActions(store => store.nodes.setVariant);
 
 	return <Menu>
 		<MenuTrigger>
@@ -176,7 +178,7 @@ export function VariantMenuItem(props: VariantMenuItemProps)
 		<MenuPopover>
 			<MenuList hasCheckmarks
 				checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
-				onCheckedValueChange={(_ev, data) => { setVariant({ nodeId: node.id, variantKey: data.checkedItems[0] as BuildingVariantKey }); }}
+				onCheckedValueChange={(_ev, data) => { dispatch(setNodeVariant(node.id, data.checkedItems[0] as BuildingVariantKey )); }}
 			>
 				{variants.map(variant => <MenuItemRadio key={variant.key} name="variant" value={variant.key}>
 					{st(variant.nameKey)}
@@ -189,10 +191,9 @@ export function VariantMenuItem(props: VariantMenuItemProps)
 function DeleteNodeMenuItem(props: NodeCardProps) 
 {
 	const { nodeId } = props;
+	const { dispatch } = useProjectState();
 
 	const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
-
-	const deleteNode = useStoreActions(store => store.nodes.deleteNode);
 
 	const dt = useDesignerText();
 	const dialog = useDialog(RequestDialog, {
@@ -206,9 +207,9 @@ function DeleteNodeMenuItem(props: NodeCardProps)
 		async (nodeId: NodeId) => 
 		{
 			await dialog.show({});
-			deleteNode({ nodeId });
+			dispatch(deleteNode(nodeId));
 		},
-		[deleteNode, dialog],
+		[dispatch, dialog],
 	);
 
 	return <MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(nodeId)} >{dt("canvas.delete.commandText")}</MenuItem>;

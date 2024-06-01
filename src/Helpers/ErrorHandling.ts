@@ -27,3 +27,10 @@ export function errorMessage(object: unknown, defaultMessage?: string): string
 	// all exausted, return the default message (if given)
 	return defaultMessage ?? "";
 }
+
+
+export function assertNever<R extends never>(value: R): value is never 
+{
+	console.error(`Expected the code to never get here, but it was called with the value ${value}`, value);
+	throw new Error(`Expected the code to never get here, but it was called with the value ${value}`);
+}

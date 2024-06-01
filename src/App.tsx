@@ -1,6 +1,6 @@
 import type { BrandVariants } from "@fluentui/react-components";
 import { FluentProvider, createDarkTheme, createLightTheme } from "@fluentui/react-components";
-import { StoreProvider, useStoreRehydrated } from "easy-peasy";
+import { StoreProvider } from "easy-peasy";
 import type { PropsWithChildren } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { DndProvider } from "react-dnd";
@@ -81,16 +81,14 @@ const satisfactoryVariants: BrandVariants = {
 function ThemedApp() 
 {
 	const themeName = useStoreState(state => state.settings.theme);
-	const isRehydrated = useStoreRehydrated();
 	const loadProject = useStoreActions(store => store.projects.loadProject);
 	const newProject = useStoreActions(store => store.projects.newProject);
 	const activeProject = useStoreState(state => state.projects.activeProject);
 	const [isStartingUp, setIsStartingUp] = useState(true);
-	const hasNodes = useStoreState(store => "nodes" in store);
 
 	useEffect(() => 
 	{
-		if (isRehydrated && isStartingUp) 
+		if (isStartingUp) 
 		{
 			if (activeProject) 
 			{
@@ -116,9 +114,9 @@ function ThemedApp()
 					.catch(() => { /** what now? */ });
 			}
 		}
-	}, [activeProject, isRehydrated, isStartingUp, loadProject, newProject]);
+	}, [activeProject, isStartingUp, loadProject, newProject]);
 
-	console.debug("render", { isRehydrated, isStartingUp, activeProject });
+	console.debug("render", { isStartingUp, activeProject });
 
 	const theme = useMemo(() =>
 		themeName === "dark"
@@ -129,8 +127,8 @@ function ThemedApp()
 	return <FluentProvider theme={theme} className="root" style={{ colorScheme: themeName }}>
 		<DialogProvider>
 			<DndProvider backend={HTML5Backend}>
-				{(isStartingUp || !hasNodes) && <Loading message="Initializing" />}
-				{!isStartingUp && hasNodes && <Shell />}
+				{(isStartingUp) && <Loading message="Initializing" />}
+				{!isStartingUp && <Shell />}
 			</DndProvider>
 		</DialogProvider>
 	</FluentProvider>;

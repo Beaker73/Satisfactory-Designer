@@ -35,6 +35,8 @@ export interface Building {
 	defaultRecipe?: RecipeKey,
 	/** The available variants of the building. If there are variants, the base building cannot be build */
 	variants?: BuildingVariants;
+	/** The default variant if there are variants. */
+	defaultVariant?: BuildingVariantKey,
 }
 
 /** Key to uniquely identify a building variant */

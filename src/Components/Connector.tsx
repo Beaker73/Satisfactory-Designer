@@ -39,7 +39,7 @@ export function Connector(props: ConnectorProps)
 	const width = x2 - x1;
 
 	return <div className={styles.root} style={{ left: x1, top: y1, width: width, height: height + 4 }}>
-		<svg viewBox={`0 -4 ${width} ${height} + 8`}>
+		<svg viewBox={`0 0 ${width} ${height+8}`}>
 			<path d={`M 0 0 C ${width/2} 0 ${width/2} ${height} ${width} ${height}`} fill="none" stroke={tokens.colorNeutralStroke1} />
 			<path d={`M ${width} ${height} l -8 -4 l 2 4 l -2 4 l 8 -4`} stroke="none" fill={tokens.colorNeutralStroke1} />
 		</svg>

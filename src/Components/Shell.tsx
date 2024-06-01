@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import { Canvas } from "@/Components/Canvas";
 import { CommandBar } from "@/Components/CommandBar";
 import { CommandPalette } from "@/Components/CommandPalette";
+import { ProjectProvider, useProjectReducer } from "@/State";
 import { useStoreActions, useStoreState } from "@/Store";
 
-export function Shell()
+export function Shell() 
 {
 	const hasNoProjects = useStoreState(state => state.projects.hasNoProjects);
 	const createDefaultProject = useStoreActions(store => store.projects.ensureDefault);
@@ -16,26 +17,31 @@ export function Shell()
 			createDefaultProject();
 	}, [createDefaultProject, hasNoProjects]);
 
+	const activeProject = useStoreState(state => state.projects.activeProject);
+	const [projectState, dispatch] = useProjectReducer(activeProject);
+
 	const styles = useStyles();
 
-	return <div className={mergeClasses("main", styles.shell)}>
-		<div className={styles.menu}>
-			<CommandBar />
-		</div>
-		<div className={styles.panels}>
-			<div className={styles.palette}>
-				<CommandPalette />
+	return <ProjectProvider state={projectState} dispatch={dispatch}>
+		<div className={mergeClasses("main", styles.shell)}>
+			<div className={styles.menu}>
+				<CommandBar />
 			</div>
-			<div className={styles.canvas}>
-				<Canvas />
+			<div className={styles.panels}>
+				<div className={styles.palette}>
+					<CommandPalette />
+				</div>
+				<div className={styles.canvas}>
+					{projectState && <Canvas />}
+				</div>
+				<div className={styles.properties}>
+				</div>
 			</div>
-			<div className={styles.properties}>
+			<div className={styles.warning}>
+				Experimental Build
 			</div>
 		</div>
-		<div className={styles.warning}>
-			Experimental Build
-		</div>
-	</div>;
+	</ProjectProvider>;
 }
 
 const useStyles = makeStyles({

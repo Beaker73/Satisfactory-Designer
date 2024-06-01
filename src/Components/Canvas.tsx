@@ -3,29 +3,27 @@ import { useCallback } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
 
-import { useStoreActions, useStoreState } from "@/Store";
-
 import type { NodeId } from "@/Model/Node";
+import { moveNodeByOffset } from "@/State/Actions/MoveNodeByOffset";
+
+import { useProjectState } from "@/State";
 import { Connector } from "./Connector";
 import { Draggable } from "./Draggable";
 import { NodeCard } from "./NodeCard";
 
-
 export function Canvas() 
 {
+	const { state, dispatch } = useProjectState();
 	const styles = useStyles();
-
-	const nodes = useStoreState(state => state.nodes.allNodes);
-	const { moveNodeByOffset } = useStoreActions(store => store.nodes);
 
 	const onNodeDropped = useCallback(
 		(dragProps: { dragKey: NodeId }, monitor: DropTargetMonitor<NodeId, void>) => 
 		{
 			const offset = monitor.getDifferenceFromInitialOffset();
 			if (dragProps && offset)
-				moveNodeByOffset({ nodeId: dragProps.dragKey, offset });
+				dispatch(moveNodeByOffset(dragProps.dragKey, offset));
 		},
-		[moveNodeByOffset],
+		[dispatch],
 	);
 
 	const [, drop] = useDrop({
@@ -39,7 +37,7 @@ export function Canvas()
 
 	return <div className={styles.root} ref={drop}>
 		<div className={styles.canvas}>
-			{nodes.map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
+			{Object.values(state.nodes).map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
 				<NodeCard key={node.id} nodeId={node.id} />
 			</Draggable>)}
 
