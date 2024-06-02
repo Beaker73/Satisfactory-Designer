@@ -28,7 +28,6 @@ export const translationsImpl: TranslationsModel = {
 			Object.entries(input)
 				.map(([key, item]) => [key, item?.text]),
 		) : undefined;
-		console.debug("getNamespaces:", { input, output });
 		return output as ResourceKeys;
 	}),
 

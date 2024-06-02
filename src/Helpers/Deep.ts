@@ -29,8 +29,6 @@ export function deepMap(something: unknown, map: (item: any) => unknown): unknow
 	if(!something)
 		return something;
 
-	console.debug("deepMap: ", { something });
-
 	if(Array.isArray(something))
 		return something.map(item => deepMap(item, map));
 	else if(typeof something === "object" && something !== null)

@@ -12,10 +12,7 @@ import { projectReducer } from "./Reducer";
  */
 export function useProjectReducer(project?: Project) 
 {
-	console.debug("useProjectReducer", { project });
 	const [state, dispatch] = useReducer(projectReducer, undefined, () => emptyState());
-	console.debug("useProjectReducer result", { state, dispatch });
-
 	const projectId = project?.id;
 
 	useEffect(

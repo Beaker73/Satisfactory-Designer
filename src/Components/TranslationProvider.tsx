@@ -50,8 +50,6 @@ export function initTranslation(getNamespace: (language: string, namespace: stri
 	if(initResult)
 		return initResult;
 
-	console.debug("translation: init");
-
 	const backend: BackendModule = {
 		type: "backend",
 		init: function(services, backendOptions, i18nextoptions) 
@@ -60,9 +58,7 @@ export function initTranslation(getNamespace: (language: string, namespace: stri
 		},
 		read: (language, namespace, callback) => 
 		{
-			console.debug("translation: backend: read", { language, namespace });
 			const data = getNamespace(language, namespace); 
-			console.debug("translation: backend: read result", { language, namespace, data });
 			callback(null, data);
 		},
 	};

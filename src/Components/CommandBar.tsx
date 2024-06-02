@@ -21,7 +21,6 @@ export function CommandBar()
 	const styles = useStyles();
 
 	const project = useStoreState(state => state.projects.activeProject);
-	console.debug("project", { project });
 
 	const openProjectDialog = useOpenProjectDialog();
 
@@ -214,7 +213,6 @@ function LanguageMenu()
 			}
 		}, [setLanguage]);
 
-	console.debug("languages: ", { languages, checkedValues });
 	const dt = useDesignerText();
 
 	return <Menu>

@@ -1,11 +1,12 @@
 import { makeStyles, tokens } from "@fluentui/react-components";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
 
-import type { NodeId } from "@/Model/Node";
 import { moveNodeByOffset } from "@/State/Actions/MoveNodeByOffset";
 
+import type { DragData } from "@/Model/DragData";
+import type { Position } from "@/Model/Position";
 import { useProjectState } from "@/State";
 import { Connector } from "./Connector";
 import { Draggable } from "./Draggable";
@@ -16,18 +17,63 @@ export function Canvas()
 	const { state, dispatch } = useProjectState();
 	const styles = useStyles();
 
+	const [dragConnector, setDragConnector] = useState<{ source: Position, target: Position } | undefined>();
+
+
 	const onNodeDropped = useCallback(
-		(dragProps: { dragKey: NodeId }, monitor: DropTargetMonitor<NodeId, void>) => 
+		(dragProps: DragData, monitor: DropTargetMonitor<DragData, void>) => 
 		{
-			const offset = monitor.getDifferenceFromInitialOffset();
-			if (dragProps && offset)
-				dispatch(moveNodeByOffset(dragProps.dragKey, offset));
+			if(dragProps && dragProps.type === "port")
+				setDragConnector(undefined);
+
+			console.debug("drop", { dragProps, monitor });
+			if (dragProps && dragProps.type === "node") 
+			{
+				const offset = monitor.getDifferenceFromInitialOffset();
+				if(offset)
+					dispatch(moveNodeByOffset(dragProps.dragKey, offset));
+			}
 		},
 		[dispatch],
 	);
 
-	const [, drop] = useDrop({
-		accept: "Node",
+	const canvasElement = useRef<HTMLDivElement | null>(null);
+	const onItemHover = useCallback(
+		(item: DragData, monitor: DropTargetMonitor) => 
+		{
+			console.debug("hover", { item, monitor });
+
+			if (item.type === "port") 
+			{
+
+				const rect = canvasElement.current?.getBoundingClientRect();
+				const source = monitor.getInitialClientOffset();
+				const target = monitor.getClientOffset();
+				if (source && target && rect) 
+				{
+					let s: Position = [
+						Math.round((source.x - rect.left) / 16) * 16,
+						Math.round((source.y - rect.top) / 16) * 16,
+					];
+					let t: Position = [
+						target.x - rect.left,
+						target.y - rect.top,
+					];
+
+					if (item.side === "left")
+						[s, t] = [t, s];
+
+					setDragConnector({ source: s, target: t });
+
+				}
+			}
+		},
+		[],
+	);
+
+	const [, drop] = useDrop<DragData>({
+		accept: ["node", "port"],
+		hover: onItemHover,
 		drop: onNodeDropped,
 	});
 
@@ -36,7 +82,7 @@ export function Canvas()
 	//const RecipeIcon = bundleIcon(BookTemplateFilled, BookTemplateRegular);
 
 	return <div className={styles.root} ref={drop}>
-		<div className={styles.canvas}>
+		<div className={styles.canvas} ref={canvasElement}>
 			{Object.values(state.nodes).map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
 				<NodeCard key={node.id} nodeId={node.id} />
 			</Draggable>)}
@@ -45,8 +91,8 @@ export function Canvas()
 				let source = state.nodes[link.source].position;
 				let target = state.nodes[link.target].position;
 
-				source = [source[0]+256, source[1]+32];
-				target = [target[0], target[1]+32];
+				source = [source[0] + 256, source[1] + 32];
+				target = [target[0], target[1] + 32];
 
 				return <Connector key={link.id} source={source} target={target} value={link.itemsPerMinute} />;
 			})}
@@ -54,6 +100,8 @@ export function Canvas()
 			{/* <Connector source={[18*16, 4*16]} target={[22*16, 8*16]} value={60} tooltip="Copper 60 p/m" />
 			<Connector source={[38*16, 8*16]} target={[22*16, 16*16]} value={60} tooltip="Copper 60 p/m" /> */}
 		</div>
+
+		{dragConnector && <Connector source={dragConnector.source} target={dragConnector.target} />}
 	</div>;
 }
 

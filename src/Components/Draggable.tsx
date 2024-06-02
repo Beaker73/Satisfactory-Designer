@@ -1,3 +1,4 @@
+import type { DragNodeData } from "@/Model/DragData";
 import type { NodeId } from "@/Model/Node";
 import type { Position } from "@/Model/Position";
 import { makeStyles, shorthands, tokens } from "@fluentui/react-components";
@@ -14,12 +15,9 @@ export function Draggable(props: PropsWithChildren<DraggableProps>)
 {
 	const { dragKey, children, position: [left, top] } = props;
 
-	const [{ isDragging: _ }, dragSource] = useDrag(() => ({
-		type: "Node",
-		item: { dragKey },
-		collect: monitor => ({
-			isDragging: !!monitor.isDragging(),
-		}),
+	const [_, dragSource] = useDrag<DragNodeData>(() => ({
+		type: "node",
+		item: { type: "node", dragKey },
 	}));
 
 	const styles = useStyles();

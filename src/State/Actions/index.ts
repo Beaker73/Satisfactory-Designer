@@ -1,3 +1,4 @@
+import type { AddLinkAction } from "./AddLink";
 import type { AddNodeAction } from "./AddNode";
 import type { DeleteNodeAction } from "./DeleteNode";
 import { type LoadProjectAction } from "./LoadProject";
@@ -16,5 +17,6 @@ export type ProjectAction =
 	| SetNodeRecipeAction
 	| SetNodeVariantAction
 	| MoveNodeByOffsetAction
+	| AddLinkAction
 	| DeleteNodeAction
 	;

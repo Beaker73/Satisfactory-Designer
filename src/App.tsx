@@ -18,7 +18,6 @@ import { loadPlugins } from "./Plugins";
 export function App() 
 {
 	const [database, setDatabase] = useState<Database | undefined>();
-	console.debug("database", { database });
 
 	return <StoreProvider store={store}>
 		<PluginProvider onDatabaseLoaded={setDatabase}>
@@ -92,11 +91,9 @@ function ThemedApp()
 		{
 			if (activeProject) 
 			{
-				console.debug("load triggered");
 				loadProject({ project: activeProject })
 					.then(() => 
 					{
-						console.debug("is started up");
 						setIsStartingUp(false);
 						return true;
 					})
@@ -115,8 +112,6 @@ function ThemedApp()
 			}
 		}
 	}, [activeProject, isStartingUp, loadProject, newProject]);
-
-	console.debug("render", { isStartingUp, activeProject });
 
 	const theme = useMemo(() =>
 		themeName === "dark"

@@ -127,7 +127,6 @@ export function useDialog<
 	: DialogController<Result, Props, DefaultProps> 
 {
 	const context = useContext(dialogContext);
-	console.debug({ context });
 
 	const show = useCallback<(props: BareDialogProps<Props, DefaultProps>) => Promise<Result>>(
 		async props => 

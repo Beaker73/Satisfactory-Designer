@@ -2,6 +2,7 @@ import { assertNever } from "@/Helpers";
 import { store } from "@/Store";
 import { produce } from "immer";
 import type { ProjectAction } from "./Actions";
+import { applyAddLink } from "./Actions/AddLink";
 import { applyAddNode } from "./Actions/AddNode";
 import { applyDeleteNode } from "./Actions/DeleteNode";
 import { applyLoadProject } from "./Actions/LoadProject";
@@ -12,8 +13,6 @@ import type { ProjectState } from "./Model";
 
 export function projectReducer(state: ProjectState, action: ProjectAction) 
 {
-	console.debug("reducer", { action });
-
 	const newState = produce(state, (draft: ProjectState) => 
 	{
 		switch (action.type) 
@@ -39,6 +38,10 @@ export function projectReducer(state: ProjectState, action: ProjectAction)
 				applySetNodeVariant(draft, action.payload);
 				break;
 
+			case "addLink":
+				applyAddLink(draft, action.payload);
+				break;
+
 			case "deletNode":
 				applyDeleteNode(draft, action.payload);
 				break;
@@ -49,13 +52,9 @@ export function projectReducer(state: ProjectState, action: ProjectAction)
 		}
 	});
 
-	if (import.meta.env.DEV)
-		console.debug("reducer", { oldState: JSON.parse(JSON.stringify(state)), newState: JSON.parse(JSON.stringify(newState)), action });
-
 	if(newState.projectId) 
 	{
 		const json = JSON.stringify(newState);
-		console.debug("set local storage", { id: newState.projectId, json });
 		localStorage.setItem(newState.projectId, json);
 
 		const actions = store.getActions();

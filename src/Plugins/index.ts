@@ -144,7 +144,6 @@ async function loadPluginsCore(): Promise<Database>
 							: trimmed.endsWith("/index.tsx") ? trimmed.substring(0, trimmed.length - 10)
 								: trimmed.endsWith(".ts") ? trimmed.substring(0, trimmed.length - 3)
 									: trimmed;
-						console.debug("loaded:::", { path, trimmed });
 
 						const plugin = await promise() as { default: Plugin };
 						resolve([trimmed, plugin.default]);
@@ -164,13 +163,9 @@ async function loadPluginsCore(): Promise<Database>
 	// await the result one-by-one, as they are loaded
 	for await (const [name, plugin] of raceAll(...entries)) 
 	{
-		console.debug(`loaded ${name}`);
 		loaded[name] = plugin;
-
 		tryImport(name, plugin);
 	}
-
-	console.debug("all loaded", { data });
 
 	for(const translations of pagePer(50, extractLanguageKeys(data))) 
 		store.getActions().translations.importTranslations({ translations });
@@ -183,8 +178,6 @@ async function loadPluginsCore(): Promise<Database>
 	 */
 	function tryImport(name: string, plugin: Plugin) 
 	{
-		console.debug("loading: dependency try import", { name, plugin, loaded, processed });
-
 		// ensure all dependencies are processed
 		// if not, but it is loaded, process dependency first.
 		if (plugin.dependsOn) 
@@ -194,7 +187,6 @@ async function loadPluginsCore(): Promise<Database>
 				if (dependency in processed) 
 				{
 					// dependency available
-					console.debug("loading: dependency ready", dependency);
 					continue;
 				}
 				else if (dependency in loaded) 
@@ -203,14 +195,12 @@ async function loadPluginsCore(): Promise<Database>
 					if (!tryImport(dependency, loaded[dependency])) 
 					{
 						// fail if processing could not be done (nested dependency?)
-						console.debug("loading: dependency failed", dependency);
 						return false;
 					}
 				}
 				else 
 				{
 					// not loaded yet, abort.
-					console.debug("loading: dependency abort", dependency);
 					return false;
 				}
 			}
@@ -222,7 +212,6 @@ async function loadPluginsCore(): Promise<Database>
 
 		// now check if something that depends on us, is waiting for processing
 		const tryAgain = objectEntries(loaded).filter(([_, p]) => p.dependsOn?.some(d => d === name));
-		console.debug("loading: check waiting plugins", { name, tryAgain });
 		if(tryAgain)
 			for(const [name, plugin] of tryAgain)
 				tryImport(name, plugin);
@@ -231,7 +220,6 @@ async function loadPluginsCore(): Promise<Database>
 		// or all dependencies are processed.
 		// TODO: Deep Merge
 		data = deepMerge(data, plugin.data);
-		console.debug("loading: merged database", { plugin, pluginData: plugin.data, mergedData: data });
 
 	}
 
@@ -306,11 +294,8 @@ async function loadPluginsCore(): Promise<Database>
 		const languages: Record<string, LanguageInfo> = {};
 		if(data.languages) 
 		{
-			console.debug("database languages", { lang: data.languages });
 			Object.entries(data.languages).map(([key, lang]) =>
 			{
-				console.debug("database languages", { key, lang });
-
 				languages[key] = {
 					name: lang.name,
 					image: lang.image,
@@ -395,9 +380,6 @@ async function loadPluginsCore(): Promise<Database>
 					b.variants = variants;
 				}
 			});
-
-
-		console.debug("database processed", { languages, recipes, items });
 
 		return {
 			languages,
