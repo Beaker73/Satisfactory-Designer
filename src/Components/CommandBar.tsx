@@ -1,13 +1,14 @@
 import type { InputProps } from "@fluentui/react-components";
 import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Divider, Input, Link, Menu, MenuItem, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, Toolbar, ToolbarButton, makeStyles, shorthands, tokens, type MenuProps } from "@fluentui/react-components";
-import { ChatBubblesQuestionFilled, ChatBubblesQuestionRegular, FolderAddFilled, FolderAddRegular, FolderOpenFilled, FolderOpenRegular, SettingsFilled, SettingsRegular, bundleIcon } from "@fluentui/react-icons";
-import { Fragment, useCallback, useState } from "react";
+import { ChatBubblesQuestionFilled, ChatBubblesQuestionRegular, FolderAddFilled, FolderAddRegular, FolderOpenFilled, FolderOpenRegular, SaveArrowRightFilled, SaveArrowRightRegular, SettingsFilled, SettingsRegular, bundleIcon } from "@fluentui/react-icons";
+import { Fragment, useCallback, useMemo, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
 import { useDatabase } from "@/Hooks/DatabaseProvider";
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText } from "@/Hooks/Translations";
+import { useProjectState } from "@/State";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Language, Theme } from "@/Store/Settings";
 import { useOpenProjectDialog } from "./OpenProjectDialog";
@@ -44,6 +45,7 @@ export function CommandBar()
 								<MenuList>
 									<MenuItemNewProject />
 									<MenuItemOpenProject onClick={openProjectDialog} />
+									<MenuItemExportProject />
 									<Divider />
 									<MenuItemAbout />
 								</MenuList>
@@ -230,3 +232,37 @@ function LanguageMenu()
 		</MenuPopover>
 	</Menu>;
 }
+
+function MenuItemExportProject() 
+{
+	const ExportIcon = bundleIcon(SaveArrowRightFilled, SaveArrowRightRegular);
+
+	const project = useStoreState(state=>state.projects.activeProject);
+	const state = useProjectState();
+
+	const dt = useDesignerText();
+
+	const downloadLink = useMemo(
+		() => 
+		{
+			const json = JSON.stringify({ type: "project", id: project.id, version: "0.1", name: project.name, state });
+			const base64 = btoa(json);
+			return `data:application/json;base64,${base64}`;
+		},
+		[project.id, project.name, state],
+	);
+
+	const styles = useDownloadStyles();
+
+	return <MenuItem icon={<ExportIcon />}>
+		<Link appearance="subtle" href={downloadLink} download={`${project.name.replace(/\s/g, "_")}.sdp`} className={styles.noUnderline} >{dt("menu.file.export")}</Link>
+	</MenuItem>;
+}
+
+const useDownloadStyles = makeStyles({
+	noUnderline: {
+		"&:hover": {
+			textDecoration: "none",
+		},
+	},
+});

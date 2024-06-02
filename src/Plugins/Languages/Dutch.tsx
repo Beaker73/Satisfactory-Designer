@@ -45,6 +45,7 @@ export default {
 						file: "Bestand",
 						"file.new": "Nieuw Project",
 						"file.open": "Open Project...",
+						"file.export": "Exporteer Project",
 						settings: {
 							theme: {
 								label: "Thema",
