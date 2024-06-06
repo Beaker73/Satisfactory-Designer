@@ -12,7 +12,7 @@ export type Items = KeyedRecord<ItemKey, Item>;
 /** An item that can be belted/transported and is used to construct other items or buildings */
 export interface Item {
 	/** The unique key of the item */
-	key: string,
+	key: ItemKey,
 	/** The category this item belongs to */
 	category: ItemCategoryKey,
 	/** The resource key of the display name */

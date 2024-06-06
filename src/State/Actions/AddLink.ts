@@ -1,9 +1,13 @@
+import type { DatabaseAccessor } from "@/Hooks/DatabaseProvider";
 import { newGuid } from "@/Model/Identifiers";
 import type { ItemKey } from "@/Model/Item";
 import type { NodeId } from "@/Model/Node";
-import type { Action } from ".";
+
 import type { ProjectState } from "../Model";
 import type { Link } from "../Model/Link";
+
+import type { Action } from ".";
+
 
 export type AddLinkAction = Action<"addLink", AddLinkPayload>;
 
@@ -11,11 +15,9 @@ export interface AddLinkPayload {
 	source: NodeId,
 	target: NodeId,
 	itemKey: ItemKey,
-	itemsPerMinute: number,
-	tag?: string,
 }
 
-export function addLink(source: NodeId, target: NodeId, itemKey: ItemKey, itemsPerMinute: number, tag?: string): AddLinkAction 
+export function addLink(source: NodeId, target: NodeId, itemKey: ItemKey): AddLinkAction 
 {
 	return {
 		type:"addLink",
@@ -23,15 +25,27 @@ export function addLink(source: NodeId, target: NodeId, itemKey: ItemKey, itemsP
 			source,
 			target,
 			itemKey,
-			itemsPerMinute,
-			tag,
 		},
 	};
 }
 
-export function applyAddLink(state: ProjectState, payload: AddLinkPayload) 
+export function applyAddLink(database: DatabaseAccessor, state: ProjectState, payload: AddLinkPayload) 
 {
-	const { source, target, itemKey, itemsPerMinute, tag } = payload;
+	const { source, target, itemKey } = payload;
+
+	const sourceNode = state.nodes[source];
+
+	if(!sourceNode.recipeKey)
+		throw new Error("No recipe configured on source node");
+	const recipe = database.recipes.getByKey(sourceNode.recipeKey);
+	if(!recipe)
+		throw new Error(`Failed to find recipe for key ${sourceNode.recipeKey}`);
+
+	const ingredient = recipe.outputs?.[itemKey];
+	if(!ingredient)
+		throw new Error(`Failed to find ingredient for ${itemKey}`);
+
+	const itemsPerMinute = 60 / recipe.duration * ingredient.count;
 
 	const link: Link = {
 		id: newGuid(),
@@ -39,7 +53,7 @@ export function applyAddLink(state: ProjectState, payload: AddLinkPayload)
 		target,
 		itemKey,
 		itemsPerMinute,
-		tag,
+		tag: ingredient.tag,
 	};
 
 	state.links[link.id] = link;

@@ -1,6 +1,9 @@
-import { assertNever } from "@/Helpers";
-import { store } from "@/Store";
 import { produce } from "immer";
+
+import { assertNever } from "@/Helpers";
+import type { DatabaseAccessor } from "@/Hooks/DatabaseProvider";
+import { store } from "@/Store";
+
 import type { ProjectAction } from "./Actions";
 import { applyAddLink } from "./Actions/AddLink";
 import { applyAddNode } from "./Actions/AddNode";
@@ -11,7 +14,9 @@ import { applySetNodeRecipe } from "./Actions/SetNodeRecipe";
 import { applySetNodeVariant } from "./Actions/SetNodeVariant";
 import type { ProjectState } from "./Model";
 
-export function projectReducer(state: ProjectState, action: ProjectAction) 
+export const bindProjectReducer = (database: DatabaseAccessor) => (state: ProjectState, action: ProjectAction) => projectReducer(state, action, database);
+
+export function projectReducer(state: ProjectState, action: ProjectAction, database: DatabaseAccessor) 
 {
 	const newState = produce(state, (draft: ProjectState) => 
 	{
@@ -39,7 +44,7 @@ export function projectReducer(state: ProjectState, action: ProjectAction)
 				break;
 
 			case "addLink":
-				applyAddLink(draft, action.payload);
+				applyAddLink(database, draft, action.payload);
 				break;
 
 			case "deletNode":

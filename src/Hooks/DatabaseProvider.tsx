@@ -9,8 +9,7 @@ import { createContext, useContext, useMemo, type PropsWithChildren } from "reac
 
 const databaseContext = createContext<DatabaseData | undefined>(undefined);
 
-export interface DatabaseProviderProps
-{
+export interface DatabaseProviderProps {
 	database: DatabaseData,
 }
 
@@ -23,8 +22,7 @@ export function DatabaseProvider(props: PropsWithChildren<DatabaseProviderProps>
 	</databaseContext.Provider>;
 }
 
-export interface Database 
-{
+export interface DatabaseAccessor {
 	languages: {
 		/** Get all languages */
 		getAll(): Record<LanguageKey, LanguageInfo>,
@@ -90,38 +88,43 @@ export interface Database
  * @returns The Satisfactory Database
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function useDatabase(): Database
+export function useDatabase(): DatabaseAccessor 
 {
 	const data = useContext(databaseContext);
-	if(!data)
+	if (!data)
 		throw new Error("No database context");
 
-	const database = useMemo<Database>(() => 
-	{
-		// const recipesByInputItem = groupBy(data.recipes, r => r.inputs)
-		const itemsByCategory = deepFreeze(groupBy(data.items, i => i.category));
-		const buildingsByCategory = deepFreeze(groupBy(data.buildings, b => b.category));
+	return useMemo<DatabaseAccessor>(() => databaseAccessor(data), [data]);
+}
 
-		return {
-			languages: {
-				getAll: () => data.languages,
-			},
-			recipes: {
-				getByKey: recipeKey => data.recipes[recipeKey],
-				getByKeys: recipeKeys => recipeKeys?.map(key => data.recipes[key]).filter(hasValue) ?? [],
-				getWithInput: _itemKey => { throw new Error("not implemented"); },
-				getWithOutput: _itemKey => { throw new Error("not implemented"); },
-			},
-			items: {
-				getByCategory: category => itemsByCategory[category] ?? [],
-				getByKey: itemKey => data.items[itemKey],
-			},
-			buildings: {
-				getByCategory: category => buildingsByCategory[category] ?? [],
-				getByKey: buildingKey => buildingKey ? data.buildings[buildingKey] : undefined,
-			},
-		} satisfies Database;
-	}, [data]);
-	
-	return database;
+/**
+ * Creates the database data with an accessor to query that data
+ * @param data The data to wrap with an accessor
+ * @returns The database accessor
+ */
+export function databaseAccessor(data: DatabaseData) 
+{
+	// const recipesByInputItem = groupBy(data.recipes, r => r.inputs)
+	const itemsByCategory = deepFreeze(groupBy(data.items, i => i.category));
+	const buildingsByCategory = deepFreeze(groupBy(data.buildings, b => b.category));
+
+	return {
+		languages: {
+			getAll: () => data.languages,
+		},
+		recipes: {
+			getByKey: recipeKey => data.recipes[recipeKey],
+			getByKeys: recipeKeys => recipeKeys?.map(key => data.recipes[key]).filter(hasValue) ?? [],
+			getWithInput: _itemKey => { throw new Error("not implemented"); },
+			getWithOutput: _itemKey => { throw new Error("not implemented"); },
+		},
+		items: {
+			getByCategory: category => itemsByCategory[category] ?? [],
+			getByKey: itemKey => data.items[itemKey],
+		},
+		buildings: {
+			getByCategory: category => buildingsByCategory[category] ?? [],
+			getByKey: buildingKey => buildingKey ? data.buildings[buildingKey] : undefined,
+		},
+	} satisfies DatabaseAccessor;
 }

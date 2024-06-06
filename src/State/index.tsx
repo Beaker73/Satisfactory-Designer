@@ -1,10 +1,11 @@
+import { useDatabase } from "@/Hooks/DatabaseProvider";
 import type { Project } from "@/Model/Project";
 import type { Dispatch } from "react";
 import { createContext, useContext, useEffect, useReducer } from "react";
 import type { ProjectAction } from "./Actions";
 import { emptyState, loadProject } from "./Actions/LoadProject";
 import type { ProjectState } from "./Model";
-import { projectReducer } from "./Reducer";
+import { bindProjectReducer } from "./Reducer";
 
 /**
  * Setup up state and reducer for the active project
@@ -12,6 +13,8 @@ import { projectReducer } from "./Reducer";
  */
 export function useProjectReducer(project?: Project) 
 {
+	const database = useDatabase();
+	const projectReducer = bindProjectReducer(database);
 	const [state, dispatch] = useReducer(projectReducer, undefined, () => emptyState());
 	const projectId = project?.id;
 

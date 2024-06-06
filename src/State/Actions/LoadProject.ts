@@ -1,3 +1,4 @@
+import { deepMerge } from "@/Helpers/Deep";
 import type { ProjectId } from "@/Model/Project";
 import type { Action } from ".";
 import type { ProjectState } from "../Model";
@@ -41,7 +42,7 @@ export function applyLoadProject(_state: ProjectState, payload: LoadProjectPaylo
 	{
 		const data = JSON.parse(json);
 		if(data && "projectId" in data && typeof data.projectId === "string" && data.projectId === projectId)
-			return { ...emptyState(), ...data } as ProjectState;
+			return deepMerge(emptyState(), data) as ProjectState;
 	}
 
 	return emptyState(projectId);

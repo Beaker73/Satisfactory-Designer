@@ -21,5 +21,10 @@ export function deleteNode(nodeId: NodeId) : DeleteNodeAction
 export function applyDeleteNode(state: ProjectState, payload: DeleteNodePayload) 
 {
 	const { nodeId } = payload;
+
+	for(const linkId of state.linksUsedByNode[nodeId] ?? [])
+		delete state.links[linkId];
+	delete state.linksUsedByNode[nodeId];
+	
 	delete state.nodes[nodeId];
 }
