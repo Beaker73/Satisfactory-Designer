@@ -1,6 +1,7 @@
 import { hasValue } from "@/Helpers";
 import { makeStyles, mergeClasses, tokens } from "@fluentui/react-components";
 import type { Property } from "csstype";
+import { observer } from "mobx-react-lite";
 import type { ForwardedRef } from "react";
 import { forwardRef, type CSSProperties, type PropsWithChildren } from "react";
 
@@ -22,8 +23,9 @@ export interface StackProps {
 	style?: CSSProperties;
 }
 
-const StackComponent = forwardRef(
-	function Stack(props: PropsWithChildren<StackProps>, ref: ForwardedRef<HTMLDivElement>) 
+const StackComponent = observer(forwardRef(
+	// eslint-disable-next-line mobx/missing-observer -- it is there, just not as the inner
+	function Stack(props: PropsWithChildren<StackProps>, ref: ForwardedRef<HTMLDivElement>)
 	{
 		const styles = useStackStyles();
 
@@ -38,7 +40,7 @@ const StackComponent = forwardRef(
 		let dynamicStyles: CSSProperties = {};
 		if (typeof (props?.gap) === "number")
 			dynamicStyles.gap = props.gap;
-		if(props?.justify)
+		if (props?.justify)
 			dynamicStyles.justifyContent = props.justify;
 		if (props?.verticalAlign)
 			dynamicStyles.alignItems = props.verticalAlign;
@@ -48,7 +50,7 @@ const StackComponent = forwardRef(
 		return <div className={combinedStyles} style={dynamicStyles} ref={ref}>
 			{props.children}
 		</div>;
-	},
+	}),
 );
 
 
@@ -82,21 +84,23 @@ export interface StackItemProps {
 	style?: CSSProperties;
 }
 
-export const StackItem = forwardRef(
-	function StackItem(props: PropsWithChildren<StackItemProps>, ref: ForwardedRef<HTMLDivElement>) 
-	{
-		const styles = useStackItemStyles();
+export const StackItem = observer(
+	forwardRef(
+		// eslint-disable-next-line mobx/missing-observer -- it is there, just not as the first
+		function StackItem(props: PropsWithChildren<StackItemProps>, ref: ForwardedRef<HTMLDivElement>)
+		{
+			const styles = useStackItemStyles();
 
-		const combinedStyles = mergeClasses(...[
-			styles.root,
-			props?.grow === true ? styles.grow : undefined,
-			props.className,
-		].filter(hasValue));
+			const combinedStyles = mergeClasses(...[
+				styles.root,
+				props?.grow === true ? styles.grow : undefined,
+				props.className,
+			].filter(hasValue));
 
-		return <div className={combinedStyles} ref={ref} style={props.style} >
-			{props.children}
-		</div>;
-	},
+			return <div className={combinedStyles} ref={ref} style={props.style} >
+				{props.children}
+			</div>;
+		}),
 );
 
 const useStackItemStyles = makeStyles({

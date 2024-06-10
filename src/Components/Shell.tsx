@@ -1,14 +1,15 @@
 import { makeStyles, mergeClasses, shorthands, tokens } from "@fluentui/react-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Canvas } from "@/Components/Canvas";
 import { CommandBar } from "@/Components/CommandBar";
 import { CommandPalette } from "@/Components/CommandPalette";
-import { useProjectReducer } from "@/State";
-import { ProjectProvider } from "@/State/ProjectProvider";
+import { Project } from "@/ComputeModel/Project";
+import { ProjectProvider } from "@/ComputeModel/ProjectProvider";
 import { useStoreActions, useStoreState } from "@/Store";
+import { observer } from "mobx-react-lite";
 
-export function Shell() 
+export const Shell = observer(() =>
 {
 	const hasNoProjects = useStoreState(state => state.projects.hasNoProjects);
 	const createDefaultProject = useStoreActions(store => store.projects.ensureDefault);
@@ -19,11 +20,29 @@ export function Shell()
 	}, [createDefaultProject, hasNoProjects]);
 
 	const activeProject = useStoreState(state => state.projects.activeProject);
-	const [projectState, dispatch] = useProjectReducer(activeProject);
+	const [project, setProject] = useState<Project|undefined>();
+	useEffect(() => 
+	{
+		if(activeProject) 
+		{
+			const json = localStorage.getItem(`P${activeProject.id}`);
+			if(typeof json === "string") 
+			{
+				const data = JSON.parse(json);
+
+				const project = Project.parse(data);
+				setProject(project);
+			}
+			else 
+			{
+				setProject(Project.new(activeProject.id));
+			}
+		}
+	}, [activeProject]);
 
 	const styles = useStyles();
 
-	return <ProjectProvider state={projectState} dispatch={dispatch}>
+	return <ProjectProvider project={project}>
 		<div className={mergeClasses("main", styles.shell)}>
 			<div className={styles.menu}>
 				<CommandBar />
@@ -33,7 +52,7 @@ export function Shell()
 					<CommandPalette />
 				</div>
 				<div className={styles.canvas}>
-					{projectState && <Canvas />}
+					{project && <Canvas />}
 				</div>
 				<div className={styles.properties}>
 				</div>
@@ -43,7 +62,7 @@ export function Shell()
 			</div>
 		</div>
 	</ProjectProvider>;
-}
+});
 
 const useStyles = makeStyles({
 	shell: {

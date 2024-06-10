@@ -1,11 +1,12 @@
 import { Spinner } from "@fluentui/react-components";
+import { observer } from "mobx-react-lite";
 import { Stack } from "./Stack";
 
 export interface LoadingProps {
 	message: string,
 }
 
-export function Loading(props: LoadingProps) 
+export const Loading = observer((props: LoadingProps) =>
 {
 	return <Stack horizontal>
 		<Stack.Item grow>&nbsp;</Stack.Item>
@@ -20,4 +21,4 @@ export function Loading(props: LoadingProps)
 		</Stack.Item>
 		<Stack.Item grow>&nbsp;</Stack.Item>
 	</Stack>;
-}
+});

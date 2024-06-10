@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { Stack } from "./Stack";
 
 export interface ErrorProps {
@@ -5,7 +6,7 @@ export interface ErrorProps {
 	error?: unknown,
 }
 
-export function ErrorMessage(props: ErrorProps) 
+export const ErrorMessage = observer((props: ErrorProps) =>
 {
 	return <Stack horizontal>
 		<Stack.Item grow>&nbsp;</Stack.Item>
@@ -23,7 +24,7 @@ export function ErrorMessage(props: ErrorProps)
 		</Stack.Item>
 		<Stack.Item grow>&nbsp;</Stack.Item>
 	</Stack>;
-}
+});
 
 function errorMessage(error: unknown) 
 {

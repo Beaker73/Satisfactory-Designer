@@ -7,11 +7,12 @@ import { initReactI18next, useTranslation } from "react-i18next";
 import { } from "@/Hooks/Translations";
 import { useStoreState } from "@/Store";
 
+import { observer } from "mobx-react-lite";
 import { Loading } from "./Loading";
 
 
 
-export function TranslationProvider(props: PropsWithChildren) 
+export const TranslationProvider = observer((props: PropsWithChildren) =>
 {
 	const [isTranslationAvailable, setTranslationAvailable] = useState(false);
 	const getNamespace = useStoreState(store => store.translations.getNamespace);
@@ -27,9 +28,9 @@ export function TranslationProvider(props: PropsWithChildren)
 		{!isTranslationAvailable && <Loading message="Loading translations" />}
 		{isTranslationAvailable && <LanguageSwitcher>{props.children}</LanguageSwitcher>}
 	</Suspense>;
-}
+});
 
-function LanguageSwitcher(props: PropsWithChildren) 
+const LanguageSwitcher = observer(function LanguageSwitcher(props: PropsWithChildren) 
 {
 	const language = useStoreState(state => state.settings.language);
 	const { i18n, ready } = useTranslation();
@@ -39,7 +40,7 @@ function LanguageSwitcher(props: PropsWithChildren)
 			i18n.changeLanguage(language);
 	}, [i18n, language, ready]);
 	return props.children;
-}
+});
 
 
 let initResult: Promise<TFunction> | undefined;

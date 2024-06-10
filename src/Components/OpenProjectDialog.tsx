@@ -9,6 +9,7 @@ import { useStoreActions, useStoreState } from "@/Store";
 
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
 import { useDialog } from "@/Hooks/Dialogs";
+import { observer } from "mobx-react-lite";
 import { Stack } from "./Stack";
 
 /**
@@ -34,7 +35,7 @@ export function useOpenProjectDialog()
 
 export type OpenProjectDialogProps = DialogControllerProps<Project>;
 
-export function OpenProjectDialog(props: OpenProjectDialogProps) 
+export const OpenProjectDialog = observer((props: OpenProjectDialogProps) =>
 {
 	const { onConfirm, onDismiss } = props;
 
@@ -126,7 +127,7 @@ export function OpenProjectDialog(props: OpenProjectDialogProps)
 			</DialogBody>
 		</DialogSurface>
 	</Dialog>;
-}
+});
 
 const useStyles = makeStyles({
 	projects: {
@@ -139,7 +140,7 @@ export interface DeleteDialogProps extends DialogControllerProps {
 	projectName: string,
 }
 
-export function DeleteDialog(props: DeleteDialogProps) 
+export const DeleteDialog = observer((props: DeleteDialogProps) =>
 {
 	const { projectName, onDismiss, onConfirm } = props;
 
@@ -157,4 +158,4 @@ export function DeleteDialog(props: DeleteDialogProps)
 			</DialogBody>
 		</DialogSurface>
 	</Dialog>;
-}
+});

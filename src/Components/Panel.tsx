@@ -1,5 +1,6 @@
 import { Body1, Button, Caption1, Card, CardHeader, Menu, MenuPopover, MenuTrigger, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { MoreVerticalFilled, MoreVerticalRegular, bundleIcon } from "@fluentui/react-icons";
+import { observer } from "mobx-react-lite";
 import { useCallback, type ReactElement } from "react";
 import { useDrag } from "react-dnd";
 import { ContextPopup } from "./ContextPopup";
@@ -13,7 +14,7 @@ export interface PanelProps {
 	commands?: ReactElement,
 }
 
-export function Panel(props: PanelProps) 
+export const Panel = observer((props: PanelProps) =>
 {
 	const { dragKey, name, imageUrl, description, commands } = props;
 	const styles = useStyles();
@@ -58,7 +59,7 @@ export function Panel(props: PanelProps)
 	}
 
 	return renderCard();
-}
+});
 
 const useStyles = makeStyles({
 	root: {

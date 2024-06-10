@@ -1,5 +1,6 @@
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
 import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle } from "@fluentui/react-components";
+import { observer } from "mobx-react-lite";
 
 export interface RequestDialogProps extends DialogControllerProps<void> {
 	title: string,
@@ -8,7 +9,7 @@ export interface RequestDialogProps extends DialogControllerProps<void> {
 	cancelButton?: string,
 }
 
-export function RequestDialog(props: RequestDialogProps) 
+export const RequestDialog = observer((props: RequestDialogProps) =>
 {
 	const { title, message, okButton, cancelButton, onConfirm, onDismiss } = props;
 
@@ -24,7 +25,7 @@ export function RequestDialog(props: RequestDialogProps)
 			</DialogBody>
 		</DialogSurface>
 	</Dialog>;
-}
+});
 
 export interface DialogButton {
 	name: string,

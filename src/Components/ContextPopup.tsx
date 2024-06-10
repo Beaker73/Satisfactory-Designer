@@ -1,5 +1,6 @@
 import type { PopoverProps } from "@fluentui/react-components";
 import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
+import { observer } from "mobx-react-lite";
 import type { CSSProperties, MouseEventHandler, PropsWithChildren, ReactElement } from "react";
 import { isValidElement, useCallback, useState } from "react";
 
@@ -12,7 +13,7 @@ export interface ContextPopupProps {
 	style?: CSSProperties,
 }
 
-export function ContextPopup(props: PropsWithChildren<ContextPopupProps>) 
+export const ContextPopup = observer((props: PropsWithChildren<ContextPopupProps>) =>
 {
 	const { content } = props;
 
@@ -45,4 +46,4 @@ export function ContextPopup(props: PropsWithChildren<ContextPopupProps>)
 			{content}
 		</PopoverSurface>
 	</Popover>;
-}
+});

@@ -3,22 +3,20 @@ import { useCallback, useRef, useState } from "react";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
 
-import { moveNodeByOffset } from "@/State/Actions/MoveNodeByOffset";
-
+import { useProject } from "@/ComputeModel/ProjectContext";
 import type { DragData } from "@/Model/DragData";
 import type { Position } from "@/Model/Position";
-import { useProjectState } from "@/State";
+import { observer } from "mobx-react-lite";
 import { Connector } from "./Connector";
 import { Draggable } from "./Draggable";
 import { NodeCard } from "./NodeCard";
 
-export function Canvas() 
+export const Canvas = observer(() =>
 {
-	const { state, dispatch } = useProjectState();
+	const project = useProject();
 	const styles = useStyles();
 
 	const [dragConnector, setDragConnector] = useState<{ source: Position, target: Position } | undefined>();
-
 
 	const onNodeDropped = useCallback(
 		(dragProps: DragData, monitor: DropTargetMonitor<DragData, void>) => 
@@ -30,11 +28,15 @@ export function Canvas()
 			if (dragProps && dragProps.type === "node") 
 			{
 				const offset = monitor.getDifferenceFromInitialOffset();
-				if(offset)
-					dispatch(moveNodeByOffset(dragProps.dragKey, offset));
+				if(offset) 
+				{
+					const node = project?.nodes.find(n => n.id === dragProps.dragKey);
+					if(node)
+						node.moveTo([offset.x, offset.y]); 
+				} 
 			}
 		},
-		[dispatch],
+		[project],
 	);
 
 	const canvasElement = useRef<HTMLDivElement | null>(null);
@@ -45,7 +47,6 @@ export function Canvas()
 
 			if (item.type === "port") 
 			{
-
 				const rect = canvasElement.current?.getBoundingClientRect();
 				const source = monitor.getInitialClientOffset();
 				const target = monitor.getClientOffset();
@@ -83,13 +84,14 @@ export function Canvas()
 
 	return <div className={styles.root} ref={drop}>
 		<div className={styles.canvas} ref={canvasElement}>
-			{Object.values(state.nodes).map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
-				<NodeCard key={node.id} nodeId={node.id} />
+			{project && project.nodes.map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
+				<NodeCard key={node.id} node={node} />
 			</Draggable>)}
-			{Object.values(state.links).map(link => 
+			{project && project.links.map(link => 
 			{
-				let source = state.nodes[link.source].position;
-				let target = state.nodes[link.target].position;
+				console.debug("link", link);
+				let source = link.source.node.position;
+				let target = link.target.node.position;
 
 				source = [source[0] + 256, source[1] + 32];
 				target = [target[0], target[1] + 32];
@@ -103,7 +105,7 @@ export function Canvas()
 
 		{dragConnector && <Connector source={dragConnector.source} target={dragConnector.target} />}
 	</div>;
-}
+});
 
 
 const useStyles = makeStyles({

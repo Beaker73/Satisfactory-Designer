@@ -1,5 +1,6 @@
 import { newGuid, type Guid } from "@/Model/Identifiers";
 import { produce } from "immer";
+import { observer } from "mobx-react-lite";
 import type { Dispatch, FunctionComponent, PropsWithChildren } from "react";
 import { Fragment, createContext, useCallback, useContext, useMemo, useReducer } from "react";
 
@@ -57,7 +58,7 @@ function dialogReducer(state: DialogState, action: DialogAction): DialogState
 
 }
 
-export function DialogProvider(props: PropsWithChildren<unknown>) 
+export const DialogProvider = observer((props: PropsWithChildren<unknown>) =>
 {
 	const [state, dispatch] = useReducer(dialogReducer, { dialogs: [] });
 	const context = useMemo<DialogContext>(() => ({ dispatch, state }), [dispatch, state]);
@@ -68,9 +69,9 @@ export function DialogProvider(props: PropsWithChildren<unknown>)
 		<DialogsRenderer />
 		{props.children}
 	</dialogContext.Provider>;
-}
+});
 
-function DialogsRenderer() 
+const DialogsRenderer = observer(() =>
 {
 	const { state, dispatch } = useContext(dialogContext);
 
@@ -86,8 +87,7 @@ function DialogsRenderer()
 			},
 		)}
 	</Fragment>;
-
-}
+});
 
 export interface DialogControllerProps<Result = void> {
 	onConfirm(result: Result): void;

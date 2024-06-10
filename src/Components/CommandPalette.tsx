@@ -1,17 +1,18 @@
 import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, MenuItem, MenuList, makeStyles } from "@fluentui/react-components";
 import { BeakerAddFilled, BeakerAddRegular, bundleIcon } from "@fluentui/react-icons";
 
-import { useDatabase } from "@/Hooks/DatabaseProvider";
+import { useDatabase } from "@/Hooks/DatabaseContext";
 import { useDesignerText } from "@/Hooks/Translations";
 
+import { Node } from "@/ComputeModel/Node";
+import { useProject } from "@/ComputeModel/ProjectContext";
 import type { BuildingCategoryKey } from "@/Model/Building";
 import { knownBuildingCategories } from "@/Model/Building";
-import { useProjectState } from "@/State";
-import { addNode } from "@/State/Actions/AddNode";
+import { observer } from "mobx-react-lite";
 import { Item } from "./Item";
 import { Stack } from "./Stack";
 
-export function CommandPalette() 
+export const CommandPalette = observer(() =>
 {
 	const style = useCommandPaletteStyle();
 
@@ -22,7 +23,7 @@ export function CommandPalette()
 			<BuildingAccordion category={knownBuildingCategories.factory} />
 		</Accordion>
 	</Stack>;
-}
+});
 
 const useCommandPaletteStyle = makeStyles({
 	root: {
@@ -34,10 +35,10 @@ interface BuildingAccordionProps {
 	category: BuildingCategoryKey,
 }
 
-function BuildingAccordion(props: BuildingAccordionProps) 
+const BuildingAccordion = observer((props: BuildingAccordionProps) =>
 {
 	const { category } = props;
-	const { dispatch } = useProjectState();
+	const project = useProject();
 
 
 	const database = useDatabase();
@@ -55,7 +56,7 @@ function BuildingAccordion(props: BuildingAccordionProps)
 				{
 					function addItemToDesign() 
 					{
-						dispatch(addNode(building));
+						project?.addNode(Node.createForBuilding(building));
 					}
 					return <MenuItem key={building.key} onClick={addItemToDesign}>
 						<Item item={building}
@@ -68,4 +69,4 @@ function BuildingAccordion(props: BuildingAccordionProps)
 			</MenuList>
 		</AccordionPanel>
 	</AccordionItem>;
-}
+});

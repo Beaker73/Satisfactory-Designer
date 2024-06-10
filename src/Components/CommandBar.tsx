@@ -4,16 +4,17 @@ import { ChatBubblesQuestionFilled, ChatBubblesQuestionRegular, FolderAddFilled,
 import { Fragment, useCallback, useMemo, useState } from "react";
 
 import { Stack } from "@/Components/Stack";
-import { useDatabase } from "@/Hooks/DatabaseProvider";
+import { useProject } from "@/ComputeModel/ProjectContext";
+import { useDatabase } from "@/Hooks/DatabaseContext";
 import type { DialogControllerProps } from "@/Hooks/Dialogs";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText } from "@/Hooks/Translations";
-import { useProjectState } from "@/State";
 import { useStoreActions, useStoreState } from "@/Store";
 import type { Language, Theme } from "@/Store/Settings";
+import { observer } from "mobx-react-lite";
 import { useOpenProjectDialog } from "./OpenProjectDialog";
 
-export function CommandBar() 
+export const CommandBar = observer(() =>
 {
 	const SettingsIcon = bundleIcon(SettingsFilled, SettingsRegular);
 	const t = useDesignerText();
@@ -79,8 +80,7 @@ export function CommandBar()
 			</Stack>
 		</Stack.Item>
 	</Fragment>;
-}
-
+});
 
 const useStyles = makeStyles({
 	appBar: {
@@ -89,25 +89,25 @@ const useStyles = makeStyles({
 });
 
 
-function MenuItemNewProject() 
+const MenuItemNewProject = observer(() =>
 {
 	const t = useDesignerText();
 
 	const FolderNewIcon = bundleIcon(FolderAddFilled, FolderAddRegular);
 	const newProject = useStoreActions(store => store.projects.newProject);
 	return <MenuItem icon={<FolderNewIcon />} onClick={() => newProject()}>{t("menu.file.new")}</MenuItem>;
-}
+});
 
-function MenuItemOpenProject(props: { onClick: () => void }) 
+const MenuItemOpenProject = observer((props: { onClick: () => void }) =>
 {
 	const t = useDesignerText();
 
 	const { onClick } = props;
 	const FolderOpenIcon = bundleIcon(FolderOpenFilled, FolderOpenRegular);
 	return <MenuItem icon={<FolderOpenIcon />} onClick={onClick}>{t("menu.file.open")}</MenuItem>;
-}
+});
 
-function MenuItemAbout() 
+const MenuItemAbout = observer(() =>
 {
 	const AboutIcon = bundleIcon(ChatBubblesQuestionFilled, ChatBubblesQuestionRegular);
 
@@ -120,12 +120,12 @@ function MenuItemAbout()
 	return <MenuItem icon={<AboutIcon />} onClick={openAboutDialog}>
 		About
 	</MenuItem>;
-}
+});
 
-export type AboutDialogProps = DialogControllerProps;
+type AboutDialogProps = DialogControllerProps;
 
 
-function AboutDialog(props: AboutDialogProps) 
+const AboutDialog = observer((props: AboutDialogProps) =>
 {
 	return <Dialog open={true} modalType="modal">
 		<DialogSurface>
@@ -140,6 +140,7 @@ function AboutDialog(props: AboutDialogProps)
 							<li><Link href="https://github.com/microsoft/fluentui?tab=License-1-ov-file#readme" target="_blank">Fluent UI React v9</Link> - for the User Interface</li>
 							<li><Link href="https://github.com/ctrlplusb/easy-peasy?tab=MIT-1-ov-file#readme">easy-peasy</Link> - for easy redux</li>
 							<li><Link href="https://github.com/immerjs/immer?tab=MIT-1-ov-file#readme">immer</Link> - for easy reducer state updates</li>
+							<li><Link href="https://github.com/mobxjs/mobx/blob/main/LICENSE">mobx</Link> - for lazy recomputation of the model</li>
 							<li><Link href="https://github.com/kyeotic/raviger?tab=MIT-1-ov-file#readme" target="_blank">Raviger</Link> - for Routing</li>
 							<li><Link href="https://github.com/react-dnd/react-dnd?tab=MIT-1-ov-file#readme">React DND</Link> - for Drag and Drop support</li>
 							<li><Link href="https://github.com/i18next/i18next?tab=MIT-1-ov-file#readme">i18n</Link> - for Multi language support</li>
@@ -157,10 +158,10 @@ function AboutDialog(props: AboutDialogProps)
 			</DialogBody>
 		</DialogSurface>
 	</Dialog>;
-}
+});
 
 
-function ThemeMenu() 
+const ThemeMenu = observer(()  =>
 {
 	const theme = useStoreState(store => store.settings.theme);
 	const setTheme = useStoreActions(store => store.settings.setTheme);
@@ -190,10 +191,9 @@ function ThemeMenu()
 			</MenuList>
 		</MenuPopover>
 	</Menu>;
+});
 
-}
-
-function LanguageMenu() 
+const LanguageMenu = observer(() =>
 {
 	const database = useDatabase();
 	const languages = Object.entries(database.languages.getAll());
@@ -229,25 +229,25 @@ function LanguageMenu()
 			</MenuList>
 		</MenuPopover>
 	</Menu>;
-}
+});
 
-function MenuItemExportProject() 
+const MenuItemExportProject = observer(() =>
 {
 	const ExportIcon = bundleIcon(SaveArrowRightFilled, SaveArrowRightRegular);
 
 	const project = useStoreState(state=>state.projects.activeProject);
-	const state = useProjectState();
+	const data = useProject();
 
 	const dt = useDesignerText();
 
 	const downloadLink = useMemo(
 		() => 
 		{
-			const json = JSON.stringify({ type: "project", id: project.id, version: "0.1", name: project.name, state });
+			const json = JSON.stringify({ type: "project", id: project.id, version: "0.1", name: project.name, data: data?.serialize() });
 			const base64 = btoa(json);
 			return `data:application/json;base64,${base64}`;
 		},
-		[project.id, project.name, state],
+		[data, project.id, project.name],
 	);
 
 	const styles = useDownloadStyles();
@@ -255,7 +255,7 @@ function MenuItemExportProject()
 	return <MenuItem icon={<ExportIcon />}>
 		<Link appearance="subtle" href={downloadLink} download={`${project.name.replace(/\s/g, "_")}.sdp`} className={styles.noUnderline} >{dt("menu.file.export")}</Link>
 	</MenuItem>;
-}
+});
 
 const useDownloadStyles = makeStyles({
 	noUnderline: {

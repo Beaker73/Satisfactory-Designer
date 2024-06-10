@@ -8,6 +8,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { Shell } from "@/Components/Shell";
 import { store, useStoreActions, useStoreState } from "@/Store";
+import { observer } from "mobx-react-lite";
 import { Loading } from "./Components/Loading";
 import { TranslationProvider } from "./Components/TranslationProvider";
 import { DatabaseProvider } from "./Hooks/DatabaseProvider";
@@ -15,7 +16,7 @@ import { DialogProvider } from "./Hooks/Dialogs";
 import type { Database } from "./Plugins";
 import { loadPlugins } from "./Plugins";
 
-export function App() 
+export const App = observer(() =>
 {
 	const [database, setDatabase] = useState<Database | undefined>();
 
@@ -29,15 +30,14 @@ export function App()
 			</TranslationProvider>
 		</PluginProvider>
 	</StoreProvider>;
-}
-
+});
 
 
 interface PluginProviderProps {
 	onDatabaseLoaded(database: Database): void;
 }
 
-function PluginProvider(props: PropsWithChildren<PluginProviderProps>) 
+const PluginProvider = observer(function PluginProvider(props: PropsWithChildren<PluginProviderProps>) 
 {
 	const [pluginsReady, setPluginsReady] = useState(false);
 	useEffect(() => 
@@ -56,7 +56,7 @@ function PluginProvider(props: PropsWithChildren<PluginProviderProps>)
 		return <Loading message="Loading plugins" />;
 
 	return props.children;
-}
+});
 
 const satisfactoryVariants: BrandVariants = {
 	10: "#050202",
@@ -77,7 +77,7 @@ const satisfactoryVariants: BrandVariants = {
 	160: "#FFCEA2",
 };
 
-function ThemedApp() 
+const ThemedApp = observer(() =>
 {
 	const themeName = useStoreState(state => state.settings.theme);
 	const loadProject = useStoreActions(store => store.projects.loadProject);
@@ -127,4 +127,4 @@ function ThemedApp()
 			</DndProvider>
 		</DialogProvider>
 	</FluentProvider>;
-}
+});

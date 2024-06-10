@@ -1,8 +1,9 @@
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Building } from "@/Model/Building";
-import type { Item } from "@/Model/Item";
+import type { Item as FicsitItem } from "@/Model/Item";
 import { Divider, MenuItem, MenuList, Text, makeStyles, shorthands, tokens } from "@fluentui/react-components";
 import { OpenFilled, OpenRegular, bundleIcon } from "@fluentui/react-icons";
+import { observer } from "mobx-react-lite";
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 import { ContextPopup } from "./ContextPopup";
@@ -10,11 +11,11 @@ import { Stack } from "./Stack";
 
 
 export interface ItemProps {
-	item: Building | Item,
+	item: Building | FicsitItem,
 	commands?: ReactElement,
 }
 
-export function Item(props: ItemProps) 
+export const Item = observer((props: ItemProps) =>
 {
 	const OpenIcon = bundleIcon(OpenFilled, OpenRegular);
 
@@ -36,26 +37,26 @@ export function Item(props: ItemProps)
 			<Text>{t(item.nameKey)}</Text>
 		</Stack>
 	</ContextPopup>;
-}
+});
 
 interface ItemIconProps {
-	item: Building | Item,
+	item: Building | FicsitItem,
 	size?: number,
 }
 
-export function ItemIcon(props: ItemIconProps) 
+export const ItemIcon = observer((props: ItemIconProps) =>
 {
 	const size = props.size ?? 24;
 	return <img src={props.item.imageUrl} width={size} height={size} />;
-}
+});
 
 
 interface ItemTooltipProps {
-	item: Building | Item,
+	item: Building | FicsitItem,
 	commands?: ReactElement,
 }
 
-export function ItemTooltip(props: ItemTooltipProps) 
+export const ItemTooltip = observer((props: ItemTooltipProps) =>
 {
 	const { item, commands } = props;
 	const st = useSatisfactoryText();
@@ -103,7 +104,7 @@ export function ItemTooltip(props: ItemTooltipProps)
 			</dl>
 		</Stack>
 	</Stack>;
-}
+});
 
 const useItemTooltipStyles = makeStyles({
 	root: {

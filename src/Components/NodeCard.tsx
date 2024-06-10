@@ -3,47 +3,39 @@ import { BookTemplateFilled, BookTemplateRegular, BuildingFactoryFilled, Buildin
 import { useCallback } from "react";
 import { Fragment } from "react/jsx-runtime";
 
-import { useDatabase } from "@/Hooks/DatabaseProvider";
+import { useDatabase } from "@/Hooks/DatabaseContext";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Building, BuildingVariant, BuildingVariantKey, BuildingVariants } from "@/Model/Building";
-import type { Node, NodeId } from "@/Model/Node";
-import type { Ingredient, Recipe, RecipeKey } from "@/Model/Recipe";
+import type { Recipe, RecipeKey } from "@/Model/Recipe";
 
+import { Link } from "@/ComputeModel/Link";
+import type { Node } from "@/ComputeModel/Node";
+import type { Port } from "@/ComputeModel/Port";
+import { useProject } from "@/ComputeModel/ProjectContext";
 import { hasValueNotFalse } from "@/Helpers";
-import { objectEntries, objectValues } from "@/Helpers/Object";
+import { objectValues } from "@/Helpers/Object";
 import type { DragData, DragPortData } from "@/Model/DragData";
-import type { KeyedRecord } from "@/Model/Identifiers";
-import type { ItemKey } from "@/Model/Item";
-import { useProjectState } from "@/State";
-import { addLink } from "@/State/Actions/AddLink";
-import { deleteNode } from "@/State/Actions/DeleteNode";
-import { setNodeRecipe } from "@/State/Actions/SetNodeRecipe";
-import { setNodeVariant } from "@/State/Actions/SetNodeVariant";
+import { observer } from "mobx-react-lite";
 import type { DropTargetMonitor } from "react-dnd";
 import { useDrag, useDrop } from "react-dnd";
 import { RequestDialog } from "./RequestDialog";
 import { Stack } from "./Stack";
 
 export interface NodeCardProps {
-	nodeId: NodeId,
+	node: Node,
 }
 
-export function NodeCard(props: NodeCardProps) 
+export const NodeCard = observer((props: NodeCardProps) =>
 {
-	const { nodeId } = props;
+	const { node } = props;
 
 	const st = useSatisfactoryText();
 	const styles = useStyles();
 
-	const { state } = useProjectState();
-	const node = state.nodes[nodeId];
-	const { buildingKey, recipeKey, variantKey } = node;
-
-	const database = useDatabase();
-	const building = database.buildings.getByKey(buildingKey);
-	const variant = building?.variants && variantKey ? building.variants[variantKey] : undefined;
-	const recipe = recipeKey ? database.recipes.getByKey(recipeKey) : undefined;
+	const building = node.building;
+	const variant = node.variant;
+	const recipe = node.recipe;
 
 	const commands = useNodeCommands(node, building, variant, recipe);
 
@@ -76,13 +68,13 @@ export function NodeCard(props: NodeCardProps)
 			</CardHeader>
 		</Card>
 		<div className={styles.portsLeft}>
-			{recipe?.inputs && <Ports node={node} recipe={recipe} items={recipe.inputs} side="left" />}
+			{recipe?.inputs && <Ports node={node} recipe={recipe} ports={node.inputPorts} side="left" />}
 		</div>
 		<div className={styles.portsRight}>
-			{recipe?.outputs && <Ports node={node} recipe={recipe} items={recipe.outputs} side="right" />}
+			{recipe?.outputs && <Ports node={node} recipe={recipe} ports={node.outputPorts} side="right" />}
 		</div>
 	</div>;
-}
+});
 
 
 const useStyles = makeStyles({
@@ -119,7 +111,7 @@ const useStyles = makeStyles({
 function useNodeCommands(node?: Node, building?: Building, _variant?: BuildingVariant, _recipe?: Recipe) 
 {
 	const database = useDatabase();
-	const variants = objectValues<BuildingVariants | undefined, BuildingVariantKey, BuildingVariant>(database.buildings.getByKey(node?.buildingKey)?.variants);
+	const variants = objectValues<BuildingVariants | undefined, BuildingVariantKey, BuildingVariant>(node?.building?.variants);
 	const hasVariants = (variants?.length ?? 0) > 0;
 	const recipes = database.recipes.getByKeys(building?.allowedRecipes);
 	const hasRecipes = (recipes?.length ?? 0) > 0;
@@ -127,7 +119,7 @@ function useNodeCommands(node?: Node, building?: Building, _variant?: BuildingVa
 	return <Fragment>
 		{node && hasVariants && <VariantMenuItem node={node} variants={variants} />}
 		{node && hasRecipes && <RecipeMenuItem node={node} recipes={recipes} />}
-		{node && <DeleteNodeMenuItem nodeId={node.id} />}
+		{node && <DeleteNodeMenuItem node={node} />}
 	</Fragment>;
 }
 
@@ -136,10 +128,9 @@ interface RecipeMenuItemProps {
 	recipes: Recipe[],
 }
 
-export function RecipeMenuItem(props: RecipeMenuItemProps) 
+export const RecipeMenuItem = observer((props: RecipeMenuItemProps) =>
 {
 	const { node, recipes } = props;
-	const { dispatch } = useProjectState();
 
 	const RecipeIcon = bundleIcon(BookTemplateFilled, BookTemplateRegular);
 	const st = useSatisfactoryText();
@@ -150,26 +141,29 @@ export function RecipeMenuItem(props: RecipeMenuItemProps)
 		</MenuTrigger>
 		<MenuPopover>
 			<MenuList hasCheckmarks
-				checkedValues={{ recipe: node.recipeKey ? [node.recipeKey] : [] }}
-				onCheckedValueChange={(_ev, data) => { dispatch(setNodeRecipe(node.id, data.checkedItems[0] as RecipeKey )); }}
-			>
+				checkedValues={{ recipe: node.recipe ? [node.recipe.key] : [] }}
+				onCheckedValueChange={(_ev, data) => 
+				{ 
+					const recipe = recipes.find(r => r.key === data.checkedItems[0] as RecipeKey);
+					node.recipe = recipe;
+				}
+				}>
 				{recipes.map(recipe => <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
 					{st(recipe.nameKey)}
 				</MenuItemRadio>)}
 			</MenuList>
 		</MenuPopover>
 	</Menu>;
-}
+});
 
 export interface VariantMenuItemProps {
 	node: Node,
 	variants: BuildingVariant[],
 }
 
-export function VariantMenuItem(props: VariantMenuItemProps) 
+export const VariantMenuItem = observer((props: VariantMenuItemProps) =>
 {
 	const { node, variants } = props;
-	const { dispatch } = useProjectState();
 
 	const VariantIcon = bundleIcon(BuildingFactoryFilled, BuildingFactoryRegular);
 	const st = useSatisfactoryText();
@@ -180,21 +174,29 @@ export function VariantMenuItem(props: VariantMenuItemProps)
 		</MenuTrigger>
 		<MenuPopover>
 			<MenuList hasCheckmarks
-				checkedValues={{ variant: node.variantKey ? [node.variantKey] : [] }}
-				onCheckedValueChange={(_ev, data) => { dispatch(setNodeVariant(node.id, data.checkedItems[0] as BuildingVariantKey )); }}
-			>
+				checkedValues={{ variant: node.variant? [node.variant.key] : [] }}
+				onCheckedValueChange={(_ev, data) => 
+				{ 
+					if(node.building.variants) 
+					{
+						const variant = node.building.variants[data.checkedItems[0] as BuildingVariantKey];
+						if(variant)
+							node.variant = variant;
+					}
+				}
+				}>
 				{variants.map(variant => <MenuItemRadio key={variant.key} name="variant" value={variant.key}>
 					{st(variant.nameKey)}
 				</MenuItemRadio>)}
 			</MenuList>
 		</MenuPopover>
 	</Menu>;
-}
+});
 
-function DeleteNodeMenuItem(props: NodeCardProps) 
+const DeleteNodeMenuItem = observer((props: NodeCardProps) =>
 {
-	const { nodeId } = props;
-	const { dispatch } = useProjectState();
+	const { node } = props;
+	const project = useProject();
 
 	const DeleteIcon = bundleIcon(DeleteFilled, DeleteRegular);
 
@@ -207,71 +209,73 @@ function DeleteNodeMenuItem(props: NodeCardProps)
 	});
 
 	const tryDeleteNode = useCallback(
-		async (nodeId: NodeId) => 
+		async (node: Node) => 
 		{
 			await dialog.show({});
-			dispatch(deleteNode(nodeId));
+			project?.removeNode(node);
 		},
-		[dispatch, dialog],
+		[dialog, project],
 	);
 
-	return <MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(nodeId)} >{dt("canvas.delete.commandText")}</MenuItem>;
-}
+	return <MenuItem icon={<DeleteIcon />} onClick={() => tryDeleteNode(node)} >{dt("canvas.delete.commandText")}</MenuItem>;
+});
 
 export interface PortsProps {
 	node: Node,
 	recipe: Recipe,
-	items: KeyedRecord<ItemKey, Ingredient>,
+	ports: Port[],
 	side: "left" | "right",
 }
 
-export function Ports(props: PortsProps) 
+export const Ports = observer((props: PortsProps) =>
 {
-	const { node, recipe, items, side } = props;
+	const { node, recipe, ports, side } = props;
 
 	return <Stack justify="center" gap={4}>
-		{objectEntries(items).map(([key, ingredient]) => 
-			<Port key={key} node={node} recipe={recipe} ingredient={ingredient} side={side} />)}
+		{ports.filter(port => port.isVisible).map(port => 
+			<PortLink key={port.id} port={port} node={node} recipe={recipe} side={side} />)}
 	</Stack>;
-}
+});
 
-export interface PortProps {
+export interface PortLinkProps {
 	node: Node,
+	port: Port,
 	recipe: Recipe,
-	ingredient: Ingredient,
 	side: "left" | "right"
 }
 
-export function Port(props: PortProps) 
+export const PortLink = observer((props: PortLinkProps) =>
 {
-	const { node, recipe, ingredient, side } = props;
+	const { port, node, recipe, side } = props;
 
-	const { dispatch } = useProjectState();
-	const database = useDatabase();
-	const item = database.items.getByKey(ingredient.item);
+	const project = useProject();
+	const item = port.item;
 
-	const canDrop = useCallback((item: DragData): boolean => 
+	const canDrop = useCallback((source: DragData): boolean => 
 	{
-		if(item.type !== "port")
+		if(source.type !== "port")
 			return false;
 
 		// cannot drop on use, if from same type of side. i.s. source to source or target to target
-		if(item.side === side) 
+		if(source.side === side) 
 			return false;
 
 		// only matching ingriedents can be connected
-		if(item.ingredient.item !== ingredient.item) 
+		if(source.port.item !== port.item) 
 			return false;
-		if(item.ingredient.tag !== ingredient.tag) 
+		if(source.port.tag !== port.tag) 
 			return false;
 
 		return true;
-	}, [ingredient, side]);
+	}, [port.item, port.tag, side]);
 	const drop = useCallback((item: DragData, monitor: DropTargetMonitor) => 
 	{
-		if(item.type === "port" && monitor.canDrop())
-			dispatch(addLink(item.node.id, node.id, ingredient.item, 60 / recipe.duration * ingredient.count, ingredient.tag ));
-	}, [dispatch, ingredient.count, ingredient.item, ingredient.tag, node.id, recipe.duration]);
+		if(project && item.type === "port" && monitor.canDrop()) 
+		{
+			const link = Link.createBetween(item.port, port);
+			project.addLink(link);
+		}
+	}, [port, project]);
 	const [{ isOver, validTarget }, dropRef] = useDrop<DragData, unknown, {isOver: boolean, validTarget: boolean}>(() => ({
 		accept: "port",
 		canDrop,
@@ -284,7 +288,7 @@ export function Port(props: PortProps)
 
 	const [, dragRef] = useDrag<DragPortData>(() => ({
 		type: "port",
-		item: { type: "port", node, recipe, ingredient, side },
+		item: { type: "port", port, node, recipe, side },
 	}));
 
 	// combine the refs into a single
@@ -295,8 +299,8 @@ export function Port(props: PortProps)
 
 	const tooltip = [
 		st(item?.nameKey).replace(" ", "\u00A0"),
-		`${60 / recipe.duration * ingredient.count}\u00A0p/m`,
-		ingredient.tag ? st(`item.tag.${ingredient.tag}`) : undefined,
+		`${port.itemsPerMinute}\u00A0p/m`,
+		port.tag ? st(`item.tag.${port.tag}`) : undefined,
 	]
 		.filter(hasValueNotFalse)
 		.join("\n");
@@ -305,7 +309,7 @@ export function Port(props: PortProps)
 		<div ref={refs} className={mergeClasses(styles.port, isOver && !validTarget ? styles.noDrop : undefined )}>
 		</div>
 	</Tooltip>;
-}
+});
 
 const usePortStyles = makeStyles({
 	port: {

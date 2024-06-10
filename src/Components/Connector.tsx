@@ -1,5 +1,6 @@
 import type { Position } from "@/Model/Position";
 import { Tooltip, makeStyles, tokens } from "@fluentui/react-components";
+import { observer } from "mobx-react-lite";
 
 export interface ConnectorProps {
 	source: Position,
@@ -10,7 +11,7 @@ export interface ConnectorProps {
 	// targetError?: string,
 }
 
-export function Connector(props: ConnectorProps) 
+export const Connector = observer((props: ConnectorProps) =>
 {
 	const { source: [x1, y1], target: [x2, y2], value, tooltip } = props;
 	const height = Math.abs(y2 - y1);
@@ -50,7 +51,7 @@ export function Connector(props: ConnectorProps)
 			{!tooltip && <span>{value}</span>}
 		</div>
 	</div>;
-}
+});
 
 const useStyles = makeStyles({
 	root: {
