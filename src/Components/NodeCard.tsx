@@ -9,9 +9,10 @@ import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
 import type { Building, BuildingVariant, BuildingVariantKey, BuildingVariants } from "@/Model/Building";
 import type { Recipe, RecipeKey } from "@/Model/Recipe";
 
+import { InputPort } from "@/ComputeModel/InputPort";
 import { Link } from "@/ComputeModel/Link";
 import type { Node } from "@/ComputeModel/Node";
-import type { Port } from "@/ComputeModel/Port";
+import { OutputPort } from "@/ComputeModel/OutputPort";
 import { useProject } from "@/ComputeModel/ProjectContext";
 import { hasValueNotFalse } from "@/Helpers";
 import { objectValues } from "@/Helpers/Object";
@@ -145,7 +146,8 @@ export const RecipeMenuItem = observer((props: RecipeMenuItemProps) =>
 				onCheckedValueChange={(_ev, data) => 
 				{ 
 					const recipe = recipes.find(r => r.key === data.checkedItems[0] as RecipeKey);
-					node.recipe = recipe;
+					if(recipe)
+						node.switchRecipe(recipe);
 				}
 				}>
 				{recipes.map(recipe => <MenuItemRadio key={recipe.key} name="recipe" value={recipe.key}>
@@ -181,7 +183,7 @@ export const VariantMenuItem = observer((props: VariantMenuItemProps) =>
 					{
 						const variant = node.building.variants[data.checkedItems[0] as BuildingVariantKey];
 						if(variant)
-							node.variant = variant;
+							node.switchVariant(variant);
 					}
 				}
 				}>
@@ -223,7 +225,7 @@ const DeleteNodeMenuItem = observer((props: NodeCardProps) =>
 export interface PortsProps {
 	node: Node,
 	recipe: Recipe,
-	ports: Port[],
+	ports: (InputPort[]) | (OutputPort[]),
 	side: "left" | "right",
 }
 
@@ -239,7 +241,7 @@ export const Ports = observer((props: PortsProps) =>
 
 export interface PortLinkProps {
 	node: Node,
-	port: Port,
+	port: InputPort | OutputPort,
 	recipe: Recipe,
 	side: "left" | "right"
 }
@@ -249,7 +251,10 @@ export const PortLink = observer((props: PortLinkProps) =>
 	const { port, node, recipe, side } = props;
 
 	const project = useProject();
-	const item = port.item;
+	const database = useDatabase();
+
+	const itemKey = port.item;
+	const item = itemKey ? database.items.getByKey(itemKey): undefined;
 
 	const canDrop = useCallback((source: DragData): boolean => 
 	{
@@ -272,8 +277,14 @@ export const PortLink = observer((props: PortLinkProps) =>
 	{
 		if(project && item.type === "port" && monitor.canDrop()) 
 		{
-			const link = Link.createBetween(item.port, port);
-			project.addLink(link);
+			const source = item.port instanceof OutputPort ? item.port : port instanceof OutputPort ? port : undefined;
+			const target = item.port instanceof InputPort ? item.port : port instanceof InputPort ? port : undefined;
+
+			if(source && target) 
+			{
+				const link = Link.createBetween(source, target);
+				project.addLink(link);
+			}
 		}
 	}, [port, project]);
 	const [{ isOver, validTarget }, dropRef] = useDrop<DragData, unknown, {isOver: boolean, validTarget: boolean}>(() => ({
@@ -299,7 +310,7 @@ export const PortLink = observer((props: PortLinkProps) =>
 
 	const tooltip = [
 		st(item?.nameKey).replace(" ", "\u00A0"),
-		`${port.itemsPerMinute}\u00A0p/m`,
+		// port instanceof OutputPort ? `${port.itemsPerMinute}\u00A0p/m` : undefined,
 		port.tag ? st(`item.tag.${port.tag}`) : undefined,
 	]
 		.filter(hasValueNotFalse)

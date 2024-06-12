@@ -85,6 +85,7 @@ export interface PluginBuilding {
 	allowedRecipes?: string[],
 	defaultRecipe?: string,
 	variants?: Record<string, Partial<Omit<PluginBuilding, "variants" | "category">>>,
+	maxPerMinute?: number,
 }
 
 

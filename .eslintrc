@@ -47,6 +47,7 @@
 	],
 	"rules": {
 		"indent": "off",
+		"mobx/missing-make-observable": 0,
 		"@typescript-eslint/indent": [
 			"error",
 			"tab",

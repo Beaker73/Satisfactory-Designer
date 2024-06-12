@@ -9,13 +9,14 @@ export type BuildingKey = Key<"Building">;
 export type BuildingCategoryKey = Key<"BuildingCategory">;
 
 export const knownBuildingCategories = objectFromEntries(
-	(["resource", "extraction", "factory"] as const)
+	(["resource", "extraction", "factory", "transport"] as const)
 		.map(cat => [cat, cat as BuildingCategoryKey]),
 );
 
 /** Record with buildings index by their key */
 export type Buildings = KeyedRecord<BuildingKey, Building>;
 
+// optional category to restrict type of building
 export interface Building {
 	/** The unique key of the building */
 	key: BuildingKey,
@@ -35,8 +36,10 @@ export interface Building {
 	defaultRecipe?: RecipeKey,
 	/** The available variants of the building. If there are variants, the base building cannot be build */
 	variants?: BuildingVariants;
-	/** The default variant if there are variants. */
+	/** The default variant if theref are variants. */
 	defaultVariant?: BuildingVariantKey,
+	/** The maximum number of items/m3 per minute for transport buildings */
+	maxPerMinute?: number,
 }
 
 /** Key to uniquely identify a building variant */
@@ -61,4 +64,6 @@ export interface BuildingVariant {
 	allowedRecipes?: RecipeKey[],
 	/** If receipes are allowed this holds the default recipe */
 	defaultRecipe?: RecipeKey,
+	/** The maximum number of items/m3 per minute for transport buildings */
+	maxPerMinute?: number,
 }

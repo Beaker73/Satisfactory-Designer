@@ -13,7 +13,7 @@ export interface ConnectorProps {
 
 export const Connector = observer((props: ConnectorProps) =>
 {
-	const { source: [x1, y1], target: [x2, y2], value, tooltip } = props;
+	const { source: { x: x1, y: y1 }, target: { x: x2, y: y2 }, value, tooltip } = props;
 	const height = Math.abs(y2 - y1);
 	const styles = useStyles();
 

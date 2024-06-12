@@ -1,6 +1,6 @@
 import { defaultDatabase } from "@/Hooks/DatabaseContext";
 import { newGuid, type Guid } from "@/Model/Identifiers";
-import { computed, makeObservable, observable } from "mobx";
+import { computed, observable } from "mobx";
 import type { Node } from "./Node";
 
 
@@ -10,21 +10,21 @@ export class Port
 {
 	id: PortId = newGuid();
 
-	public readonly node: Node;
-	public readonly type: "input" | "output";
-	public readonly index: number;
+	@observable accessor node: Node;
+	@observable accessor type: "input" | "output";
+	@observable accessor index: number;
 
-	public get ingredients() 
+	@computed get ingredients() 
 	{
 		return Object.values((this.type === "input" ? this.node.recipe?.inputs : this.node.recipe?.outputs) ?? []);
 	}
 
-	public get isVisible() 
+	@computed get isVisible() 
 	{
 		return this.index < this.ingredients.length;
 	}
 
-	public get item() 
+	@computed get item() 
 	{
 		if(!this.isVisible)
 			return undefined;
@@ -36,12 +36,12 @@ export class Port
 		return item;
 	}
 
-	public get count() 
+	@computed get count() 
 	{
 		return this.ingredients[this.index]?.count ?? 0;
 	}
 
-	public get tag() 
+	@computed get tag() 
 	{
 		return this.ingredients[this.index]?.tag;
 	}
@@ -51,24 +51,10 @@ export class Port
 		this.node = parentNode;
 		this.type = type;
 		this.index = index;
-		
-		makeObservable(this, {
-			id: false,
-			node: observable,
-			type: observable,
-			index: observable,
-			isVisible: computed,
-			ingredients: computed,
-			item: computed,
-			count: computed,
-			tag: computed,
-			itemsPerMinute: computed,
-		});
 	}
 
 	/** The number of items per minute this port provides */
-	// @computed 
-	get itemsPerMinute() 
+	@computed get itemsPerMinute() 
 	{
 		if (!this.node.recipe)
 			return 0;

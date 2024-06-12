@@ -13,7 +13,7 @@ export interface DraggableProps {
 
 export const Draggable = observer((props: PropsWithChildren<DraggableProps>) => 
 {
-	const { dragKey, children, position: [left, top] } = props;
+	const { dragKey, children, position } = props;
 
 	const [_, dragSource] = useDrag<DragNodeData>(() => ({
 		type: "node",
@@ -22,7 +22,7 @@ export const Draggable = observer((props: PropsWithChildren<DraggableProps>) =>
 
 	const styles = useStyles();
 
-	return <div ref={dragSource} className={styles.drag} style={{ left, top }}>
+	return <div ref={dragSource} className={styles.drag} style={{ left: position.x, top: position.y }}>
 		{children}
 	</div>;
 });

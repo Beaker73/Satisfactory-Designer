@@ -31,8 +31,10 @@ export const Canvas = observer(() =>
 				if(offset) 
 				{
 					const node = project?.nodes.find(n => n.id === dragProps.dragKey);
-					if(node)
-						node.moveTo([offset.x, offset.y]); 
+					if(node) 
+					{
+						node.moveTo({ x: node.position.x + offset.x, y: node.position.y + offset.y }); 
+					}
 				} 
 			}
 		},
@@ -52,14 +54,14 @@ export const Canvas = observer(() =>
 				const target = monitor.getClientOffset();
 				if (source && target && rect) 
 				{
-					let s: Position = [
-						Math.round((source.x - rect.left) / 16) * 16,
-						Math.round((source.y - rect.top) / 16) * 16,
-					];
-					let t: Position = [
-						target.x - rect.left,
-						target.y - rect.top,
-					];
+					let s: Position = {
+						x: Math.round((source.x - rect.left) / 16) * 16,
+						y: Math.round((source.y - rect.top) / 16) * 16,
+					};
+					let t: Position = {
+						x: target.x - rect.left,
+						y: target.y - rect.top,
+					};
 
 					if (item.side === "left")
 						[s, t] = [t, s];
@@ -89,12 +91,13 @@ export const Canvas = observer(() =>
 			</Draggable>)}
 			{project && project.links.map(link => 
 			{
-				console.debug("link", link);
-				let source = link.source.node.position;
-				let target = link.target.node.position;
+				let source = link.source.parentNode.position;
+				let target = link.target.parentNode.position;
+				"";
+				source = { x: source.x + 256, y: source.y + 32 };
+				target = { x: target.x, y: target.y + 32 };
 
-				source = [source[0] + 256, source[1] + 32];
-				target = [target[0], target[1] + 32];
+				console.debug("link", link, source, target);
 
 				return <Connector key={link.id} source={source} target={target} value={link.itemsPerMinute} />;
 			})}
