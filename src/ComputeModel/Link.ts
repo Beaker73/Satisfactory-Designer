@@ -25,6 +25,12 @@ export class Link
 	@observable accessor building: Building;
 	@observable accessor variant: BuildingVariant | undefined = undefined;
 
+	/** The list of available building variants */
+	@computed get allowedVariants(): BuildingVariant[] 
+	{
+		return this.building.variants ? Object.values(this.building.variants) : [];
+	}
+
 	constructor(id: LinkId, source: OutputPort, target: InputPort, initialBuilding: Building )
 	{
 		if(initialBuilding.category !== knownBuildingCategories.transport)
@@ -35,24 +41,39 @@ export class Link
 		this.target = target;
 		this.building = initialBuilding;
 		this.variant = fastestVariant(initialBuilding);
+
+		target.linkWith(this);
 	}
 
-	@computed get maxPerMinute() 
+	/** The maximum that can every be transported (i.e. max of this belt or pipeline) */
+	@computed get maxTransportedPerMinute()
 	{
-		return this.building.maxPerMinute;
+		return this.variant?.maxPerMinute ?? this.building?.maxPerMinute ?? 0;
 	}
 
-	/** The items per minutes flowing over the link */
-	@computed get itemsPerMinute() 
+	/** The maximum that can be provided based on the provided amount from the source building */
+	@computed get maxProvidedPerMinute() 
 	{
-		return 0;
+		return Math.min(
+			this.variant?.maxPerMinute ?? this.building.maxPerMinute!,
+			this.source.outputedPerMinute,
+		) ?? 0;
+	}
+
+	/** The items per minutes flowing over the link, based on max provided vs. max taken */
+	@computed get transportedPerMinute() 
+	{
+		return Math.min(
+			this.maxProvidedPerMinute,
+			this.target.takenPerMinute,
+		);
 	}
 
 	@action switchVariant(newVariant: BuildingVariant): void 
 	{
 		if(newVariant.category !== knownBuildingCategories.transport)
 			throw new Error("Only transport buildings can be used");
-		if(!this.building.variants || !(newVariant.key in this.building.variants))
+		if(this.allowedVariants.every(v => v.key !== newVariant.key))
 			throw new Error("This variant does not belong to this type of building");
 
 		this.variant = newVariant;
@@ -68,6 +89,7 @@ export class Link
 	{
 		const database = defaultDatabase();
 		const belt = database.buildings.getByKey("belt" as BuildingKey)!;
+		
 		return new Link(newGuid(), source, target, belt);
 	}
 }

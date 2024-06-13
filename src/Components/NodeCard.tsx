@@ -6,7 +6,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useDatabase } from "@/Hooks/DatabaseContext";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Building, BuildingVariant, BuildingVariantKey, BuildingVariants } from "@/Model/Building";
+import type { Building, BuildingVariant, BuildingVariantKey } from "@/Model/Building";
 import type { Recipe, RecipeKey } from "@/Model/Recipe";
 
 import { InputPort } from "@/ComputeModel/InputPort";
@@ -15,7 +15,6 @@ import type { Node } from "@/ComputeModel/Node";
 import { OutputPort } from "@/ComputeModel/OutputPort";
 import { useProject } from "@/ComputeModel/ProjectContext";
 import { hasValueNotFalse } from "@/Helpers";
-import { objectValues } from "@/Helpers/Object";
 import type { DragData, DragPortData } from "@/Model/DragData";
 import { observer } from "mobx-react-lite";
 import type { DropTargetMonitor } from "react-dnd";
@@ -112,9 +111,9 @@ const useStyles = makeStyles({
 function useNodeCommands(node?: Node, building?: Building, _variant?: BuildingVariant, _recipe?: Recipe) 
 {
 	const database = useDatabase();
-	const variants = objectValues<BuildingVariants | undefined, BuildingVariantKey, BuildingVariant>(node?.building?.variants);
+	const variants = node?.allowedVariants ?? [];
 	const hasVariants = (variants?.length ?? 0) > 0;
-	const recipes = database.recipes.getByKeys(building?.allowedRecipes);
+	const recipes = node?.allowedRecipes ?? [];
 	const hasRecipes = (recipes?.length ?? 0) > 0;
 
 	return <Fragment>
@@ -310,7 +309,9 @@ export const PortLink = observer((props: PortLinkProps) =>
 
 	const tooltip = [
 		st(item?.nameKey).replace(" ", "\u00A0"),
-		// port instanceof OutputPort ? `${port.itemsPerMinute}\u00A0p/m` : undefined,
+		port instanceof OutputPort ? `${port.outputedPerMinute}\u00A0p/m` : undefined,
+		port instanceof InputPort && port.linkedFrom ? `in\u00A0${port.takenPerMinute}\u00A0p/m` : undefined,
+		port instanceof InputPort ? `max\u00A0${port.maxTakenPerMinute}\u00A0p/m` : undefined,
 		port.tag ? st(`item.tag.${port.tag}`) : undefined,
 	]
 		.filter(hasValueNotFalse)

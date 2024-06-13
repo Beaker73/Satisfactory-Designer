@@ -99,7 +99,7 @@ export const Canvas = observer(() =>
 
 				console.debug("link", link, source, target);
 
-				return <Connector key={link.id} source={source} target={target} value={link.itemsPerMinute} />;
+				return <Connector key={link.id} source={source} target={target} value={link.transportedPerMinute} />;
 			})}
 
 			{/* <Connector source={[18*16, 4*16]} target={[22*16, 8*16]} value={60} tooltip="Copper 60 p/m" />

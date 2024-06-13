@@ -21,6 +21,19 @@ export class OutputPort
 	/** If the port is currently visible */
 	@computed get isVisible(): boolean { return !!this.item; }
 
+	/** The number of items/m3 outputted per minute */
+	@computed get outputedPerMinute() 
+	{
+		if(!this.parentNode)
+			return 0;
+
+		const i = this.parentNode!.createdPerMinute.find(pm => pm.item === this.item);
+		if(!i)
+			return 0;
+
+		return i.perMinute;
+	}
+
 	/**
 	 * Creates a new output port
 	 * @param parentNode The parent node this output port is linked to
@@ -51,10 +64,14 @@ export class OutputPort
 	 */
 	@action linkTo(node: Node): Link | undefined
 	{
+		console.log(this.item);
+		console.log(node.inputPorts.map(ip => ip.item));
+
 		// find port of same item on node
 		const port = node.inputPorts.find(p => p.item === this.item);
 		if(!port)
-			return undefined;
+			throw new Error("banana");
+			//return undefined;
 
 		return Link.createBetween(this, port);
 	}

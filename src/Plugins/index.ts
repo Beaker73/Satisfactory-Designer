@@ -358,6 +358,7 @@ async function loadPluginsCore(): Promise<Database>
 					wikiUrl: building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
 					allowedRecipes: building.allowedRecipes as RecipeKey[],
 					defaultRecipe: (building.defaultRecipe ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
+					maxPerMinute: building.maxPerMinute,
 				};
 
 				if(building.variants) 
@@ -375,6 +376,7 @@ async function loadPluginsCore(): Promise<Database>
 							wikiUrl: variant.wikiPage ? `https://satisfactory.wiki.gg/wiki/${variant.wikiPage}` : building.wikiPage ? `https://satisfactory.wiki.gg/wiki/${building.wikiPage}` : undefined,
 							allowedRecipes: (variant.allowedRecipes ?? building.allowedRecipes) as RecipeKey[],
 							defaultRecipe: (variant.defaultRecipe ?? building.defaultRecipe ?? variant.allowedRecipes?.[0] ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
+							maxPerMinute: variant.maxPerMinute ?? building.maxPerMinute,
 						};
 					});
 
