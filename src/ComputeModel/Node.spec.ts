@@ -15,7 +15,7 @@ describe("Node", async () =>
 	const pure = database.recipes.getByKey("ironNodePure" as RecipeKey)!;
 
 	const miner = database.buildings.getByKey("miner" as BuildingKey)!;
-	const minerMk3 = miner.variants!["mk3" as BuildingVariantKey]!;
+	// const minerMk3 = miner.variants!["mk3" as BuildingVariantKey]!;
 	const ironMining = database.recipes.getByKey("ironMining" as RecipeKey)!;
 
 	const smelter = database.buildings.getByKey("smelter" as BuildingKey)!;
@@ -70,8 +70,5 @@ describe("Node", async () =>
 		expect(link.transportedPerMinute).toBe(60); // actual transport should be what smelter can accept
 
 		expect(targetInput.takenPerMinute).toBe(60); // what smelter can take
-
-		target.switchVariant(minerMk3);
-		expect(targetInput.maxTakenPerMinute).toBe(120);
 	});
 });

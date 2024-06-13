@@ -6,7 +6,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useDatabase } from "@/Hooks/DatabaseContext";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { Building, BuildingVariant, BuildingVariantKey } from "@/Model/Building";
+import type { BuildingVariant, BuildingVariantKey } from "@/Model/Building";
 import type { Recipe, RecipeKey } from "@/Model/Recipe";
 
 import { InputPort } from "@/ComputeModel/InputPort";
@@ -37,7 +37,7 @@ export const NodeCard = observer((props: NodeCardProps) =>
 	const variant = node.variant;
 	const recipe = node.recipe;
 
-	const commands = useNodeCommands(node, building, variant, recipe);
+	const commands = useNodeCommands(node);
 
 	if (!node || !building)
 		return <Fragment />;
@@ -108,9 +108,8 @@ const useStyles = makeStyles({
 	},
 });
 
-function useNodeCommands(node?: Node, building?: Building, _variant?: BuildingVariant, _recipe?: Recipe) 
+function useNodeCommands(node?: Node) 
 {
-	const database = useDatabase();
 	const variants = node?.allowedVariants ?? [];
 	const hasVariants = (variants?.length ?? 0) > 0;
 	const recipes = node?.allowedRecipes ?? [];
