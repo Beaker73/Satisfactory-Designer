@@ -6,11 +6,10 @@ import { Fragment } from "react/jsx-runtime";
 import { useDatabase } from "@/Hooks/DatabaseContext";
 import { useDialog } from "@/Hooks/Dialogs";
 import { useDesignerText, useSatisfactoryText } from "@/Hooks/Translations";
-import type { BuildingVariant, BuildingVariantKey } from "@/Model/Building";
+import { knownBuildingCategories, type BuildingVariant, type BuildingVariantKey } from "@/Model/Building";
 import type { Recipe, RecipeKey } from "@/Model/Recipe";
 
 import { InputPort } from "@/ComputeModel/InputPort";
-import { Link } from "@/ComputeModel/Link";
 import type { Node } from "@/ComputeModel/Node";
 import { OutputPort } from "@/ComputeModel/OutputPort";
 import { useProject } from "@/ComputeModel/ProjectContext";
@@ -240,7 +239,7 @@ export const Ports = observer((props: PortsProps) =>
 export interface PortLinkProps {
 	node: Node,
 	port: InputPort | OutputPort,
-	recipe: Recipe,
+	recipe?: Recipe,
 	side: "left" | "right"
 }
 
@@ -264,13 +263,16 @@ export const PortLink = observer((props: PortLinkProps) =>
 			return false;
 
 		// only matching ingriedents can be connected
-		if(source.port.item !== port.item) 
-			return false;
-		if(source.port.tag !== port.tag) 
-			return false;
+		if(port.parentNode.building.category !== knownBuildingCategories.logistics)
+		{
+			if(source.port.item !== port.item) 
+				return false;
+			if(source.port.tag !== port.tag) 
+				return false;
+		}
 
 		return true;
-	}, [port.item, port.tag, side]);
+	}, [port.item, port.parentNode.building.category, port.tag, side]);
 	const drop = useCallback((item: DragData, monitor: DropTargetMonitor) => 
 	{
 		if(project && item.type === "port" && monitor.canDrop()) 
@@ -279,10 +281,7 @@ export const PortLink = observer((props: PortLinkProps) =>
 			const target = item.port instanceof InputPort ? item.port : port instanceof InputPort ? port : undefined;
 
 			if(source && target) 
-			{
-				const link = Link.createBetween(source, target);
-				project.addLink(link);
-			}
+				source.linkTo(target);
 		}
 	}, [port, project]);
 	const [{ isOver, validTarget }, dropRef] = useDrop<DragData, unknown, {isOver: boolean, validTarget: boolean}>(() => ({
@@ -317,18 +316,24 @@ export const PortLink = observer((props: PortLinkProps) =>
 		.join("\n");
 
 	return <Tooltip content={tooltip} withArrow appearance="inverted" relationship="description" positioning={side === "left" ? "before" : "after"}>
-		<div ref={refs} className={mergeClasses(styles.port, isOver && !validTarget ? styles.noDrop : undefined )}>
+		<div ref={refs} className={mergeClasses(styles.port, isOver && !validTarget ? styles.noDrop : undefined, side === "left" ? styles.inputPort : styles.outputPort )}>
 		</div>
 	</Tooltip>;
 });
 
 const usePortStyles = makeStyles({
 	port: {
-		width: "8px",
-		height: "8px",
-		border: `solid 1px ${tokens.colorNeutralStrokeAccessible}`,
-		borderRadius: "8px",
-		backgroundColor: tokens.colorNeutralBackground1,
+		width: "12px",
+		height: "12px",
+		borderRadius: "12px",
+	},
+	inputPort: {
+		opacity: 0.5,
+		backgroundColor: tokens.colorPaletteDarkOrangeForeground1,
+	},
+	outputPort: {
+		backgroundColor: tokens.colorPaletteTealForeground2,
+		opacity: 0.5,
 	},
 	noDrop: {
 		...shorthands.borderColor(tokens.colorPaletteRedBorder1),

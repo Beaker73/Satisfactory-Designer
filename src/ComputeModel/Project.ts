@@ -27,6 +27,7 @@ export class Project
 	@action addNode(node: Node) 
 	{
 		this.nodes.push(node);
+		node.project = this;
 	}
 
 	/**
@@ -60,6 +61,7 @@ export class Project
 	@action addLink(link: Link) 
 	{
 		this.links.push(link);
+		link.project = this;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

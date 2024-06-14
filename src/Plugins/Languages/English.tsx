@@ -47,6 +47,8 @@ export default {
 							extraction_other: "Extractors",
 							factory_one: "Factory",
 							factory_other: "Factories",
+							logistics_one: "Logistics",
+							logistics_other: "Logistics",
 						},
 						tag: {
 							unmined: "Unmined",

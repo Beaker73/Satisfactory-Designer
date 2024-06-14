@@ -4,11 +4,13 @@ import type { DropTargetMonitor } from "react-dnd";
 import { useDrop } from "react-dnd";
 
 import { useProject } from "@/ComputeModel/ProjectContext";
+import { knownBuildingCategories } from "@/Model/Building";
 import type { DragData } from "@/Model/DragData";
 import type { Position } from "@/Model/Position";
 import { observer } from "mobx-react-lite";
 import { Connector } from "./Connector";
 import { Draggable } from "./Draggable";
+import { LogisticNode } from "./LogisticNode";
 import { NodeCard } from "./NodeCard";
 
 export const Canvas = observer(() =>
@@ -86,9 +88,15 @@ export const Canvas = observer(() =>
 
 	return <div className={styles.root} ref={drop}>
 		<div className={styles.canvas} ref={canvasElement}>
-			{project && project.nodes.map(node => <Draggable key={node.id} dragKey={node.id} position={node.position}>
-				<NodeCard key={node.id} node={node} />
-			</Draggable>)}
+			{project && project.nodes.map(node => 
+			{
+				const isLogistics = node.building.category === knownBuildingCategories.logistics;
+
+				return <Draggable key={node.id} dragKey={node.id} position={node.position}>
+					{isLogistics && <LogisticNode node={node} />}
+					{!isLogistics && <NodeCard node={node} />}
+				</Draggable>;
+			})}
 			{project && project.links.map(link => 
 			{
 				let source = link.source.parentNode.position;

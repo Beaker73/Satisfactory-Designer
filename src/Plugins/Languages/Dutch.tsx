@@ -38,6 +38,9 @@ export default {
 					miner: {
 						name: "Mijnmachine",
 					},
+					splitter: {
+						name: "Splitser",
+					},
 				},
 
 				app: {
@@ -75,6 +78,8 @@ export default {
 							extraction_other: "Delvers",
 							factory_one: "Fabriek",
 							factory_other: "Fabrieken",
+							logistics_one: "Logistiek",
+							logistics_other: "Logistiek",
 						},
 						tag: {
 							unmined: "Ongedelft",

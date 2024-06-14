@@ -8,12 +8,16 @@ import type { Building, BuildingKey, BuildingVariant } from "@/Model/Building";
 import { knownBuildingCategories } from "@/Model/Building";
 import type { InputPort } from "./InputPort";
 import type { OutputPort } from "./OutputPort";
+import type { Project } from "./Project";
 
 export type LinkId = Guid<"Link">;
 
 export class Link 
 {
 	readonly id: LinkId = newGuid();
+
+	/** The project the link belongs to */
+	@observable accessor project: Project | undefined;
 
 	/** The source port the items come from */
 	@observable accessor source: OutputPort;
@@ -43,6 +47,7 @@ export class Link
 		this.variant = fastestVariant(initialBuilding);
 
 		target.linkWith(this);
+		source.linkWith(this);
 	}
 
 	/** The maximum that can every be transported (i.e. max of this belt or pipeline) */
@@ -79,6 +84,12 @@ export class Link
 		this.variant = newVariant;
 	}
 
+	@action destroy(): void 
+	{
+		this.target.unlink();
+		this.project?.removeLink(this);
+	}
+
 	/**
 	 * Creates a new link between the provided source and destination
 	 * @param source The source output port
@@ -90,7 +101,10 @@ export class Link
 		const database = defaultDatabase();
 		const belt = database.buildings.getByKey("belt" as BuildingKey)!;
 		
-		return new Link(newGuid(), source, target, belt);
+		const link = new Link(newGuid(), source, target, belt);
+		source.parentNode.project?.addLink(link);
+
+		return link;
 	}
 }
 

@@ -86,6 +86,11 @@ export interface PluginBuilding {
 	defaultRecipe?: string,
 	variants?: Record<string, Partial<Omit<PluginBuilding, "variants" | "category">>>,
 	maxPerMinute?: number,
+
+	/** if category logistics, number of input ports */
+	inputs?: number,
+	/** if category logistics, number of output ports */
+	outputs?: number,
 }
 
 
@@ -359,6 +364,8 @@ async function loadPluginsCore(): Promise<Database>
 					allowedRecipes: building.allowedRecipes as RecipeKey[],
 					defaultRecipe: (building.defaultRecipe ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
 					maxPerMinute: building.maxPerMinute,
+					inputs: building.inputs,
+					outputs: building.outputs,
 				};
 
 				if(building.variants) 
@@ -377,6 +384,8 @@ async function loadPluginsCore(): Promise<Database>
 							allowedRecipes: (variant.allowedRecipes ?? building.allowedRecipes) as RecipeKey[],
 							defaultRecipe: (variant.defaultRecipe ?? building.defaultRecipe ?? variant.allowedRecipes?.[0] ?? building.allowedRecipes?.[0] ?? undefined) as RecipeKey,
 							maxPerMinute: variant.maxPerMinute ?? building.maxPerMinute,
+							inputs: variant.inputs ?? building.inputs,
+							outputs: variant.outputs ?? building.outputs,
 						};
 					});
 

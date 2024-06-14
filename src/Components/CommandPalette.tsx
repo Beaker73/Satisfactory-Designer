@@ -21,6 +21,7 @@ export const CommandPalette = observer(() =>
 			<BuildingAccordion category={knownBuildingCategories.resource} />
 			<BuildingAccordion category={knownBuildingCategories.extraction} />
 			<BuildingAccordion category={knownBuildingCategories.factory} />
+			<BuildingAccordion category={knownBuildingCategories.logistics} />
 		</Accordion>
 	</Stack>;
 });

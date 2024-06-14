@@ -9,6 +9,7 @@ import type { Recipe } from "@/Model/Recipe";
 import { action, computed, observable, reaction } from "mobx";
 import { InputPort } from "./InputPort";
 import { OutputPort } from "./OutputPort";
+import type { Project } from "./Project";
 
 export type NodeId = Guid<"Node">;
 export type IngredientsPerMinute = { item: ItemKey, perMinute: number, tag?: string };
@@ -16,6 +17,9 @@ export type IngredientsPerMinute = { item: ItemKey, perMinute: number, tag?: str
 export class Node 
 {
 	id: NodeId = newGuid();
+
+	/** The project the node belongs to */
+	@observable accessor project: Project | undefined;
 
 	/** The selected building */
 	@observable accessor building: Building;
@@ -47,8 +51,10 @@ export class Node
 	protected constructor(id: NodeId, building: Building, recipe?: Recipe) 
 	{
 		this.id = id;
-		this.inputPorts = [0, 1, 2, 3].map(_ix => new InputPort(newGuid(), this));
-		this.outputPorts = [0, 1, 2, 3].map(_ix => new OutputPort(newGuid(), this));
+
+		this.inputPorts = [...Array(building?.inputs ?? 4)].map(() => new InputPort(newGuid(), this));
+		this.outputPorts = [...Array(building?.outputs ?? 4)].map(() => new OutputPort(newGuid(), this));
+		this.recipe = recipe;
 
 		const database = defaultDatabase();
 
@@ -70,16 +76,29 @@ export class Node
 					// try to set default recipe if variant was switched
 					if (!this.recipe) 
 					{
-						const defaultRecipeKey = building.defaultRecipe ?? building.allowedRecipes?.[0];
-						const defaultRecipe = defaultRecipeKey ? database.recipes.getByKey(defaultRecipeKey) : undefined;
-						if (defaultRecipe) 
+						// if some ports are connected, try auto set based on inputs
+						if(this.inputPorts.some(ip => ip.isConnected)) 
 						{
-							this.recipe = defaultRecipe;
+							const firstMatching = this.allowedRecipes.find(r => this
+								.inputPorts
+								.filter(ip => ip.isConnected) // for all connected ports
+								.every(ip => Object.values(r.inputs!).some(i => i.item === ip.item)), // input port ingredient is found in recipe
+							);
+							
+							if(firstMatching)
+								this.recipe = firstMatching;
 						}
-					}
-					else 
-					{
-						this.recipe = recipe;
+
+						// if no recipe and all ports unconnect, start with default recipe
+						if(!this.recipe && this.inputPorts.every(ip => !ip.isConnected)) 
+						{
+							const defaultRecipeKey = building.defaultRecipe ?? building.allowedRecipes?.[0];
+							const defaultRecipe = defaultRecipeKey ? database.recipes.getByKey(defaultRecipeKey) : undefined;
+							if (defaultRecipe) 
+							{
+								this.recipe = defaultRecipe;
+							}
+						}
 					}
 				}
 			},

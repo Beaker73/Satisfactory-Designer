@@ -9,7 +9,7 @@ export type BuildingKey = Key<"Building">;
 export type BuildingCategoryKey = Key<"BuildingCategory">;
 
 export const knownBuildingCategories = objectFromEntries(
-	(["resource", "extraction", "factory", "transport"] as const)
+	(["resource", "extraction", "factory", "transport", "logistics"] as const)
 		.map(cat => [cat, cat as BuildingCategoryKey]),
 );
 
@@ -40,6 +40,8 @@ export interface Building {
 	defaultVariant?: BuildingVariantKey,
 	/** The maximum number of items/m3 per minute for transport buildings */
 	maxPerMinute?: number,
+	inputs?: number,
+	outputs?: number,
 }
 
 /** Key to uniquely identify a building variant */
@@ -66,4 +68,6 @@ export interface BuildingVariant {
 	defaultRecipe?: RecipeKey,
 	/** The maximum number of items/m3 per minute for transport buildings */
 	maxPerMinute?: number,
+	inputs?: number,
+	outputs?: number,
 }

@@ -1,3 +1,4 @@
+import { knownBuildingCategories } from "@/Model/Building";
 import type { Guid } from "@/Model/Identifiers";
 import type { ItemKey } from "@/Model/Item";
 import { action, computed, observable } from "mobx";
@@ -21,7 +22,9 @@ export class InputPort
 	/** The item tag */
 	@observable accessor tag: string | undefined;
 	/** If the port is currently visible */
-	@computed get isVisible(): boolean { return !!this.item; }
+	@computed get isVisible(): boolean { return (this.parentNode.building.category === knownBuildingCategories.logistics) ? true : !!this.item; }
+	/** If the port is connected to a link */
+	@computed get isConnected(): boolean { return this.isVisible && !!this.linkedFrom; }
 
 	/** Creates a new InputPort */
 	constructor(id: InputPortId, parentNode: Node) 
