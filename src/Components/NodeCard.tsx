@@ -316,7 +316,7 @@ export const PortLink = observer((props: PortLinkProps) =>
 		.join("\n");
 
 	return <Tooltip content={tooltip} withArrow appearance="inverted" relationship="description" positioning={side === "left" ? "before" : "after"}>
-		<div ref={refs} className={mergeClasses(styles.port, isOver && !validTarget ? styles.noDrop : undefined, side === "left" ? styles.inputPort : styles.outputPort )}>
+		<div ref={refs} className={mergeClasses(styles.port, isOver && !validTarget ? styles.noDrop : undefined, port.hasIssue ? styles.errorPort : side === "left" ? styles.inputPort : styles.outputPort )}>
 		</div>
 	</Tooltip>;
 });
@@ -330,6 +330,11 @@ const usePortStyles = makeStyles({
 	inputPort: {
 		opacity: 0.5,
 		backgroundColor: tokens.colorPaletteDarkOrangeForeground1,
+	},
+	errorPort: {
+		backgroundColor: tokens.colorPaletteRedForeground1,
+		opacity: 1,
+		boxShadow: `0px 0px 5px 1px ${tokens.colorPaletteRedForeground1}`,
 	},
 	outputPort: {
 		backgroundColor: tokens.colorPaletteTealForeground2,

@@ -25,7 +25,15 @@ export class OutputPort
 
 	/** The link this outputor is linked to */
 	@observable accessor linkedTo: Link | undefined;
-	@computed get isLinked(): boolean { return !!this.linkedTo; }
+	@computed get isConnected(): boolean { return !!this.linkedTo; }
+
+	/** Gets if this port has an issue */
+	@computed get hasIssue(): boolean 
+	{
+		if(!this.isConnected)
+			return false;
+		return this.linkedTo?.source.item !== this.item;
+	}
 
 	/** The number of items/m3 outputted per minute */
 	@computed get outputedPerMinute() 
