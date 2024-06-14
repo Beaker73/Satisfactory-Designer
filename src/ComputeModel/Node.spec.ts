@@ -45,7 +45,7 @@ describe("Node", async () =>
 
 		const target = Node.createForBuilding(miner);
 
-		const link = source.outputPorts[0].linkTo(target);
+		const link = source.outputPorts[0].linkTo(target.inputPorts[0]);
 		expect(link).not.toBeNull();
 	});
 
@@ -59,7 +59,7 @@ describe("Node", async () =>
 		const targetInput = target.inputPorts[0]!;
 		console.log(target.recipe);
 		
-		const link = sourceOutput.linkTo(target)!;
+		const link = sourceOutput.linkTo(targetInput)!;
 		link.switchVariant(beltMk3);
 
 		expect(sourceOutput.outputedPerMinute).toBe(120); // pure outputs 120
